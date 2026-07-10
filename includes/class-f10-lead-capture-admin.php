@@ -65,7 +65,7 @@ final class F10_Lead_Capture_Admin
 
     private function render_notice(): void
     {
-        $notice = isset($_GET['f10_notice']) ? sanitize_key(wp_unslash((string) $_GET['f10_notice'])) : '';
+        $notice = sanitize_key($this->query_text('f10_notice', 50));
 
         if ($notice === 'retried') {
             echo '<div class="notice notice-success is-dismissible"><p>O reenvio foi processado. Consulte os status e respostas abaixo.</p></div>';
@@ -129,6 +129,32 @@ final class F10_Lead_Capture_Admin
         }
 
         return $digits;
+    }
+
+    private function query_text(string $key, int $max_length): string
+    {
+        $raw_value = filter_input(
+            INPUT_GET,
+            $key,
+            FILTER_UNSAFE_RAW,
+            FILTER_REQUIRE_SCALAR
+        );
+
+        if (!is_string($raw_value)) {
+            return '';
+        }
+
+        $value = sanitize_text_field($raw_value);
+
+        return function_exists('mb_substr')
+            ? mb_substr($value, 0, $max_length)
+            : substr($value, 0, $max_length);
+    }
+
+    private function query_int(string $key, int $default = 0): int
+    {
+        $value = filter_input(INPUT_GET, $key, FILTER_VALIDATE_INT);
+        return is_int($value) ? $value : $default;
     }
 
     private function require_capability(): void
