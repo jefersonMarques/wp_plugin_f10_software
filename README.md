@@ -210,3 +210,11 @@ GPL-2.0-or-later.
 ## Correção 1.2.1
 
 Após um envio bem-sucedido, o formulário é substituído pelo componente de pós-conversão. O componente não é mais acrescentado abaixo dos campos. Quando não há download ou link configurado, a mesma área apresenta somente a confirmação de sucesso.
+
+## Correção 1.2.2
+
+Após o envio bem-sucedido, o formulário completo é removido da visualização e substituído pela caixa de pós-conversão. O resultado não é mais renderizado dentro da tag `<form>`, evitando interferência de estilos do tema ou do construtor de páginas.
+
+## Correção 1.2.3
+
+A versão 1.2.3 alinha o text domain ao slug `f10-captura-de-leads`, reorganiza a escrita do CSV para atender ao Plugin Check sem aplicar escape HTML aos dados exportados e restringe a exceção de alteração de esquema exclusivamente à remoção opcional da tabela durante a desinstalação.
