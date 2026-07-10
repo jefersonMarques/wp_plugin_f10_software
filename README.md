@@ -1,56 +1,124 @@
-# F10 Lead Capture — plugin WordPress para captura de leads
+# F10 Lead Capture — formulários WordPress integrados ao F10 Software
 
-O **F10 Lead Capture** cria formulários de captação de leads no WordPress, salva os contatos no banco de dados do site e pode enviá-los diretamente para o **F10 Software**. A notificação de novos leads por e-mail através do Brevo é opcional.
-
-A solução foi desenvolvida para sites, blogs e landing pages de escolas, cursos livres, escolas de idiomas, cursos técnicos, escolas profissionalizantes e redes educacionais que precisam integrar o marketing digital ao atendimento comercial.
+O **F10 Lead Capture** cria e gerencia formulários de captação no WordPress, salva os contatos no banco do site e pode enviá-los ao **F10 Software** e ao **Brevo**.
 
 ## Principais recursos
 
-- Campos configuráveis de nome, curso/interesse, telefone, WhatsApp, e-mail, escola/empresa e observações.
-- Ativação individual e rótulos personalizados no frontend.
-- Armazenamento local antes do envio externo.
-- Integração com a API F10 e notificação opcional via Brevo.
-- Registro da página, referência e parâmetros UTM.
-- Histórico, detalhes técnicos, CSV e reenvio de falhas.
-- Quatro modelos visuais prontos com personalização responsiva.
-- Pré-visualização para desktop e mobile.
-- Pós-conversão com download de arquivo ou abertura de link.
-- Rastreamento de downloads e acessos dentro do histórico e do CSV.
+- Vários formulários independentes no mesmo site.
+- Título, descrição, botão e mensagem de sucesso por formulário.
+- Campos, rótulos e obrigatoriedade configurados individualmente.
+- Download de arquivos da Biblioteca de Mídia ou redirecionamento para outra página.
+- Rastreamento de downloads e acessos associado ao lead.
+- Quatro modelos visuais: Clássico F10, Minimalista, Suave e Escuro.
+- Aparência responsiva para desktop e mobile.
+- Abas de aparência para **Formulário** e **Pós-conversão**.
+- Armazenamento local antes das integrações externas.
+- Integração opcional com F10 Software e Brevo.
+- Histórico, filtros, respostas técnicas, reenvio e exportação CSV.
 
-## Aparência do formulário
+## Formulários
 
-Acesse **Leads F10 → Aparência** para escolher entre os modelos **Clássico F10**, **Minimalista**, **Suave** e **Escuro**.
+Acesse **Leads F10 → Formulários**.
 
-A tela permite ajustar com pré-visualização em desktop e mobile:
+A tela permite:
 
-- largura máxima e alinhamento;
-- quantidade de colunas;
-- espaçamento interno e distância entre campos;
-- cores do formulário, campos, textos e botão;
-- bordas, arredondamentos e sombra;
-- tamanhos do título;
-- largura do botão.
+- listar os formulários existentes;
+- criar um formulário;
+- editar, duplicar, ativar ou desativar;
+- excluir formulários que não sejam o principal;
+- copiar o shortcode pronto.
 
-As alterações são aplicadas aos shortcodes existentes, sem precisar editar os posts.
+Cada formulário possui:
 
-## Pós-conversão e materiais
+- nome interno e identificador;
+- título e descrição exibidos ao visitante;
+- texto do botão e mensagem de sucesso;
+- produto/interesse, origem e suborigem;
+- campos ativos, obrigatórios e rótulos;
+- ação pós-conversão própria.
 
-Acesse **Leads F10 → Pós-conversão** para definir o que será oferecido depois do envio:
+Campos disponíveis:
 
-- download de arquivo selecionado na Biblioteca de Mídia;
-- abertura de uma URL;
-- botão manual;
-- abertura automática após um atraso configurável.
+- nome;
+- curso ou interesse;
+- telefone;
+- WhatsApp, enviado como `celular`;
+- e-mail;
+- escola ou empresa, enviada como `colegio`;
+- observações, enviadas dentro de `obs`.
 
-O lead registra o tipo da ação, URL, texto do botão, primeiro acionamento e quantidade total de acionamentos. A lista mostra **Baixou**, **Acessou** ou **Pendente**, e os mesmos dados são exportados no CSV.
+## Pós-conversão por formulário
 
-O rastreamento confirma que o visitante acionou o download ou link. O navegador não informa se o arquivo baixado foi posteriormente aberto.
+Dentro do editor do formulário, escolha uma das opções:
 
-## Configuração da F10
+1. **Somente confirmar:** mostra a mensagem de sucesso.
+2. **Liberar download:** permite enviar ou selecionar um arquivo da Biblioteca de Mídia.
+3. **Abrir uma página:** direciona para uma URL interna ou externa.
 
-Acesse **Leads F10 → Configurações** e informe o token JWT, o ID da unidade, a fonte e a mídia fornecidos ou cadastrados com a equipe F10.
+Downloads e links podem ser apresentados como botão ou abertos automaticamente. O lead registra o tipo, a URL, o primeiro acionamento e o total de acionamentos.
 
-O endpoint é fixo:
+## Aparência
+
+Acesse **Leads F10 → Aparência**.
+
+### Aba Formulário
+
+- modelos prontos;
+- largura e alinhamento;
+- uma ou duas colunas;
+- configurações separadas para desktop e mobile;
+- espaçamentos, bordas e arredondamentos;
+- cores do fundo, campos, textos e botão;
+- tipografia e sombra.
+
+### Aba Pós-conversão
+
+- fundo, borda e espaçamento;
+- cor do ícone, título e descrição;
+- cores e largura do botão;
+- arredondamento, tipografia e sombra.
+
+Os textos e destinos continuam pertencendo a cada formulário; a aba controla somente o visual.
+
+## Shortcode
+
+O formulário principal continua funcionando sem alteração:
+
+```text
+[f10_lead_form]
+```
+
+Um formulário específico utiliza o identificador mostrado na lista:
+
+```text
+[f10_lead_form id="ebook-gestao-escolar"]
+```
+
+Atributos antigos continuam disponíveis como sobrescritas opcionais:
+
+| Atributo | Finalidade |
+|---|---|
+| `id` | Seleciona o formulário salvo. |
+| `title` | Sobrescreve o título. |
+| `description` | Sobrescreve a descrição. |
+| `button` | Sobrescreve o texto do botão. |
+| `product` | Sobrescreve o produto/interesse. |
+| `form_id` | Identificador gravado no lead. |
+| `source` | Sobrescreve a origem. |
+| `sub_source` | Sobrescreve a suborigem. |
+| `show_institution` | `no` oculta o campo de escola/empresa. |
+| `redirect_url` | Sobrescreve a ação pós-conversão com redirecionamento automático. |
+
+## Configuração da integração F10
+
+Acesse **Leads F10 → Configurações** e informe:
+
+- token JWT;
+- ID da unidade;
+- fonte cadastrada no F10;
+- mídia cadastrada no F10.
+
+Endpoint fixo:
 
 ```text
 https://nuvem.f10.com.br/fx-api/digitacao
@@ -81,50 +149,60 @@ https://ajuda.f10.com.br/kb/pt-br/article/119833/fontes-eventos-e-cadastro-de-vi
 }
 ```
 
-Quando apenas telefone ou WhatsApp estiver preenchido, o número disponível é usado como fallback para `telefone` e `celular`.
+Uma resposta é considerada bem-sucedida somente quando `incluidos.digitacao` é maior que zero e não existem erros em `nao_incluidas`.
 
-## Instalação
+## Migração para a versão 1.2.0
 
-1. Instale o ZIP no WordPress.
-2. Ative **F10 Lead Capture**.
-3. Acesse **Leads F10 → Configurações**.
-4. Configure a integração e os campos.
-5. Ajuste **Aparência** e **Pós-conversão** quando necessário.
-6. Insira `[f10_lead_form]` em um bloco Shortcode.
+A atualização cria o **Formulário principal** usando automaticamente:
 
-## Shortcode
+- os textos padrão já utilizados;
+- os campos e rótulos salvos anteriormente;
+- a antiga configuração global de pós-conversão.
 
-```text
-[f10_lead_form]
-```
+O shortcode `[f10_lead_form]` continua funcionando e nenhum lead existente é removido.
 
-Exemplo:
+## Segurança e privacidade
 
-```text
-[f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Artigo"]
-```
-
-## Persistência, segurança e privacidade
-
-Cada contato é gravado em `{prefix}_f10_leads` antes das chamadas externas. Respostas HTTP 200 da F10 são validadas pelo conteúdo: somente `incluidos.digitacao` maior que zero, sem `nao_incluidas`, representa sucesso.
-
-- Nonce, honeypot e rate limit no formulário.
-- IP armazenado apenas como hash.
-- Exportação CSV protegida contra fórmulas.
-- Rastreamento de pós-conversão armazenado localmente, sem telemetria externa.
-- Exclusão de dados na desinstalação desativada por padrão.
+- configurações restritas a administradores;
+- nonce, honeypot e rate limit;
+- IP armazenado apenas como hash;
+- tokens exibidos apenas de forma mascarada;
+- CSV protegido contra fórmulas;
+- exclusão de dados na desinstalação desativada por padrão.
 
 ## Requisitos
 
-- WordPress 6.2 ou superior.
-- PHP 7.4 ou superior.
-- Credenciais F10 para envio à API.
-- Conta Brevo somente quando a notificação estiver ativa.
+- WordPress 6.2 ou superior;
+- PHP 7.4 ou superior;
+- credenciais F10 válidas para envio ao sistema;
+- conta Brevo apenas quando a notificação estiver ativa.
+
+## Estrutura
+
+```text
+assets/
+  css/
+    admin.css
+    form.css
+  js/
+    admin-appearance.js
+    admin-forms.js
+    form.js
+includes/
+  admin/
+    trait-f10-lead-capture-admin-appearance.php
+    trait-f10-lead-capture-admin-forms.php
+    trait-f10-lead-capture-admin-leads.php
+    trait-f10-lead-capture-admin-settings.php
+  class-f10-lead-capture-activator.php
+  class-f10-lead-capture-admin.php
+  class-f10-lead-capture-config.php
+  class-f10-lead-capture-form.php
+  class-f10-lead-capture-integrations.php
+  class-f10-lead-capture-plugin.php
+  class-f10-lead-capture-repository.php
+```
 
 ## Licença
 
 GPL-2.0-or-later.
-
-## Versão 1.1.0
-
-A versão 1.1.0 adiciona personalização visual responsiva, modelos prontos e ações pós-conversão rastreáveis. Downloads e acessos a links aparecem na lista de leads, nos detalhes e no CSV.
