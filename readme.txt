@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Capture WordPress leads, store them locally, and optionally send them to F10 Sof
 
 F10 Lead Capture turns WordPress pages, posts, and landing pages into reliable lead-generation points.
 
-The plugin provides a responsive shortcode form with configurable fields for name, course or interest, phone, WhatsApp, email, school or company, and notes. Administrators can enable each field independently and change the label displayed on the frontend.
+The plugin provides a form manager for creating multiple responsive shortcode forms. Each form can have its own heading, description, button text, fields, labels, required rules, lead context, and post-conversion action.
 
 Every lead is stored in a dedicated WordPress database table before any external request is made. This local-first workflow reduces the risk of losing contacts when an external API or email provider is temporarily unavailable.
 
@@ -31,9 +31,10 @@ F10 Software provides solutions for school management, educational CRM, student 
 
 = Main features =
 
-* Responsive lead form available through a shortcode.
-* Configurable name, course, phone, WhatsApp, email, school or company, and notes fields.
-* Each field can be enabled or disabled and can have a custom frontend label.
+* Multiple forms managed from a dedicated Forms screen.
+* Individual title, description, submit button, success message, source, and product settings per form.
+* Configurable name, course, phone, WhatsApp, email, school or company, and notes fields per form.
+* Each field can be enabled, required, optional, or given a custom frontend label.
 * Local database storage before external integrations run.
 * Optional authenticated integration with the F10 Software API.
 * Optional transactional email notification through Brevo.
@@ -46,7 +47,7 @@ F10 Software provides solutions for school management, educational CRM, student 
 * Hashed IP storage for abuse prevention.
 * Four built-in appearance presets with responsive desktop and mobile controls.
 * Custom colors, spacing, widths, borders, shadows, typography, and button styles.
-* Optional post-conversion download or link action.
+* Individual post-conversion download or link action per form.
 * Download and link click tracking stored with each lead and included in CSV exports.
 
 == Installation ==
@@ -56,59 +57,54 @@ F10 Software provides solutions for school management, educational CRM, student 
 3. Open **F10 Leads > Settings** in the WordPress dashboard.
 4. Configure the F10 JWT token, unit ID, source, and media values when the F10 integration is required. The API endpoint is fixed by the plugin.
 5. Enable Brevo notifications only when needed, then provide the API key, recipient address, and an authorized sender address.
-6. Add `[f10_lead_form]` to a WordPress Shortcode block.
+6. Open **F10 Leads > Forms** to create or edit forms.
+7. Copy the generated shortcode into a WordPress Shortcode block.
 
 == Shortcode ==
 
-Basic usage:
+The main migrated form remains available through:
 
 `[f10_lead_form]`
 
-Customized usage:
+Every form created in **F10 Leads > Forms** receives its own shortcode:
 
-`[f10_lead_form title="Request a demonstration" button="Contact me" product="School management software" source="F10 Blog" sub_source="Article"]`
+`[f10_lead_form id="ebook-school-management"]`
 
-Available attributes:
+The `id` selects the saved form. Existing attributes remain supported as optional runtime overrides:
 
 * `title`: form heading.
 * `description`: supporting text displayed below the heading.
 * `button`: submit button label.
 * `product`: product or interest sent with the lead.
-* `form_id`: internal form identifier.
+* `form_id`: reporting identifier stored with the lead.
 * `source`: descriptive lead source.
 * `sub_source`: descriptive lead subsource.
 * `show_institution`: use `yes` or `no` to show or hide the institution field.
-* `redirect_url`: validated URL used after a successful submission.
+* `redirect_url`: validated URL that overrides the saved post-conversion action.
+
+== Forms ==
+
+Open **F10 Leads > Forms** to create, edit, duplicate, activate, deactivate, or delete forms. Each form contains:
+
+* an internal name and stable identifier;
+* frontend title, description, submit button, and success message;
+* product, source, and subsource defaults;
+* individual enabled and required field settings;
+* a post-conversion action: confirmation only, Media Library download, or destination link;
+* manual button or automatic opening behavior.
+
+The original global field settings are migrated into the main form during the update.
 
 == Appearance ==
 
-Open **F10 Leads > Appearance** to choose one of the built-in presets: Classic F10, Minimal, Soft, or Dark.
+Open **F10 Leads > Appearance**. The screen now has two tabs:
 
-The appearance screen includes a live desktop and mobile preview. Administrators can customize:
+* **Form**: presets, responsive columns, width, spacing, colors, borders, typography, shadows, and button style.
+* **Post-conversion**: background, border, spacing, icon, title, description, button colors, radius, width, and shadow.
 
-* maximum form width and alignment;
-* one or two columns on desktop and mobile;
-* desktop and mobile padding;
-* form, field, title, description, and button colors;
-* border thickness and radius;
-* title sizes;
-* button width;
-* shadow intensity.
+The built-in presets are Classic F10, Minimal, Soft, and Dark. Appearance changes apply to all existing saved forms without editing posts or pages.
 
-Appearance changes apply to existing shortcode forms without editing posts or pages.
-
-== Post-conversion actions ==
-
-Open **F10 Leads > Post-conversion** to offer content after a successful form submission. The plugin supports:
-
-* a downloadable file selected from the WordPress Media Library;
-* a link to another page or external service;
-* a manual button or automatic opening after a configurable delay;
-* an optional new-tab behavior for manual clicks.
-
-The lead record stores the action type, destination, first action time, and total action count. The lead list displays whether the visitor triggered the download or link. CSV exports include the same tracking fields.
-
-The tracking records that the visitor triggered the action. Browsers do not report whether a downloaded file was later opened.
+Post-conversion content and destinations are configured inside each form. The lead record stores the action type, destination, first action time, and total action count. The lead list and CSV export show whether the visitor triggered the download or link.
 
 == Local storage and retries ==
 
@@ -149,7 +145,20 @@ A valid F10 Software account and integration credentials are required.
 
 = Brevo Transactional Email API =
 
-When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include name, phone, WhatsApp, email, school or company, product or interest, notes, capture page, referrer, source, subsource, UTM parameters, and creation date.
+When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include:
+
+* name;
+* phone number;
+* WhatsApp number;
+* email address;
+* school or company name;
+* product or interest;
+* visitor notes;
+* capture page URL;
+* referrer URL;
+* source and subsource;
+* UTM parameters;
+* lead creation date.
 
 Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
 
@@ -189,17 +198,28 @@ Yes. The plugin records UTM Source, UTM Medium, UTM Campaign, UTM Term, and UTM 
 
 = Can more than one form be used? =
 
-Yes. The shortcode can be added multiple times with different `form_id`, `product`, `source`, and `sub_source` values.
+Yes. Create multiple entries in **F10 Leads > Forms** and use the generated `id` shortcode for each campaign, page, or downloadable material.
 
 = Can form fields be customized? =
 
-Yes. Administrators can enable or disable the name, course, phone, WhatsApp, email, school or company, and notes fields. Each enabled field can also use a custom frontend label without changing the technical key sent to F10 Software.
+Yes. Every saved form has independent enabled, required, optional, and frontend-label settings for name, course, phone, WhatsApp, email, school or company, and notes.
 
 = Does the plugin automatically send usage telemetry? =
 
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.2.0 =
+
+* Added a Forms submenu with list, create, edit, duplicate, activate, deactivate, and delete workflows.
+* Moved title, description, button text, success message, fields, labels, and required rules into each form.
+* Moved downloads and destination links into each form, with Media Library upload and selection.
+* Replaced the separate Post-conversion menu with Forms.
+* Added Form and Post-conversion tabs to the Appearance screen.
+* Added configurable post-conversion colors, spacing, radius, typography, button style, icon, and shadow.
+* Migrates the previous global field and post-conversion settings into the main form without changing existing shortcodes.
+* Added form names and identifiers to lead details and CSV exports.
 
 = 1.1.0 =
 
