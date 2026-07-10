@@ -3,12 +3,12 @@
  * Plugin Name: F10 Lead Capture
  * Plugin URI: https://github.com/jefersonMarques/wp_plugin_f10_software
  * Description: Create multiple lead forms, track downloads and links, store contacts locally, and integrate WordPress with F10 Software and Brevo.
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author: F10 Software
  * Author URI: https://f10.com.br/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: f10-lead-capture
+ * Text Domain: f10-captura-de-leads
  * Requires at least: 6.2
  * Requires PHP: 7.4
  */
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('F10_LEAD_CAPTURE_VERSION', '1.2.2');
+define('F10_LEAD_CAPTURE_VERSION', '1.2.3');
 define('F10_LEAD_CAPTURE_FILE', __FILE__);
 define('F10_LEAD_CAPTURE_PATH', plugin_dir_path(__FILE__));
 define('F10_LEAD_CAPTURE_URL', plugin_dir_url(__FILE__));
