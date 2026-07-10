@@ -6,11 +6,26 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Activator
 {
+    private const DB_VERSION = '1.1.0';
+    private const DB_VERSION_OPTION = 'f10_lead_capture_db_version';
+
     public static function activate(): void
     {
         self::create_table();
-        self::create_default_settings();
+        self::ensure_settings();
         self::schedule_retry_event();
+        update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
+    }
+
+    public static function maybe_upgrade(): void
+    {
+        if ((string) get_option(self::DB_VERSION_OPTION, '') === self::DB_VERSION) {
+            return;
+        }
+
+        self::create_table();
+        self::ensure_settings();
+        update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
     }
 
     private static function create_table(): void
@@ -23,10 +38,12 @@ final class F10_Lead_Capture_Activator
         $sql = "CREATE TABLE {$table_name} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             name varchar(190) NOT NULL,
+            phone varchar(30) NULL,
             whatsapp varchar(30) NOT NULL,
             email varchar(190) NOT NULL,
             institution_name varchar(190) NULL,
             product varchar(190) NULL,
+            notes text NULL,
             form_id varchar(100) NOT NULL DEFAULT 'default',
             source_label varchar(190) NULL,
             sub_source varchar(190) NULL,
@@ -63,37 +80,23 @@ final class F10_Lead_Capture_Activator
         dbDelta($sql);
     }
 
-    private static function create_default_settings(): void
+    private static function ensure_settings(): void
     {
         $option_name = 'f10_lead_capture_settings';
+        $current = get_option($option_name, null);
+        $settings = wp_parse_args(
+            is_array($current) ? $current : array(),
+            F10_Lead_Capture_Config::default_settings()
+        );
 
-        if (get_option($option_name, null) !== null) {
+        unset($settings['f10_url']);
+
+        if ($current === null) {
+            add_option($option_name, $settings, '', false);
             return;
         }
 
-        add_option(
-            $option_name,
-            array(
-                'f10_enabled' => '1',
-                'f10_url' => '',
-                'f10_token' => '',
-                'f10_unit_id' => '',
-                'f10_source' => 'Site',
-                'f10_media' => 'WordPress',
-                'brevo_enabled' => '0',
-                'brevo_api_key' => '',
-                'brevo_recipient_email' => '',
-                'brevo_sender_email' => sanitize_email((string) get_option('admin_email')),
-                'brevo_sender_name' => 'Leads F10',
-                'require_consent' => '1',
-                'consent_text' => 'Autorizo o contato da equipe comercial sobre as soluções apresentadas.',
-                'success_message' => 'Dados recebidos com sucesso. Nossa equipe entrará em contato.',
-                'max_retry_attempts' => '5',
-                'delete_data_on_uninstall' => '0',
-            ),
-            '',
-            false
-        );
+        update_option($option_name, $settings, false);
     }
 
     private static function schedule_retry_event(): void
