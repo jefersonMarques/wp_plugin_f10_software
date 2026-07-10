@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,7 @@ Yes. The plugin records UTM Source, UTM Medium, UTM Campaign, UTM Term, and UTM 
 
 Yes. Create multiple entries in **F10 Leads > Forms** and use the generated `id` shortcode for each campaign, page, or downloadable material.
 
+
 = Can form fields be customized? =
 
 Yes. Every saved form has independent enabled, required, optional, and frontend-label settings for name, course, phone, WhatsApp, email, school or company, and notes.
@@ -209,6 +210,12 @@ Yes. Every saved form has independent enabled, required, optional, and frontend-
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Replaces the form with the post-conversion component after a successful submission instead of displaying it below the fields.
+* Shows a standalone success confirmation when a form has no download or destination link.
+* Keeps validation and connection errors inside the original form without switching views.
 
 = 1.2.0 =
 
@@ -220,6 +227,7 @@ No. The plugin does not include usage telemetry, advertising trackers, or affili
 * Added configurable post-conversion colors, spacing, radius, typography, button style, icon, and shadow.
 * Migrates the previous global field and post-conversion settings into the main form without changing existing shortcodes.
 * Added form names and identifiers to lead details and CSV exports.
+
 
 = 1.1.0 =
 
