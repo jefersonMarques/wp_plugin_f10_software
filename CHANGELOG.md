@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.7 — 2026-07-10
+
+### Corrigido
+
+- Respostas HTTP 200 da F10 agora são validadas pelo resultado de negócio.
+- Sucesso exige `incluidos.digitacao` maior que zero e ausência de itens em `nao_incluidas`.
+- Falha da integração principal F10 define o status geral do lead como falha, mesmo quando o Brevo envia o e-mail.
+- Registros antigos marcados incorretamente como sucesso são reconciliados automaticamente na atualização.
+
 ## 1.0.6 — 2026-07-10
 
 ### Corrigido
