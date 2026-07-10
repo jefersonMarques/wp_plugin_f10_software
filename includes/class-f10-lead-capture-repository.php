@@ -243,6 +243,31 @@ final class F10_Lead_Capture_Repository
         return is_array($leads) ? $leads : array();
     }
 
+    public static function find_sent_f10_results(int $limit = 1000): array
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reconciliação pontual de respostas F10 já armazenadas após atualização da regra de sucesso.
+        $leads = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT id, status, f10_status, f10_http_status, f10_response, brevo_status, attempts
+                 FROM %i
+                 WHERE f10_status = %s
+                   AND f10_response IS NOT NULL
+                   AND f10_response <> %s
+                 ORDER BY id ASC
+                 LIMIT %d',
+                self::table_name(),
+                'sent',
+                '',
+                max(1, $limit)
+            ),
+            ARRAY_A
+        );
+
+        return is_array($leads) ? $leads : array();
+    }
+
     public static function all_for_export(array $filters, int $limit = 10000): array
     {
         global $wpdb;
