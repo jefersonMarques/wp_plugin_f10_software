@@ -106,11 +106,150 @@ final class F10_Lead_Capture_Config
         return $defaults;
     }
 
+    public static function appearance_presets(): array
+    {
+        return array(
+            'classic_f10' => array(
+                'label' => 'Clássico F10',
+                'description' => 'Visual institucional com azul e laranja.',
+                'settings' => self::appearance_defaults(),
+            ),
+            'minimal' => array(
+                'label' => 'Minimalista',
+                'description' => 'Formulário limpo, discreto e com pouco relevo.',
+                'settings' => array_merge(
+                    self::appearance_defaults(),
+                    array(
+                        'preset' => 'minimal',
+                        'form_background' => '#ffffff',
+                        'form_border_color' => '#e5e7eb',
+                        'form_border_width' => '0',
+                        'form_radius' => '8',
+                        'field_radius' => '8',
+                        'button_radius' => '8',
+                        'button_background' => '#111827',
+                        'button_hover_background' => '#000000',
+                        'title_color' => '#111827',
+                        'shadow' => 'none',
+                    )
+                ),
+            ),
+            'soft' => array(
+                'label' => 'Suave',
+                'description' => 'Fundo claro e botão azul para páginas editoriais.',
+                'settings' => array_merge(
+                    self::appearance_defaults(),
+                    array(
+                        'preset' => 'soft',
+                        'form_background' => '#f8fafc',
+                        'form_border_color' => '#e2e8f0',
+                        'field_background' => '#ffffff',
+                        'field_border_color' => '#cbd5e1',
+                        'button_background' => '#2563eb',
+                        'button_hover_background' => '#1d4ed8',
+                        'title_color' => '#0f172a',
+                        'form_radius' => '20',
+                        'shadow' => 'subtle',
+                    )
+                ),
+            ),
+            'dark' => array(
+                'label' => 'Escuro',
+                'description' => 'Contraste alto para páginas com visual premium.',
+                'settings' => array_merge(
+                    self::appearance_defaults(),
+                    array(
+                        'preset' => 'dark',
+                        'form_background' => '#111827',
+                        'form_border_color' => '#374151',
+                        'form_text_color' => '#f9fafb',
+                        'title_color' => '#ffffff',
+                        'description_color' => '#cbd5e1',
+                        'field_background' => '#1f2937',
+                        'field_border_color' => '#4b5563',
+                        'field_text_color' => '#f9fafb',
+                        'button_background' => '#f97316',
+                        'button_hover_background' => '#ea580c',
+                        'button_text_color' => '#ffffff',
+                        'shadow' => 'strong',
+                    )
+                ),
+            ),
+        );
+    }
+
+    public static function appearance_defaults(): array
+    {
+        return array(
+            'preset' => 'classic_f10',
+            'form_max_width' => '820',
+            'alignment' => 'center',
+            'desktop_columns' => '2',
+            'mobile_columns' => '1',
+            'padding_desktop' => '48',
+            'padding_mobile' => '24',
+            'field_gap' => '18',
+            'form_background' => '#ffffff',
+            'form_border_color' => '#d9dee8',
+            'form_border_width' => '1',
+            'form_radius' => '24',
+            'form_text_color' => '#101828',
+            'title_color' => '#000a57',
+            'description_color' => '#667085',
+            'field_background' => '#ffffff',
+            'field_border_color' => '#d9dee8',
+            'field_text_color' => '#101828',
+            'field_radius' => '12',
+            'button_background' => '#ea6d0b',
+            'button_hover_background' => '#d85f00',
+            'button_text_color' => '#ffffff',
+            'button_radius' => '12',
+            'button_width' => 'auto',
+            'title_size_desktop' => '38',
+            'title_size_mobile' => '30',
+            'description_size' => '16',
+            'shadow' => 'subtle',
+        );
+    }
+
+    public static function conversion_defaults(): array
+    {
+        return array(
+            'enabled' => '0',
+            'type' => 'download',
+            'behavior' => 'button',
+            'title' => 'Seu conteúdo está pronto',
+            'description' => 'Clique no botão abaixo para continuar.',
+            'label' => 'Baixar material',
+            'link_url' => '',
+            'file_id' => '0',
+            'file_url' => '',
+            'open_new_tab' => '1',
+            'delay_ms' => '800',
+        );
+    }
+
     public static function get_settings(): array
     {
         return wp_parse_args(
             (array) get_option('f10_lead_capture_settings', array()),
             self::default_settings()
+        );
+    }
+
+    public static function get_appearance(): array
+    {
+        return wp_parse_args(
+            (array) get_option('f10_lead_capture_appearance', array()),
+            self::appearance_defaults()
+        );
+    }
+
+    public static function get_conversion(): array
+    {
+        return wp_parse_args(
+            (array) get_option('f10_lead_capture_conversion', array()),
+            self::conversion_defaults()
         );
     }
 
@@ -129,5 +268,29 @@ final class F10_Lead_Capture_Config
             : '';
 
         return $configured_label !== '' ? $configured_label : $default_label;
+    }
+
+    public static function conversion_url(array $conversion): string
+    {
+        if (($conversion['type'] ?? '') === 'download') {
+            $file_id = absint($conversion['file_id'] ?? 0);
+
+            if ($file_id > 0) {
+                $attachment_url = wp_get_attachment_url($file_id);
+
+                if (is_string($attachment_url) && $attachment_url !== '') {
+                    return esc_url_raw($attachment_url);
+                }
+            }
+
+            return esc_url_raw((string) ($conversion['file_url'] ?? ''));
+        }
+
+        return esc_url_raw((string) ($conversion['link_url'] ?? ''));
+    }
+
+    public static function conversion_token(int $lead_id): string
+    {
+        return hash_hmac('sha256', 'f10-conversion|' . $lead_id, wp_salt('nonce'));
     }
 }
