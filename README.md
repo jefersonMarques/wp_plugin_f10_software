@@ -1,113 +1,80 @@
-# Plugin WordPress F10 Software para captura de leads
+# Plugin WordPress para captura de leads — F10 Software + Brevo
 
-O **F10 Lead Capture** é um plugin WordPress para criar formulários de captação de leads e enviar os contatos diretamente para o **F10 Software**, mantendo uma cópia segura no banco de dados do WordPress.
+O **F10 Lead Capture** é um plugin WordPress para criar formulários de captação de leads, registrar os contatos no banco de dados do site e encaminhá-los para o **F10 Software**. Opcionalmente, o plugin envia uma notificação de novo lead por e-mail usando a API transacional do Brevo.
 
-A solução foi desenvolvida para sites, blogs e landing pages de escolas, cursos livres, escolas de idiomas, cursos profissionalizantes, franquias educacionais e outras instituições que utilizam o WordPress para gerar oportunidades comerciais.
+Ele foi desenvolvido para sites, blogs e landing pages de escolas, cursos livres, escolas de idiomas, cursos técnicos, escolas profissionalizantes e redes de franquias educacionais que precisam integrar a geração de oportunidades ao processo comercial.
 
-## Para que serve este plugin
+## Para que serve
 
-O plugin conecta formulários WordPress ao fluxo comercial do F10 Software. Cada lead é salvo localmente antes das integrações externas e pode ser enviado para:
+O plugin resolve quatro pontos importantes da captura de leads no WordPress:
 
-- API de leads do F10 Software;
-- e-mail comercial por meio da API transacional do Brevo;
-- painel administrativo do próprio WordPress, com histórico, filtros e exportação CSV.
+1. Exibe um formulário responsivo por shortcode.
+2. Salva o lead localmente antes de chamar serviços externos.
+3. Envia o contato para a API da F10 usando autenticação Bearer JWT.
+4. Pode avisar a equipe comercial por e-mail através do Brevo.
 
-Com isso, a instituição reduz o risco de perder contatos capturados em páginas de campanha, artigos do blog, páginas de produto e landing pages.
+Mesmo quando uma integração externa apresenta instabilidade, o contato permanece armazenado no WordPress e pode ser reenviado posteriormente.
+
+## Sobre a F10 Software
+
+A [F10 Software](https://f10.com.br/) oferece tecnologia para gestão escolar, captação de alunos, atendimento comercial, financeiro, pedagógico e comunicação entre escolas, alunos e responsáveis.
+
+O [F10 CRM Escolar](https://f10.com.br/solucoes/crm-escolar) centraliza leads, conversas, tarefas, notificações, histórico comercial e próximas ações para ajudar escolas a responder mais rápido e aumentar matrículas.
+
+- [Conheça a F10 Software](https://f10.com.br/)
+- [Veja o CRM Escolar da F10](https://f10.com.br/solucoes/crm-escolar)
+- [Solicite uma demonstração](https://f10.com.br/contato)
+- [Conteúdos sobre gestão escolar](https://blog.f10.com.br/)
 
 ## Principais recursos
 
-- Formulário responsivo por shortcode;
-- campos de nome, WhatsApp, e-mail e escola ou empresa;
-- armazenamento do lead no banco do WordPress antes do envio externo;
-- integração autenticada com a API do F10 Software;
-- notificação opcional por e-mail via Brevo;
-- captura automática da URL da página, referência e parâmetros UTM;
-- registro de origem, mídia, campanha, produto e identificador do formulário;
-- histórico administrativo com status de cada integração;
-- exportação de leads em CSV;
-- reenvio manual e novas tentativas automáticas por WP-Cron;
-- proteção por nonce, honeypot, limite de requisições e bloqueio de cliques repetidos;
-- consentimento LGPD configurável;
-- armazenamento do IP apenas como hash para controle de abuso.
-
-## Integração com o F10 Software
-
-O plugin envia o lead usando o contrato de integração do F10, com autenticação Bearer JWT e os dados de unidade, fonte, mídia, produto, contato e contexto da conversão.
-
-O [F10 Software](https://f10.com.br/) é uma plataforma de gestão escolar com recursos para operação pedagógica, financeira, administrativa, comercial e de comunicação. A integração deste plugin é especialmente útil para instituições que desejam conectar o tráfego do site ao processo de atendimento e matrícula.
-
-Conheça também:
-
-- [Sistema de gestão escolar F10 Software](https://f10.com.br/)
-- [CRM escolar com WhatsApp integrado](https://f10.com.br/solucoes/crm-escolar)
-- [Marketing e captação de alunos](https://f10.com.br/solucoes/marketing-captacao-de-alunos)
-- [Conteúdos sobre gestão escolar no Blog F10](https://blog.f10.com.br/)
-- [Central de Ajuda F10](https://ajuda.f10.com.br/)
+- Formulário com nome, WhatsApp, e-mail e escola ou empresa.
+- Shortcode configurável para páginas, posts e landing pages.
+- Armazenamento em tabela própria do WordPress antes do envio externo.
+- Integração com a API da F10 usando o payload atual de leads.
+- Notificação opcional por e-mail transacional via Brevo.
+- Registro automático da página de captura, URL de referência e parâmetros UTM.
+- Painel administrativo com histórico, filtros e detalhes técnicos.
+- Exportação de leads em CSV com proteção contra fórmulas de planilha.
+- Reenvio manual de integrações com falha.
+- Novas tentativas automáticas via WP-Cron.
+- Proteção com nonce, honeypot, rate limit e bloqueio de múltiplos envios.
+- Armazenamento do IP somente como hash para controle de abuso.
+- Consentimento de privacidade configurável.
 
 ## Requisitos
 
-- WordPress 6.0 ou superior;
-- PHP 7.4 ou superior;
-- credenciais válidas da API do F10 Software para envio ao sistema;
-- conta Brevo e remetente autorizado, apenas quando a notificação por e-mail estiver habilitada.
+- WordPress 6.2 ou superior.
+- PHP 7.4 ou superior.
+- Credenciais válidas da integração F10 para envio ao sistema.
+- Conta Brevo com remetente autorizado, somente quando a notificação por e-mail estiver ativada.
+
+O requisito mínimo do WordPress foi definido como 6.2 porque o plugin utiliza o placeholder `%i` do `$wpdb->prepare()` para preparar identificadores de tabelas com segurança.
 
 ## Instalação
 
-### Pelo GitHub
+1. Baixe o repositório em ZIP ou copie os arquivos para `/wp-content/plugins/f10-lead-capture/`.
+2. Ative **F10 Lead Capture** no painel do WordPress.
+3. Acesse **Leads F10 → Configurações**.
+4. Informe a URL da API F10, o token JWT, o ID da unidade, a fonte e a mídia.
+5. Para receber notificações, marque **Enviar e-mail quando gerar um lead?** e configure o Brevo.
+6. Insira o shortcode em um bloco **Shortcode** do WordPress.
 
-1. Clique em **Code > Download ZIP**.
-2. No WordPress, acesse **Plugins > Adicionar plugin > Enviar plugin**.
-3. Selecione o ZIP baixado e ative o plugin.
-4. Acesse **Leads F10 > Configurações**.
+## Uso do shortcode
 
-### Instalação manual
-
-Copie os arquivos para:
-
-```text
-/wp-content/plugins/f10-lead-capture/
-```
-
-Depois, ative o plugin no painel do WordPress.
-
-## Configuração da API F10
-
-Em **Leads F10 > Configurações**, informe:
-
-- URL completa do endpoint de leads;
-- token JWT da API;
-- ID da unidade;
-- fonte padrão;
-- mídia padrão.
-
-O painel informa quando o JWT está inválido ou expirado, facilitando a manutenção da integração.
-
-## Configuração do Brevo
-
-Marque **Enviar e-mail quando gerar um lead?** e informe:
-
-- chave da API do Brevo;
-- e-mail destinatário;
-- e-mail remetente autorizado no Brevo;
-- nome do remetente.
-
-A integração com Brevo é opcional. Mesmo quando o envio do e-mail falha, o lead permanece armazenado no WordPress.
-
-## Como adicionar o formulário
-
-Use um bloco **Shortcode** no editor do WordPress:
+### Formulário padrão
 
 ```text
 [f10_lead_form]
 ```
 
-Exemplo personalizado:
+### Formulário personalizado
 
 ```text
-[f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Artigo sobre gestão escolar"]
+[f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Artigo"]
 ```
 
-Para ocultar o campo de escola ou empresa:
+### Ocultar o campo de escola ou empresa
 
 ```text
 [f10_lead_form show_institution="no"]
@@ -117,45 +84,88 @@ Para ocultar o campo de escola ou empresa:
 
 | Atributo | Finalidade |
 |---|---|
-| `title` | Título exibido no formulário |
-| `description` | Texto de apoio abaixo do título |
-| `button` | Texto do botão de envio |
-| `product` | Produto ou interesse enviado ao F10 |
-| `form_id` | Identificador interno do formulário |
-| `source` | Origem descritiva do lead |
-| `sub_source` | Suborigem da conversão |
-| `show_institution` | Exibe ou oculta escola/empresa com `yes` ou `no` |
-| `redirect_url` | URL permitida para redirecionamento após o envio |
+| `title` | Título exibido no formulário. |
+| `description` | Texto complementar abaixo do título. |
+| `button` | Texto do botão de envio. |
+| `product` | Produto, curso ou interesse associado ao lead. |
+| `form_id` | Identificador interno do formulário. |
+| `source` | Origem descritiva do contato. |
+| `sub_source` | Suborigem ou campanha. |
+| `show_institution` | Exibe o campo de escola ou empresa: `yes` ou `no`. |
+| `redirect_url` | URL interna ou permitida para redirecionamento após o sucesso. |
 
-## Armazenamento e recuperação de leads
+## Dados enviados para a F10
 
-Os registros ficam na tabela:
+O plugin envia o lead com a estrutura esperada pela integração F10, incluindo:
 
-```text
-{prefix}_f10_leads
-```
+- ID da unidade.
+- Fonte e mídia.
+- Nome.
+- Telefone e celular.
+- E-mail.
+- Escola ou empresa.
+- Produto ou interesse.
+- Página de captura.
+- Origem, suborigem, UTMs e contexto do formulário.
 
-O lead é gravado antes de qualquer chamada externa. O painel mantém as respostas HTTP, erros, quantidade de tentativas e próxima tentativa programada. Integrações concluídas com sucesso não são repetidas durante um reenvio.
+A requisição utiliza `Authorization: Bearer <JWT>`.
+
+## Persistência e recuperação
+
+Cada contato é gravado na tabela `{prefix}_f10_leads` antes das chamadas externas. O histórico mantém o resultado de cada integração, resposta HTTP, erro, quantidade de tentativas e data prevista para a próxima tentativa.
+
+Integrações que já retornaram sucesso não são executadas novamente durante um reenvio.
 
 ## Segurança e privacidade
 
-- Chaves e tokens são acessíveis somente por administradores autorizados;
-- formulários usam nonce e honeypot;
-- entradas são validadas e sanitizadas;
-- o IP não é salvo em texto puro;
-- a remoção dos dados durante a desinstalação é opcional e desativada por padrão;
-- o texto de consentimento pode ser ajustado conforme a política de privacidade do site.
+- As configurações ficam disponíveis somente para usuários com permissão administrativa.
+- Tokens e chaves de API são exibidos como campos de senha e não são devolvidos ao navegador durante a edição.
+- O formulário usa nonce e honeypot.
+- O rate limit reduz envios automatizados e repetitivos.
+- O endereço IP não é salvo em texto puro.
+- A remoção dos dados durante a desinstalação é opcional e desativada por padrão.
+- As consultas da tabela própria usam parâmetros preparados e identificadores seguros.
 
-## Casos de uso
+Nunca publique tokens JWT, chaves do Brevo ou credenciais reais no repositório.
 
-- formulário de demonstração de software escolar;
-- captura de leads em artigos de blog;
-- landing pages de matrícula e campanhas educacionais;
-- páginas de cursos livres, idiomas e cursos profissionalizantes;
-- campanhas com Google Ads, Meta Ads e parâmetros UTM;
-- formulários de contato integrados ao CRM escolar;
-- captação de alunos e organização do atendimento comercial.
+## Estrutura do projeto
+
+```text
+assets/
+  css/form.css
+  js/form.js
+includes/
+  admin/
+    trait-f10-lead-capture-admin-leads.php
+    trait-f10-lead-capture-admin-settings.php
+  class-f10-lead-capture-activator.php
+  class-f10-lead-capture-admin.php
+  class-f10-lead-capture-deactivator.php
+  class-f10-lead-capture-form.php
+  class-f10-lead-capture-integrations.php
+  class-f10-lead-capture-plugin.php
+  class-f10-lead-capture-repository.php
+f10-lead-capture.php
+readme.txt
+uninstall.php
+```
+
+## Validação para WordPress.org
+
+A versão `1.0.3` inclui ajustes específicos para o Plugin Check:
+
+- consultas SQL preparadas;
+- identificadores de tabela com `%i`;
+- cache e invalidação para consulta individual de leads;
+- exportação CSV sem operações diretas de arquivo;
+- leitura de parâmetros administrativos sem avisos de nonce;
+- `readme.txt` integralmente em inglês;
+- pacote sem arquivos ocultos.
+
+## Suporte comercial F10
+
+Para conhecer o software de gestão escolar, CRM, WhatsApp integrado e demais soluções, acesse [f10.com.br](https://f10.com.br/) ou envie uma solicitação pela [página de contato](https://f10.com.br/contato).
 
 ## Licença
 
-Distribuído sob a licença GPL v2 ou posterior. Consulte o arquivo [LICENSE](LICENSE).
+GPL-2.0-or-later.
