@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.0.7
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,10 @@ F10 Software provides solutions for school management, educational CRM, student 
 * Nonce validation, honeypot protection, request rate limiting, and input sanitization.
 * Configurable consent text.
 * Hashed IP storage for abuse prevention.
+* Four built-in appearance presets with responsive desktop and mobile controls.
+* Custom colors, spacing, widths, borders, shadows, typography, and button styles.
+* Optional post-conversion download or link action.
+* Download and link click tracking stored with each lead and included in CSV exports.
 
 == Installation ==
 
@@ -75,6 +79,36 @@ Available attributes:
 * `sub_source`: descriptive lead subsource.
 * `show_institution`: use `yes` or `no` to show or hide the institution field.
 * `redirect_url`: validated URL used after a successful submission.
+
+== Appearance ==
+
+Open **F10 Leads > Appearance** to choose one of the built-in presets: Classic F10, Minimal, Soft, or Dark.
+
+The appearance screen includes a live desktop and mobile preview. Administrators can customize:
+
+* maximum form width and alignment;
+* one or two columns on desktop and mobile;
+* desktop and mobile padding;
+* form, field, title, description, and button colors;
+* border thickness and radius;
+* title sizes;
+* button width;
+* shadow intensity.
+
+Appearance changes apply to existing shortcode forms without editing posts or pages.
+
+== Post-conversion actions ==
+
+Open **F10 Leads > Post-conversion** to offer content after a successful form submission. The plugin supports:
+
+* a downloadable file selected from the WordPress Media Library;
+* a link to another page or external service;
+* a manual button or automatic opening after a configurable delay;
+* an optional new-tab behavior for manual clicks.
+
+The lead record stores the action type, destination, first action time, and total action count. The lead list displays whether the visitor triggered the download or link. CSV exports include the same tracking fields.
+
+The tracking records that the visitor triggered the action. Browsers do not report whether a downloaded file was later opened.
 
 == Local storage and retries ==
 
@@ -115,20 +149,7 @@ A valid F10 Software account and integration credentials are required.
 
 = Brevo Transactional Email API =
 
-When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include:
-
-* name;
-* phone number;
-* WhatsApp number;
-* email address;
-* school or company name;
-* product or interest;
-* visitor notes;
-* capture page URL;
-* referrer URL;
-* source and subsource;
-* UTM parameters;
-* lead creation date.
+When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include name, phone, WhatsApp, email, school or company, product or interest, notes, capture page, referrer, source, subsource, UTM parameters, and creation date.
 
 Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
 
@@ -143,6 +164,8 @@ A Brevo account, API key, and authorized sender address are required.
 The plugin stores submitted lead data in the WordPress database. Site administrators are responsible for providing an appropriate privacy notice and establishing a lawful basis for collecting and processing personal data.
 
 The visitor's IP address is not stored as plain text. The plugin creates an HMAC hash of the address for temporary abuse-prevention controls.
+
+Post-conversion action events are stored locally in the WordPress database. The plugin records the action type, first trigger time, and trigger count; it does not add third-party analytics or telemetry.
 
 The option to delete the plugin table during uninstallation is disabled by default. Data is removed only when an administrator explicitly enables that setting before uninstalling the plugin.
 
@@ -177,6 +200,16 @@ Yes. Administrators can enable or disable the name, course, phone, WhatsApp, ema
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.1.0 =
+
+* Added an Appearance submenu with four presets and responsive desktop/mobile controls.
+* Added live previews for form appearance and post-conversion content.
+* Added configurable post-conversion downloads and links.
+* Added Media Library selection for downloadable files.
+* Added click tracking for downloads and links, including timestamps and counters in lead details, lists, and CSV exports.
+* Added automatic database migration for post-conversion tracking fields.
+* Fixed an extra SQL pagination argument in the lead repository.
 
 = 1.0.7 =
 
