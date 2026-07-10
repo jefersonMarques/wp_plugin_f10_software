@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Repository
 {
+    private const CACHE_GROUP = 'f10_lead_capture';
+
     public static function table_name(): string
     {
         global $wpdb;
@@ -22,6 +24,7 @@ final class F10_Lead_Capture_Repository
         $formats[] = '%s';
         $formats[] = '%s';
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A gravação ocorre em tabela própria do plugin e invalida o cache relacionado.
         $inserted = $wpdb->insert(
             self::table_name(),
             array(
@@ -57,22 +60,38 @@ final class F10_Lead_Capture_Repository
             return 0;
         }
 
-        return (int) $wpdb->insert_id;
+        $lead_id = (int) $wpdb->insert_id;
+        self::clear_cache($lead_id);
+
+        return $lead_id;
     }
 
     public static function get(int $lead_id): ?array
     {
         global $wpdb;
 
+        $cache_key = self::cache_key($lead_id);
+        $found = false;
+        $cached = wp_cache_get($cache_key, self::CACHE_GROUP, false, $found);
+
+        if ($found) {
+            return is_array($cached) ? $cached : null;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Consulta necessária em tabela própria; o resultado é armazenado no cache de objetos.
         $lead = $wpdb->get_row(
             $wpdb->prepare(
-                'SELECT * FROM ' . self::table_name() . ' WHERE id = %d',
+                'SELECT * FROM %i WHERE id = %d',
+                self::table_name(),
                 $lead_id
             ),
             ARRAY_A
         );
 
-        return is_array($lead) ? $lead : null;
+        $normalized_lead = is_array($lead) ? $lead : null;
+        wp_cache_set($cache_key, $normalized_lead, self::CACHE_GROUP, MINUTE_IN_SECONDS);
+
+        return $normalized_lead;
     }
 
     public static function update(int $lead_id, array $data): bool
@@ -90,6 +109,7 @@ final class F10_Lead_Capture_Repository
             ) ? '%d' : '%s';
         }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A atualização ocorre em tabela própria e invalida o cache relacionado.
         $result = $wpdb->update(
             self::table_name(),
             $data,
@@ -98,6 +118,8 @@ final class F10_Lead_Capture_Repository
             array('%d')
         );
 
+        self::clear_cache($lead_id);
+
         return $result !== false;
     }
 
@@ -105,47 +127,82 @@ final class F10_Lead_Capture_Repository
     {
         global $wpdb;
 
-        return $wpdb->delete(
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A exclusão ocorre em tabela própria e invalida o cache relacionado.
+        $deleted = $wpdb->delete(
             self::table_name(),
             array('id' => $lead_id),
             array('%d')
         ) !== false;
+
+        self::clear_cache($lead_id);
+
+        return $deleted;
     }
 
     public static function paginate(array $filters, int $page, int $per_page): array
     {
         global $wpdb;
 
-        $table_name = self::table_name();
-        $where = array('1=1');
-        $params = array();
-
-        if (!empty($filters['status'])) {
-            $where[] = 'status = %s';
-            $params[] = $filters['status'];
-        }
-
-        if (!empty($filters['search'])) {
-            $search = '%' . $wpdb->esc_like($filters['search']) . '%';
-            $where[] = '(name LIKE %s OR email LIKE %s OR whatsapp LIKE %s OR institution_name LIKE %s)';
-            array_push($params, $search, $search, $search, $search);
-        }
-
-        $where_sql = implode(' AND ', $where);
-        $count_sql = "SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}";
-        $items_sql = "SELECT * FROM {$table_name} WHERE {$where_sql} ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d";
-
+        $normalized_filters = self::normalize_filters($filters);
+        $status = $normalized_filters['status'];
+        $search = $normalized_filters['search'];
+        $search_like = '%' . $wpdb->esc_like($search) . '%';
         $offset = max(0, ($page - 1) * $per_page);
-        $count_query = $params
-            ? $wpdb->prepare($count_sql, $params)
-            : $count_sql;
 
-        $items_params = array_merge($params, array($per_page, $offset));
-        $items_query = $wpdb->prepare($items_sql, $items_params);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Listagem administrativa paginada de tabela própria; deve refletir o estado atual das integrações.
+        $items = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM %i
+                 WHERE (%s = '' OR status = %s)
+                   AND (
+                       %s = ''
+                       OR name LIKE %s
+                       OR email LIKE %s
+                       OR whatsapp LIKE %s
+                       OR institution_name LIKE %s
+                   )
+                 ORDER BY created_at DESC, id DESC
+                 LIMIT %d OFFSET %d",
+                self::table_name(),
+                $status,
+                $status,
+                $search,
+                $search_like,
+                $search_like,
+                $search_like,
+                $search_like,
+                max(1, $per_page),
+                $offset
+            ),
+            ARRAY_A
+        );
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Contagem administrativa de tabela própria; deve refletir o estado atual das integrações.
+        $total = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM %i
+                 WHERE (%s = '' OR status = %s)
+                   AND (
+                       %s = ''
+                       OR name LIKE %s
+                       OR email LIKE %s
+                       OR whatsapp LIKE %s
+                       OR institution_name LIKE %s
+                   )",
+                self::table_name(),
+                $status,
+                $status,
+                $search,
+                $search_like,
+                $search_like,
+                $search_like,
+                $search_like
+            )
+        );
 
         return array(
-            'items' => $wpdb->get_results($items_query, ARRAY_A),
-            'total' => (int) $wpdb->get_var($count_query),
+            'items' => is_array($items) ? $items : array(),
+            'total' => $total,
         );
     }
 
@@ -153,47 +210,94 @@ final class F10_Lead_Capture_Repository
     {
         global $wpdb;
 
-        $now = current_time('mysql', true);
-        $query = $wpdb->prepare(
-            'SELECT * FROM ' . self::table_name() . '
-             WHERE status IN (%s, %s, %s)
-               AND attempts < %d
-               AND (next_retry_at IS NULL OR next_retry_at <= %s)
-             ORDER BY created_at ASC
-             LIMIT %d',
-            'pending',
-            'partial',
-            'failed',
-            $max_attempts,
-            $now,
-            $limit
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A fila precisa consultar o estado mais recente dos leads pendentes.
+        $leads = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT * FROM %i
+                 WHERE status IN (%s, %s, %s)
+                   AND attempts < %d
+                   AND (next_retry_at IS NULL OR next_retry_at <= %s)
+                 ORDER BY created_at ASC
+                 LIMIT %d',
+                self::table_name(),
+                'pending',
+                'partial',
+                'failed',
+                max(1, $max_attempts),
+                current_time('mysql', true),
+                max(1, $limit)
+            ),
+            ARRAY_A
         );
 
-        return $wpdb->get_results($query, ARRAY_A);
+        return is_array($leads) ? $leads : array();
     }
 
     public static function all_for_export(array $filters, int $limit = 10000): array
     {
         global $wpdb;
 
-        $table_name = self::table_name();
-        $where = array('1=1');
-        $params = array();
+        $normalized_filters = self::normalize_filters($filters);
+        $status = $normalized_filters['status'];
+        $search = $normalized_filters['search'];
+        $search_like = '%' . $wpdb->esc_like($search) . '%';
 
-        if (!empty($filters['status'])) {
-            $where[] = 'status = %s';
-            $params[] = $filters['status'];
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Exportação administrativa sob demanda de tabela própria.
+        $leads = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM %i
+                 WHERE (%s = '' OR status = %s)
+                   AND (
+                       %s = ''
+                       OR name LIKE %s
+                       OR email LIKE %s
+                       OR whatsapp LIKE %s
+                       OR institution_name LIKE %s
+                   )
+                 ORDER BY created_at DESC
+                 LIMIT %d",
+                self::table_name(),
+                $status,
+                $status,
+                $search,
+                $search_like,
+                $search_like,
+                $search_like,
+                $search_like,
+                max(1, $limit)
+            ),
+            ARRAY_A
+        );
+
+        return is_array($leads) ? $leads : array();
+    }
+
+    private static function normalize_filters(array $filters): array
+    {
+        $status = isset($filters['status']) ? sanitize_key((string) $filters['status']) : '';
+        $allowed_statuses = array('pending', 'completed', 'partial', 'failed', 'stored');
+
+        if (!in_array($status, $allowed_statuses, true)) {
+            $status = '';
         }
 
-        if (!empty($filters['search'])) {
-            $search = '%' . $wpdb->esc_like($filters['search']) . '%';
-            $where[] = '(name LIKE %s OR email LIKE %s OR whatsapp LIKE %s OR institution_name LIKE %s)';
-            array_push($params, $search, $search, $search, $search);
-        }
+        $search = isset($filters['search'])
+            ? sanitize_text_field((string) $filters['search'])
+            : '';
 
-        $sql = "SELECT * FROM {$table_name} WHERE " . implode(' AND ', $where) . ' ORDER BY created_at DESC LIMIT %d';
-        $params[] = $limit;
+        return array(
+            'status' => $status,
+            'search' => $search,
+        );
+    }
 
-        return $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A);
+    private static function cache_key(int $lead_id): string
+    {
+        return 'lead_' . $lead_id;
+    }
+
+    private static function clear_cache(int $lead_id): void
+    {
+        wp_cache_delete(self::cache_key($lead_id), self::CACHE_GROUP);
     }
 }
