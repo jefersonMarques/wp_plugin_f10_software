@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.1.0 — 2026-07-10
+
+### Adicionado
+
+- Menu **Aparência** com modelos Clássico F10, Minimalista, Suave e Escuro.
+- Personalização responsiva para desktop e mobile com pré-visualização.
+- Controles de cores, espaçamento, largura, colunas, bordas, sombra, tipografia e botão.
+- Menu **Pós-conversão** com download de arquivo da Biblioteca de Mídia ou abertura de link.
+- Comportamento por botão ou abertura automática.
+- Rastreamento de acionamentos com tipo, URL, data e contador por lead.
+- Status de download/acesso na lista, detalhes e exportação CSV.
+- Migração automática das novas colunas de rastreamento.
+
+### Corrigido
+
+- Argumento duplicado na consulta de paginação do repositório de leads.
+
 ## 1.0.7 — 2026-07-10
 
 ### Corrigido
@@ -35,8 +52,6 @@
 - Adicionados telefone e observações ao banco de leads, ao painel, ao CSV e ao Brevo.
 - Adicionadas ajudas contextuais para token, unidade, fonte e mídia.
 - Migração automática do banco adicionada para instalações existentes.
-
-Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
 ## 1.0.3 — 2026-07-10
 
