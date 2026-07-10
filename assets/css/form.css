@@ -66,7 +66,8 @@
     font-weight: 400;
 }
 
-.f10-lead-capture__field input {
+.f10-lead-capture__field input,
+.f10-lead-capture__field textarea {
     width: 100%;
     min-height: 52px;
     margin: 0;
@@ -81,7 +82,13 @@
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.f10-lead-capture__field input:focus {
+.f10-lead-capture__field textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.f10-lead-capture__field input:focus,
+.f10-lead-capture__field textarea:focus {
     border-color: var(--f10-primary);
     box-shadow: 0 0 0 4px rgba(0, 10, 87, 0.1);
 }
