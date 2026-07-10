@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.2.0 — 2026-07-10
+
+### Adicionado
+
+- Menu **Formulários** com listagem, criação, edição, duplicação, ativação e exclusão.
+- Título, descrição, botão, mensagem de sucesso, campos, rótulos e obrigatoriedade por formulário.
+- Download pela Biblioteca de Mídia ou abertura de link configurados em cada formulário.
+- Abas **Formulário** e **Pós-conversão** na tela de Aparência.
+- Personalização visual específica da caixa de pós-conversão.
+- Nome e identificador do formulário nos detalhes e no CSV de leads.
+
+### Alterado
+
+- Configuração global de campos removida da tela Configurações.
+- Menu separado Pós-conversão substituído por Formulários.
+- Configurações antigas são migradas automaticamente para o Formulário principal.
+- Shortcode principal preservado e novo atributo `id` adicionado para selecionar formulários salvos.
+
 ## 1.1.0 — 2026-07-10
 
 ### Adicionado
