@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.6 — 2026-07-10
+
+### Corrigido
+
+- Envio do formulário corrigido para usar o atributo HTML `action` real, evitando requisições para `/[object HTMLInputElement]`.
+- Colisão entre a propriedade `form.action` e o campo oculto `name="action"` eliminada.
+- Prévia mascarada adicionada para o token JWT F10 e a chave da API Brevo salvos.
+- Marcação duplicada na tabela de configurações removida.
+
 ## 1.0.5 — 2026-07-10
 
 ### Corrigido
