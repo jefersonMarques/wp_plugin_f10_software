@@ -162,15 +162,16 @@ final class F10_Lead_Capture_Integrations
 
     private static function send_to_f10(array $lead, array $settings): array
     {
-        $url = esc_url_raw((string) $settings['f10_url']);
         $token = trim((string) $settings['f10_token']);
         $unit_id = absint($settings['f10_unit_id']);
+        $source = trim((string) $settings['f10_source']);
+        $media = trim((string) $settings['f10_media']);
 
-        if ($url === '' || $token === '' || $unit_id <= 0) {
+        if ($token === '' || $unit_id <= 0 || $source === '' || $media === '') {
             return self::result(
                 'failed',
                 null,
-                'Configuração incompleta: URL, token e unidade são obrigatórios para enviar à F10.',
+                'Configuração incompleta: token, unidade, fonte e mídia são obrigatórios para enviar à F10.',
                 'incomplete_f10_configuration'
             );
         }
@@ -181,57 +182,45 @@ final class F10_Lead_Capture_Integrations
             return self::result('failed', null, $jwt_status['message'], 'invalid_or_expired_f10_token');
         }
 
-        $phone = self::normalize_phone((string) $lead['whatsapp']);
-        $description = self::build_lead_description($lead);
+        $phone = self::normalize_phone((string) ($lead['phone'] ?? ''));
+        $whatsapp = self::normalize_phone((string) ($lead['whatsapp'] ?? ''));
+        $page_url = trim((string) ($lead['page_url'] ?? ''));
+        $page_path = wp_parse_url($page_url, PHP_URL_PATH);
+        $observation = self::build_lead_description($lead);
+
+        if ($phone === '') {
+            $phone = $whatsapp;
+        }
+
+        if ($whatsapp === '') {
+            $whatsapp = $phone;
+        }
 
         $body = array(
-            array(
-                'unidade_id' => $unit_id,
-                'fontes' => array(
-                    array(
-                        'fonte' => trim((string) $settings['f10_source']) ?: 'Site',
-                        'midia' => trim((string) $settings['f10_media']) ?: 'WordPress',
-                        'digitacoes' => array(
-                            array(
-                                'nome' => (string) $lead['name'],
-                                'curso' => (string) $lead['product'],
-                                'telefone' => $phone,
-                                'celular' => $phone,
-                                'comercial' => '',
-                                'email' => (string) $lead['email'],
-                                'nascimento' => '',
-                                'sexo' => '',
-                                'endereco' => '',
-                                'bairro' => '',
-                                'cidade' => '',
-                                'estado' => '',
-                                'cep' => '',
-                                'colegio' => (string) $lead['institution_name'],
-                                'turma' => '',
-                                'serie' => '',
-                                'anoletivo' => '',
-                                'turno' => '',
-                                'pai' => '',
-                                'mae' => '',
-                                'obs' => $description,
-                                'extra1' => (string) $lead['page_url'],
-                                'extra2' => (string) $lead['page_url'],
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+            'token' => $token,
+            'tipo_api' => F10_Lead_Capture_Config::F10_API_TYPE,
+            'unidade_id' => (string) $unit_id,
+            'fonte' => $source,
+            'midia' => $media,
+            'nome' => (string) $lead['name'],
+            'curso' => (string) ($lead['product'] ?? ''),
+            'telefone' => $phone,
+            'celular' => $whatsapp,
+            'email' => (string) ($lead['email'] ?? ''),
+            'colegio' => (string) ($lead['institution_name'] ?? ''),
+            'obs' => $observation,
+            'extra1' => is_string($page_path) && $page_path !== '' ? $page_path : '/',
+            'extra2' => $page_url !== '' ? $page_url : home_url('/'),
         );
 
         $response = wp_safe_remote_post(
-            $url,
+            F10_Lead_Capture_Config::F10_ENDPOINT,
             array(
                 'timeout' => 10,
                 'redirection' => 2,
                 'headers' => array(
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'Authorization' => 'Bearer ' . $token,
                 ),
                 'body' => wp_json_encode($body),
                 'data_format' => 'body',
@@ -280,15 +269,18 @@ final class F10_Lead_Capture_Integrations
                     'name' => 'Comercial',
                 ),
             ),
-            'replyTo' => array(
-                'email' => (string) $lead['email'],
-                'name' => (string) $lead['name'],
-            ),
             'subject' => $subject,
             'htmlContent' => self::build_brevo_html($lead),
             'textContent' => self::build_lead_description($lead),
             'tags' => array('lead', 'wordpress', 'f10'),
         );
+
+        if (is_email((string) ($lead['email'] ?? ''))) {
+            $body['replyTo'] = array(
+                'email' => (string) $lead['email'],
+                'name' => (string) $lead['name'],
+            );
+        }
 
         $response = wp_safe_remote_post(
             self::BREVO_ENDPOINT,
@@ -392,9 +384,19 @@ final class F10_Lead_Capture_Integrations
         $lines = array(
             'Lead capturado pelo plugin F10 Lead Capture no WordPress.',
             'Nome: ' . (string) $lead['name'],
-            'WhatsApp: ' . (string) $lead['whatsapp'],
-            'E-mail: ' . (string) $lead['email'],
         );
+
+        if (!empty($lead['phone'])) {
+            $lines[] = 'Telefone: ' . (string) $lead['phone'];
+        }
+
+        if (!empty($lead['whatsapp'])) {
+            $lines[] = 'WhatsApp: ' . (string) $lead['whatsapp'];
+        }
+
+        if (!empty($lead['email'])) {
+            $lines[] = 'E-mail: ' . (string) $lead['email'];
+        }
 
         if (!empty($lead['institution_name'])) {
             $lines[] = 'Escola/empresa: ' . (string) $lead['institution_name'];
@@ -402,6 +404,10 @@ final class F10_Lead_Capture_Integrations
 
         if (!empty($lead['product'])) {
             $lines[] = 'Produto/interesse: ' . (string) $lead['product'];
+        }
+
+        if (!empty($lead['notes'])) {
+            $lines[] = 'Observações: ' . (string) $lead['notes'];
         }
 
         if (!empty($lead['source_label'])) {
@@ -435,10 +441,12 @@ final class F10_Lead_Capture_Integrations
     {
         $rows = array(
             'Nome' => $lead['name'],
-            'WhatsApp' => $lead['whatsapp'],
-            'E-mail' => $lead['email'],
+            'Telefone' => $lead['phone'] ?? '',
+            'WhatsApp' => $lead['whatsapp'] ?? '',
+            'E-mail' => $lead['email'] ?? '',
             'Escola/empresa' => $lead['institution_name'],
             'Produto/interesse' => $lead['product'],
+            'Observações' => $lead['notes'] ?? '',
             'Origem' => $lead['source_label'],
             'Suborigem' => $lead['sub_source'],
             'Página' => $lead['page_url'],
@@ -495,24 +503,6 @@ final class F10_Lead_Capture_Integrations
 
     private static function get_settings(): array
     {
-        $defaults = array(
-            'f10_enabled' => '0',
-            'f10_url' => '',
-            'f10_token' => '',
-            'f10_unit_id' => '',
-            'f10_source' => 'Site',
-            'f10_media' => 'WordPress',
-            'brevo_enabled' => '0',
-            'brevo_api_key' => '',
-            'brevo_recipient_email' => '',
-            'brevo_sender_email' => '',
-            'brevo_sender_name' => 'Leads F10',
-            'max_retry_attempts' => '5',
-        );
-
-        return wp_parse_args(
-            (array) get_option('f10_lead_capture_settings', array()),
-            $defaults
-        );
+        return F10_Lead_Capture_Config::get_settings();
     }
 }
