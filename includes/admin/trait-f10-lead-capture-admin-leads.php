@@ -59,7 +59,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="Nome, e-mail, WhatsApp ou escola" style="min-width:280px">
+                <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="Nome, e-mail, telefone, WhatsApp ou escola" style="min-width:280px">
                 <button type="submit" class="button">Filtrar</button>
                 <?php if ($status !== '' || $search !== '') : ?>
                     <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=f10-leads')); ?>">Limpar</a>
@@ -95,8 +95,15 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?php echo esc_url('mailto:' . (string) $lead['email']); ?>"><?php echo esc_html((string) $lead['email']); ?></a>
-                                    <br><?php echo esc_html($this->format_phone((string) $lead['whatsapp'])); ?>
+                                    <?php if (!empty($lead['email'])) : ?>
+                                        <a href="<?php echo esc_url('mailto:' . (string) $lead['email']); ?>"><?php echo esc_html((string) $lead['email']); ?></a>
+                                    <?php endif; ?>
+                                    <?php if (!empty($lead['phone'])) : ?>
+                                        <br>Tel: <?php echo esc_html($this->format_phone((string) $lead['phone'])); ?>
+                                    <?php endif; ?>
+                                    <?php if (!empty($lead['whatsapp'])) : ?>
+                                        <br>WhatsApp: <?php echo esc_html($this->format_phone((string) $lead['whatsapp'])); ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php echo esc_html((string) ($lead['source_label'] ?: '—')); ?>
@@ -202,7 +209,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A função build_csv_line aplica escape em cada célula.
         echo $this->build_csv_line(
             array(
-                'ID', 'Data', 'Nome', 'WhatsApp', 'E-mail', 'Escola/empresa', 'Produto',
+                'ID', 'Data', 'Nome', 'Telefone', 'WhatsApp', 'E-mail', 'Escola/empresa', 'Produto', 'Observações',
                 'Origem', 'Suborigem', 'Página', 'Referência', 'UTM Source', 'UTM Medium',
                 'UTM Campaign', 'UTM Term', 'UTM Content', 'Status', 'F10', 'Brevo', 'Tentativas',
             )
@@ -215,10 +222,12 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                     $lead['id'],
                     $this->format_date((string) $lead['created_at']),
                     $lead['name'],
+                    $lead['phone'],
                     $lead['whatsapp'],
                     $lead['email'],
                     $lead['institution_name'],
                     $lead['product'],
+                    $lead['notes'],
                     $lead['source_label'],
                     $lead['sub_source'],
                     $lead['page_url'],
@@ -252,10 +261,12 @@ trait F10_Lead_Capture_Admin_Leads_Trait
             'Criado em' => $this->format_date((string) $lead['created_at']),
             'Atualizado em' => $this->format_date((string) $lead['updated_at']),
             'Nome' => $lead['name'],
+            'Telefone' => $this->format_phone((string) ($lead['phone'] ?? '')),
             'WhatsApp' => $this->format_phone((string) $lead['whatsapp']),
             'E-mail' => $lead['email'],
             'Escola/empresa' => $lead['institution_name'],
             'Produto/interesse' => $lead['product'],
+            'Observações' => $lead['notes'] ?? '',
             'Identificador do formulário' => $lead['form_id'],
             'Origem' => $lead['source_label'],
             'Suborigem' => $lead['sub_source'],
