@@ -67,6 +67,103 @@
         }
     }
 
+    function trackConversion(action) {
+        if (!action || !action.trackEndpoint || !action.leadId || !action.token) {
+            return;
+        }
+
+        var data = new FormData();
+        data.append('action', 'f10_track_conversion');
+        data.append('lead_id', String(action.leadId));
+        data.append('token', action.token);
+
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon(action.trackEndpoint, data);
+            return;
+        }
+
+        fetch(action.trackEndpoint, {
+            method: 'POST',
+            body: data,
+            credentials: 'same-origin',
+            keepalive: true
+        }).catch(function () {});
+    }
+
+    function openConversion(action, automatic) {
+        trackConversion(action);
+
+        if (action.type === 'download') {
+            var link = document.createElement('a');
+            link.href = action.url;
+            link.rel = 'noopener noreferrer';
+            link.download = '';
+
+            if (!automatic && action.openNewTab) {
+                link.target = '_blank';
+            }
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            return;
+        }
+
+        if (!automatic && action.openNewTab) {
+            window.open(action.url, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        window.location.assign(action.url);
+    }
+
+    function renderConversion(form, action) {
+        var container = form.querySelector('[data-f10-conversion]');
+
+        if (!container) {
+            return;
+        }
+
+        container.classList.remove('is-visible');
+        container.replaceChildren();
+
+        if (!action || !action.url) {
+            return;
+        }
+
+        if (action.title) {
+            var title = document.createElement('h3');
+            title.className = 'f10-lead-capture__conversion-title';
+            title.textContent = action.title;
+            container.appendChild(title);
+        }
+
+        if (action.description) {
+            var description = document.createElement('p');
+            description.className = 'f10-lead-capture__conversion-description';
+            description.textContent = action.description;
+            container.appendChild(description);
+        }
+
+        if (action.behavior === 'automatic') {
+            container.classList.add('is-visible');
+            window.setTimeout(function () {
+                openConversion(action, true);
+            }, Number(action.delayMs || 0));
+            return;
+        }
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'f10-lead-capture__conversion-button';
+        button.textContent = action.label || (action.type === 'download' ? 'Baixar material' : 'Acessar conteúdo');
+        button.addEventListener('click', function () {
+            openConversion(action, false);
+        });
+        container.appendChild(button);
+        container.classList.add('is-visible');
+    }
+
     async function submitForm(form) {
         if (form.dataset.submitting === '1') {
             return;
@@ -77,6 +174,7 @@
         }
 
         setMessage(form, '', '');
+        renderConversion(form, null);
         setSubmitting(form, true);
 
         try {
@@ -115,18 +213,13 @@
                 : 'Dados recebidos com sucesso.';
 
             setMessage(form, successMessage, 'success');
+            renderConversion(form, payload.data ? payload.data.conversionAction : null);
             form.reset();
             populateMetadata(form);
 
             var loadedAt = form.querySelector('[name="form_loaded_at"]');
             if (loadedAt) {
                 loadedAt.value = String(Math.floor(Date.now() / 1000));
-            }
-
-            if (payload.data && payload.data.redirectUrl) {
-                window.setTimeout(function () {
-                    window.location.assign(payload.data.redirectUrl);
-                }, 700);
             }
         } catch (error) {
             setMessage(
