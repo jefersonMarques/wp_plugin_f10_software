@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,13 +14,13 @@ Capture WordPress leads, store them locally, and optionally send them to F10 Sof
 
 F10 Lead Capture turns WordPress pages, posts, and landing pages into reliable lead-generation points.
 
-The plugin provides a responsive shortcode form that collects the visitor's name, WhatsApp number, email address, and, optionally, the name of a school, company, or educational institution.
+The plugin provides a responsive shortcode form with configurable fields for name, course or interest, phone, WhatsApp, email, school or company, and notes. Administrators can enable each field independently and change the label displayed on the frontend.
 
 Every lead is stored in a dedicated WordPress database table before any external request is made. This local-first workflow reduces the risk of losing contacts when an external API or email provider is temporarily unavailable.
 
 Administrators can review, filter, export, delete, and resend leads from the WordPress dashboard. The plugin can also record the capture page, referrer, campaign source, and UTM parameters associated with each conversion.
 
-The integration with F10 Software is optional and requires valid credentials supplied by the service administrator. Email notifications through Brevo are also optional.
+The integration with F10 Software is optional and requires a valid JWT token, unit ID, source, and media supplied or configured with the F10 team. The F10 endpoint and API type are defined by the plugin. Email notifications through Brevo are also optional.
 
 F10 Software provides solutions for school management, educational CRM, student enrollment, commercial service, finance, academic operations, and communication with students and families.
 
@@ -32,7 +32,8 @@ F10 Software provides solutions for school management, educational CRM, student 
 = Main features =
 
 * Responsive lead form available through a shortcode.
-* Name, WhatsApp, email, and optional school or company fields.
+* Configurable name, course, phone, WhatsApp, email, school or company, and notes fields.
+* Each field can be enabled or disabled and can have a custom frontend label.
 * Local database storage before external integrations run.
 * Optional authenticated integration with the F10 Software API.
 * Optional transactional email notification through Brevo.
@@ -49,7 +50,7 @@ F10 Software provides solutions for school management, educational CRM, student 
 1. Upload the `f10-lead-capture` directory to `/wp-content/plugins/`, or install the ZIP file through the WordPress Plugins screen.
 2. Activate **F10 Lead Capture**.
 3. Open **F10 Leads > Settings** in the WordPress dashboard.
-4. Configure the F10 API URL, JWT, unit ID, source, and media values when the F10 integration is required.
+4. Configure the F10 JWT token, unit ID, source, and media values when the F10 integration is required. The API endpoint is fixed by the plugin.
 5. Enable Brevo notifications only when needed, then provide the API key, recipient address, and an authorized sender address.
 6. Add `[f10_lead_form]` to a WordPress Shortcode block.
 
@@ -87,20 +88,24 @@ This plugin can connect to two external services. No lead data is sent to either
 
 = F10 Software API =
 
-When the F10 integration is enabled, the plugin sends lead information to the API URL configured by the administrator. The transmitted data may include:
+When the F10 integration is enabled, the plugin sends lead information to the fixed endpoint `https://nuvem.f10.com.br/fx-api/digitacao`.
 
+The request uses a flat JSON payload and may contain:
+
+* JWT token supplied by the site administrator;
+* API type, always set to `2`;
+* F10 unit ID, source, and media;
 * name;
-* WhatsApp number;
+* course or interest;
+* phone number;
+* WhatsApp or mobile number;
 * email address;
 * school or company name;
-* product or interest;
-* capture page URL;
-* referrer URL;
-* source and subsource;
-* UTM parameters;
-* lead creation date and contextual notes.
+* visitor notes and lead context;
+* capture page path in `extra1`;
+* full capture page URL in `extra2`.
 
-The information is sent to register the contact in F10 Software. Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
+The JWT token is sent in the request body because this is required by the F10 API contract. The information is sent to register the contact in F10 Software. Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
 
 A valid F10 Software account and integration credentials are required.
 
@@ -113,10 +118,12 @@ A valid F10 Software account and integration credentials are required.
 When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include:
 
 * name;
+* phone number;
 * WhatsApp number;
 * email address;
 * school or company name;
 * product or interest;
+* visitor notes;
 * capture page URL;
 * referrer URL;
 * source and subsource;
@@ -161,11 +168,22 @@ Yes. The plugin records UTM Source, UTM Medium, UTM Campaign, UTM Term, and UTM 
 
 Yes. The shortcode can be added multiple times with different `form_id`, `product`, `source`, and `sub_source` values.
 
+= Can form fields be customized? =
+
+Yes. Administrators can enable or disable the name, course, phone, WhatsApp, email, school or company, and notes fields. Each enabled field can also use a custom frontend label without changing the technical key sent to F10 Software.
+
 = Does the plugin automatically send usage telemetry? =
 
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.0.4 =
+
+* Updated the F10 integration to use the fixed official endpoint and flat JSON payload.
+* Added configurable frontend fields and custom labels.
+* Added phone and notes storage with an automatic database migration.
+* Added contextual help for the F10 token, unit ID, source, and media settings.
 
 = 1.0.3 =
 
