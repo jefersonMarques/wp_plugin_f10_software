@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.1 — 2026-07-10
+
+### Corrigido
+
+- A pós-conversão agora substitui integralmente o formulário depois de um envio bem-sucedido.
+- Título, campos, consentimento, botão e mensagens do formulário deixam de permanecer visíveis acima da pós-conversão.
+- Formulários sem download ou link exibem uma confirmação de sucesso no mesmo componente.
+
 ## 1.2.0 — 2026-07-10
 
 ### Adicionado
