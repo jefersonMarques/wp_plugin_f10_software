@@ -13,13 +13,15 @@ if (($settings['delete_data_on_uninstall'] ?? '0') !== '1') {
 global $wpdb;
 $table_name = $wpdb->prefix . 'f10_leads';
 
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A exclusão da tabela ocorre somente após consentimento explícito do administrador na desinstalação.
+// A alteração de esquema é intencional e executada apenas durante a desinstalação, após consentimento explícito do administrador.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 $wpdb->query(
     $wpdb->prepare(
         'DROP TABLE IF EXISTS %i',
         $table_name
     )
 );
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 
 delete_option('f10_lead_capture_settings');
 delete_option('f10_lead_capture_appearance');
