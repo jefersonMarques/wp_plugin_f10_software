@@ -19,6 +19,8 @@ final class F10_Lead_Capture_Plugin
 
     public function run(): void
     {
+        F10_Lead_Capture_Activator::maybe_upgrade();
+
         $form = new F10_Lead_Capture_Form();
         $form->register_hooks();
 
