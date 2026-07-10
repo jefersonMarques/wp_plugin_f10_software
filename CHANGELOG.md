@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
+## 1.0.3 — 2026-07-10
+
+### Corrigido
+
+- Consultas SQL reestruturadas com placeholders de identificador e parâmetros preparados.
+- Cache de objetos adicionado para consultas individuais de leads, com invalidação após alterações.
+- Exportação CSV reestruturada sem operações diretas de arquivo e com proteção contra fórmulas.
+- Avisos de nonce removidos do fluxo administrativo e do formulário AJAX.
+- `readme.txt` reescrito em inglês para o diretório WordPress.org.
+- Consulta de desinstalação preparada com identificador seguro.
+- Paginação e campo UTM duplicados removidos.
+
 ## 1.0.2 — 2026-07-10
 
 ### Corrigido
