@@ -2,6 +2,17 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
+## 1.0.2 — 2026-07-10
+
+### Corrigido
+
+- Nome público padronizado para `F10 Lead Capture`, mantendo o slug e o text domain `f10-lead-capture`.
+- Licença GPL adicionada ao cabeçalho principal do plugin.
+- Cabeçalho de atualização externa removido para compatibilidade com o diretório WordPress.org.
+- Cabeçalho `Tested up to: 7.0` adicionado ao `readme.txt`.
+- Serviços externos F10 Software e Brevo documentados com dados enviados, finalidade, termos e políticas de privacidade.
+- Arquivos ocultos removidos do pacote destinado ao WordPress.org.
+
 ## 1.0.1 — 2026-07-10
 
 ### Alterado
