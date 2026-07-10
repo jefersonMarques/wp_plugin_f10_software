@@ -97,6 +97,9 @@ trait F10_Lead_Capture_Admin_Settings_Trait
                         </th>
                         <td>
                             <input id="f10_token" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_token]" value="" autocomplete="new-password" placeholder="<?php echo esc_attr($settings['f10_token'] ? 'Token configurado — deixe em branco para manter' : 'Informe o token JWT'); ?>">
+                            <?php if ((string) $settings['f10_token'] !== '') : ?>
+                                <p class="description">Token salvo: <code><?php echo esc_html($this->mask_secret((string) $settings['f10_token'])); ?></code></p>
+                            <?php endif; ?>
                             <label style="display:block;margin-top:8px"><input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[clear_f10_token]" value="1"> Remover o token salvo</label>
                             <p class="description"><?php echo esc_html($this->jwt_status_message($jwt_status)); ?></p>
                         </td>
@@ -180,6 +183,9 @@ trait F10_Lead_Capture_Admin_Settings_Trait
                         <th scope="row"><label for="brevo_api_key">Chave da API Brevo</label></th>
                         <td>
                             <input id="brevo_api_key" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[brevo_api_key]" value="" autocomplete="new-password" placeholder="<?php echo esc_attr($settings['brevo_api_key'] ? 'Chave configurada — deixe em branco para manter' : 'xkeysib-...'); ?>">
+                            <?php if ((string) $settings['brevo_api_key'] !== '') : ?>
+                                <p class="description">Chave salva: <code><?php echo esc_html($this->mask_secret((string) $settings['brevo_api_key'])); ?></code></p>
+                            <?php endif; ?>
                             <label style="display:block;margin-top:8px"><input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[clear_brevo_api_key]" value="1"> Remover a chave salva</label>
                         </td>
                     </tr>
@@ -251,6 +257,22 @@ trait F10_Lead_Capture_Admin_Settings_Trait
         }
 
         return '<span title="' . esc_attr($message) . '" tabindex="0">' . $content . '</span>';
+    }
+
+    private function mask_secret(string $secret): string
+    {
+        $secret = trim($secret);
+        $length = strlen($secret);
+
+        if ($length === 0) {
+            return '';
+        }
+
+        if ($length <= 10) {
+            return substr($secret, 0, 3) . '…' . substr($secret, -2);
+        }
+
+        return substr($secret, 0, 10) . '…' . substr($secret, -6);
     }
 
     private function jwt_status_message(array $jwt_status): string
