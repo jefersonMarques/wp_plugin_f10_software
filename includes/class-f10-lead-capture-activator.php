@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Activator
 {
-    private const DB_VERSION = '1.1.0';
+    private const DB_VERSION = '1.2.0';
     private const DB_VERSION_OPTION = 'f10_lead_capture_db_version';
 
     public static function activate(): void
@@ -14,6 +14,7 @@ final class F10_Lead_Capture_Activator
         self::create_table();
         self::ensure_settings();
         self::schedule_retry_event();
+        F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
     }
 
@@ -25,6 +26,7 @@ final class F10_Lead_Capture_Activator
 
         self::create_table();
         self::ensure_settings();
+        F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
     }
 
