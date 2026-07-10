@@ -136,13 +136,11 @@
     function initializeForm(form) {
         populateMetadata(form);
 
-        var phoneField = form.querySelector('[data-f10-phone]');
-
-        if (phoneField) {
+        form.querySelectorAll('[data-f10-phone]').forEach(function (phoneField) {
             phoneField.addEventListener('input', function (event) {
                 event.currentTarget.value = formatPhone(event.currentTarget.value);
             });
-        }
+        });
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
