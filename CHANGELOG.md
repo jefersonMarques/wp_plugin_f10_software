@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.2 — 2026-07-10
+
+### Corrigido
+
+- A pós-conversão agora substitui estruturalmente o formulário completo.
+- O componente de resultado é movido para fora da tag `<form>` antes da troca de estado.
+- Regras de visibilidade inline com prioridade `important` impedem interferência do tema ou construtor de páginas.
+- Formulários configurados apenas para confirmação também ocultam os campos após o sucesso.
+
 ## 1.2.1 — 2026-07-10
 
 ### Corrigido
