@@ -117,49 +117,90 @@
         window.location.assign(action.url);
     }
 
-    function setFormViewHidden(form, hidden) {
+    function getFormElements(form) {
         var wrapper = form.closest('[data-f10-lead-container]');
-        if (!wrapper) { return; }
 
-        var elements = [
-            wrapper.querySelector('.f10-lead-capture__header'),
-            form.querySelector('.f10-lead-capture__grid'),
-            form.querySelector('.f10-lead-capture__consent'),
-            form.querySelector('[data-f10-submit]'),
-            form.querySelector('[data-f10-message]')
-        ];
+        if (!wrapper) {
+            return null;
+        }
 
-        elements.forEach(function (element) {
-            if (element) { element.hidden = hidden; }
-        });
+        var view = wrapper.querySelector('[data-f10-form-view]');
+        var conversion = wrapper.querySelector('[data-f10-conversion]');
+
+        if (!view) {
+            view = document.createElement('div');
+            view.className = 'f10-lead-capture__view';
+            view.setAttribute('data-f10-form-view', '');
+            wrapper.insertBefore(view, wrapper.firstChild);
+
+            var header = wrapper.querySelector('.f10-lead-capture__header');
+            if (header) {
+                view.appendChild(header);
+            }
+
+            view.appendChild(form);
+        }
+
+        if (conversion && conversion.parentNode !== wrapper) {
+            wrapper.appendChild(conversion);
+        }
+
+        return {
+            wrapper: wrapper,
+            view: view,
+            conversion: conversion
+        };
+    }
+
+    function setFormViewHidden(form, hidden) {
+        var elements = getFormElements(form);
+
+        if (!elements || !elements.view) {
+            return;
+        }
+
+        elements.view.hidden = hidden;
+        elements.view.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+
+        if (hidden) {
+            elements.view.style.setProperty('display', 'none', 'important');
+        } else {
+            elements.view.style.removeProperty('display');
+        }
     }
 
     function resetConversionState(form) {
-        var wrapper = form.closest('[data-f10-lead-container]');
-        if (!wrapper) { return; }
+        var elements = getFormElements(form);
 
-        var container = form.querySelector('[data-f10-conversion]');
+        if (!elements) {
+            return;
+        }
 
-        wrapper.classList.remove('is-converted');
+        elements.wrapper.classList.remove('is-converted');
         setFormViewHidden(form, false);
-        if (container) {
-            container.hidden = true;
-            container.classList.remove('is-visible');
-            container.replaceChildren();
-            container.style.marginTop = '';
+
+        if (elements.conversion) {
+            elements.conversion.hidden = true;
+            elements.conversion.setAttribute('aria-hidden', 'true');
+            elements.conversion.classList.remove('is-visible');
+            elements.conversion.replaceChildren();
+            elements.conversion.style.removeProperty('display');
         }
     }
 
     function renderConversion(form, action, successMessage) {
-        var wrapper = form.closest('[data-f10-lead-container]');
-        if (!wrapper) { return false; }
+        var elements = getFormElements(form);
 
-        var container = form.querySelector('[data-f10-conversion]');
-        if (!container) { return false; }
+        if (!elements || !elements.view || !elements.conversion) {
+            return false;
+        }
 
+        var container = elements.conversion;
         var hasAction = Boolean(action && action.url && (action.type === 'download' || action.type === 'link'));
         var titleText = hasAction && action.title ? action.title : 'Dados enviados com sucesso';
-        var descriptionText = hasAction && action.description ? action.description : (successMessage || 'Recebemos seus dados com sucesso.');
+        var descriptionText = hasAction && action.description
+            ? action.description
+            : (successMessage || 'Recebemos seus dados com sucesso.');
 
         container.replaceChildren();
 
@@ -193,10 +234,12 @@
         }
 
         setFormViewHidden(form, true);
-        wrapper.classList.add('is-converted');
-        container.style.marginTop = '0';
+        elements.wrapper.classList.add('is-converted');
         container.hidden = false;
+        container.setAttribute('aria-hidden', 'false');
         container.classList.add('is-visible');
+        container.style.setProperty('display', 'block', 'important');
+
         try {
             container.focus({ preventScroll: true });
         } catch (error) {
