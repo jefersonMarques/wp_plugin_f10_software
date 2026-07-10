@@ -1,167 +1,198 @@
 === F10 Lead Capture ===
 Contributors: f10software
-Tags: captura de leads, formulario wordpress, crm escolar, gestao escolar, brevo
-Requires at least: 6.0
+Tags: lead capture, contact form, crm, brevo, school management
+Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Plugin WordPress para capturar leads, salvar no banco e integrar formulários ao CRM da F10 Software e ao Brevo.
+Capture WordPress leads, store them locally, and optionally send them to F10 Software and Brevo.
 
-== Descrição ==
+== Description ==
 
-O F10 Lead Capture transforma páginas, posts e landing pages WordPress em pontos seguros de geração de leads.
+F10 Lead Capture turns WordPress pages, posts, and landing pages into reliable lead-generation points.
 
-O formulário coleta nome, WhatsApp, e-mail e, opcionalmente, o nome da escola ou empresa. Antes de qualquer chamada externa, o contato é salvo em uma tabela própria do WordPress. Em seguida, o plugin pode enviar os dados para a API da F10 Software e notificar a equipe comercial por e-mail via Brevo.
+The plugin provides a responsive shortcode form that collects the visitor's name, WhatsApp number, email address, and, optionally, the name of a school, company, or educational institution.
 
-A F10 Software oferece soluções para gestão escolar, CRM escolar, captação de alunos, atendimento comercial, financeiro, pedagógico e comunicação com alunos e responsáveis.
+Every lead is stored in a dedicated WordPress database table before any external request is made. This local-first workflow reduces the risk of losing contacts when an external API or email provider is temporarily unavailable.
 
-Conheça a F10 Software: https://f10.com.br/
-Conheça o F10 CRM Escolar: https://f10.com.br/solucoes/crm-escolar
-Solicite uma demonstração: https://f10.com.br/contato
-Conteúdos sobre gestão escolar: https://blog.f10.com.br/
+Administrators can review, filter, export, delete, and resend leads from the WordPress dashboard. The plugin can also record the capture page, referrer, campaign source, and UTM parameters associated with each conversion.
 
-= Para que serve =
+The integration with F10 Software is optional and requires valid credentials supplied by the service administrator. Email notifications through Brevo are also optional.
 
-* Capturar leads em páginas e artigos do WordPress.
-* Integrar formulários de escolas e negócios educacionais ao F10 Software.
-* Manter uma cópia local para evitar perda de contatos.
-* Identificar a página, campanha, origem e parâmetros UTM da conversão.
-* Avisar o comercial sobre novos leads usando o Brevo.
-* Reenviar contatos quando uma integração externa falhar.
+F10 Software provides solutions for school management, educational CRM, student enrollment, commercial service, finance, academic operations, and communication with students and families.
 
-= Recursos =
+* F10 Software: https://f10.com.br/
+* F10 School CRM: https://f10.com.br/solucoes/crm-escolar
+* Request a demonstration: https://f10.com.br/contato
+* School management content: https://blog.f10.com.br/
 
-* Formulário responsivo por shortcode.
-* Campos de nome, WhatsApp, e-mail e escola/empresa.
-* Registro do lead no banco antes de qualquer chamada externa.
-* Integração com o payload atual da F10 usando Bearer JWT.
-* Notificação opcional por e-mail transacional via Brevo.
-* Captura automática da página, referência e parâmetros UTM.
-* Histórico administrativo, filtros, detalhes e exportação CSV.
-* Reenvio manual e tentativas automáticas por WP-Cron.
-* Honeypot, nonce, limite de tentativas e hash do IP.
-* Consentimento de privacidade configurável.
+= Main features =
 
-== Instalação ==
+* Responsive lead form available through a shortcode.
+* Name, WhatsApp, email, and optional school or company fields.
+* Local database storage before external integrations run.
+* Optional authenticated integration with the F10 Software API.
+* Optional transactional email notification through Brevo.
+* Automatic capture of page URL, referrer, and UTM parameters.
+* Administrative lead history with filters and technical details.
+* CSV export protected against spreadsheet formula injection.
+* Manual resend and automatic retry through WP-Cron.
+* Nonce validation, honeypot protection, request rate limiting, and input sanitization.
+* Configurable consent text.
+* Hashed IP storage for abuse prevention.
 
-1. Envie a pasta `f10-lead-capture` para `/wp-content/plugins/` ou instale o arquivo ZIP pelo painel.
-2. Ative o plugin F10 Lead Capture.
-3. Acesse `Leads F10 > Configurações`.
-4. Informe URL da API, JWT, ID da unidade, fonte e mídia.
-5. Para notificações, marque "Enviar e-mail quando gerar um lead?" e informe chave Brevo, destinatário e remetente verificado.
-6. Insira `[f10_lead_form]` em um bloco Shortcode de uma página ou post. Não use o bloco HTML personalizado.
+== Installation ==
+
+1. Upload the `f10-lead-capture` directory to `/wp-content/plugins/`, or install the ZIP file through the WordPress Plugins screen.
+2. Activate **F10 Lead Capture**.
+3. Open **F10 Leads > Settings** in the WordPress dashboard.
+4. Configure the F10 API URL, JWT, unit ID, source, and media values when the F10 integration is required.
+5. Enable Brevo notifications only when needed, then provide the API key, recipient address, and an authorized sender address.
+6. Add `[f10_lead_form]` to a WordPress Shortcode block.
 
 == Shortcode ==
 
-Uso básico:
+Basic usage:
 
 `[f10_lead_form]`
 
-Uso personalizado:
+Customized usage:
 
-`[f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Artigo"]`
+`[f10_lead_form title="Request a demonstration" button="Contact me" product="School management software" source="F10 Blog" sub_source="Article"]`
 
-Atributos:
+Available attributes:
 
-* `title`: título do bloco.
-* `description`: texto abaixo do título.
-* `button`: texto do botão.
-* `product`: valor enviado ao campo curso/produto.
-* `form_id`: identificador interno do formulário.
-* `source`: origem descritiva do lead.
-* `sub_source`: suborigem descritiva.
-* `show_institution`: `yes` ou `no`.
-* `redirect_url`: URL permitida para redirecionar após sucesso.
+* `title`: form heading.
+* `description`: supporting text displayed below the heading.
+* `button`: submit button label.
+* `product`: product or interest sent with the lead.
+* `form_id`: internal form identifier.
+* `source`: descriptive lead source.
+* `sub_source`: descriptive lead subsource.
+* `show_institution`: use `yes` or `no` to show or hide the institution field.
+* `redirect_url`: validated URL used after a successful submission.
 
-== Integração com a F10 Software ==
+== Local storage and retries ==
 
-O plugin envia a unidade, fonte, mídia e os dados da digitação para a API configurada. Nome, telefone, celular, e-mail, escola, produto, página e informações da campanha são organizados no formato esperado pela integração F10.
+Leads are inserted into the `{prefix}_f10_leads` table before any external integration runs.
 
-A autenticação utiliza o cabeçalho `Authorization: Bearer <JWT>`.
+The plugin stores the current integration status, HTTP response, error message, number of attempts, last attempt time, and next scheduled retry. An integration that has already completed successfully is not called again during a retry.
 
-Uma conta e credenciais válidas da F10 são necessárias para usar essa integração.
+== External services ==
 
-== Persistência e reenvio ==
-
-O lead é inserido na tabela `{prefixo}_f10_leads` antes das integrações. Falhas ficam registradas com resposta HTTP, erro, quantidade de tentativas e próxima tentativa. Integrações que já retornaram sucesso não são enviadas novamente.
-
-== Brevo ==
-
-O envio usa `POST https://api.brevo.com/v3/smtp/email` com autenticação pelo cabeçalho `api-key`. O e-mail remetente deve estar autorizado na conta Brevo.
-
-== Serviços externos ==
-
-Este plugin pode se conectar a dois serviços externos. Nenhum dado é enviado até que um administrador habilite e configure a integração correspondente.
+This plugin can connect to two external services. No lead data is sent to either service until a WordPress administrator enables and configures the corresponding integration.
 
 = F10 Software API =
 
-Quando a integração F10 está habilitada, o plugin envia à URL da API configurada pelo administrador os seguintes dados do lead: nome, WhatsApp, e-mail, escola ou empresa, produto ou interesse, página de captura, página de referência, origem, suborigem, parâmetros UTM e data de criação. Esses dados são enviados para registrar o contato no sistema F10 Software.
+When the F10 integration is enabled, the plugin sends lead information to the API URL configured by the administrator. The transmitted data may include:
 
-O envio ocorre após o visitante enviar o formulário e também pode ocorrer novamente durante uma tentativa manual ou automática de reenvio de uma integração que falhou. Uma conta F10 e credenciais válidas são necessárias.
+* name;
+* WhatsApp number;
+* email address;
+* school or company name;
+* product or interest;
+* capture page URL;
+* referrer URL;
+* source and subsource;
+* UTM parameters;
+* lead creation date and contextual notes.
 
-* Site do serviço: https://f10.com.br/
-* Termos de uso: https://f10.com.br/termos-de-uso
-* Política de privacidade: https://f10.com.br/politica-de-privacidade
+The information is sent to register the contact in F10 Software. Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
+
+A valid F10 Software account and integration credentials are required.
+
+* Service website: https://f10.com.br/
+* Terms of use: https://f10.com.br/termos-de-uso
+* Privacy policy: https://f10.com.br/politica-de-privacidade
 
 = Brevo Transactional Email API =
 
-Quando a notificação por Brevo está habilitada, o plugin envia à Brevo o nome, WhatsApp, e-mail, escola ou empresa, produto ou interesse, página de captura, página de referência, origem, suborigem, parâmetros UTM e data de criação. Esses dados são usados para montar e enviar uma notificação por e-mail ao destinatário definido pelo administrador.
+When Brevo notifications are enabled, the plugin sends lead information to Brevo to generate a transactional email for the recipient configured by the administrator. The transmitted data may include:
 
-O envio ocorre após o visitante enviar o formulário e também pode ocorrer novamente durante uma tentativa manual ou automática de reenvio de uma integração que falhou. Uma conta Brevo, uma chave de API e um remetente autorizado são necessários.
+* name;
+* WhatsApp number;
+* email address;
+* school or company name;
+* product or interest;
+* capture page URL;
+* referrer URL;
+* source and subsource;
+* UTM parameters;
+* lead creation date.
 
-* Site do serviço: https://www.brevo.com/
-* Termos de serviço: https://www.brevo.com/legal/termsofuse/
-* Política de privacidade: https://www.brevo.com/legal/privacypolicy/
+Transmission occurs after a visitor submits the form and may occur again during a manual or automatic retry when a previous request failed.
 
-== Privacidade ==
+A Brevo account, API key, and authorized sender address are required.
 
-O endereço IP não é salvo em texto puro. O plugin armazena apenas um hash HMAC para controle de abuso. A exclusão de dados na desinstalação é opcional e permanece desativada por padrão.
+* Service website: https://www.brevo.com/
+* Terms of use: https://www.brevo.com/legal/termsofuse/
+* Privacy policy: https://www.brevo.com/legal/privacypolicy/
 
-== Perguntas frequentes ==
+== Privacy ==
 
-= O lead pode ser perdido se a API estiver indisponível? =
+The plugin stores submitted lead data in the WordPress database. Site administrators are responsible for providing an appropriate privacy notice and establishing a lawful basis for collecting and processing personal data.
 
-O contato é armazenado no WordPress antes da tentativa de envio. Falhas podem ser reenviadas manualmente ou pelo processo automático do plugin.
+The visitor's IP address is not stored as plain text. The plugin creates an HMAC hash of the address for temporary abuse-prevention controls.
 
-= Preciso usar o Brevo? =
+The option to delete the plugin table during uninstallation is disabled by default. Data is removed only when an administrator explicitly enables that setting before uninstalling the plugin.
 
-Não. A notificação por e-mail é opcional e pode permanecer desativada.
+== Frequently Asked Questions ==
 
-= Preciso ser cliente da F10 Software? =
+= Can a lead be lost when an external API is unavailable? =
 
-Para enviar leads à API F10, é necessário possuir credenciais válidas fornecidas para a integração. O armazenamento local e o formulário continuam disponíveis conforme a configuração do plugin.
+The lead is stored in WordPress before the external request is attempted. Failed integrations can be retried manually or through the automatic retry process.
 
-= O plugin captura UTMs? =
+= Is Brevo required? =
 
-Sim. UTM Source, UTM Medium, UTM Campaign, UTM Term e UTM Content são registrados quando estiverem presentes na URL.
+No. Brevo notifications are optional and remain disabled until an administrator enables and configures them.
 
-= Posso usar mais de um formulário? =
+= Is an F10 Software account required? =
 
-Sim. O shortcode pode ser usado várias vezes com diferentes valores de `form_id`, `product`, `source` e `sub_source`.
+An F10 Software account and valid credentials are required only for sending leads to the F10 API. The local form and database storage can operate according to the plugin configuration without that integration.
+
+= Does the plugin capture UTM parameters? =
+
+Yes. The plugin records UTM Source, UTM Medium, UTM Campaign, UTM Term, and UTM Content when they are available in the capture URL.
+
+= Can more than one form be used? =
+
+Yes. The shortcode can be added multiple times with different `form_id`, `product`, `source`, and `sub_source` values.
+
+= Does the plugin automatically send usage telemetry? =
+
+No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
 
+= 1.0.3 =
+
+* Replaced dynamically assembled SQL with prepared queries and identifier placeholders.
+* Added object caching for individual lead lookups and explicit cache invalidation.
+* Removed direct PHP file operations from CSV export.
+* Added spreadsheet formula-injection protection to CSV cells.
+* Removed nonce scanner warnings from administrative query handling and AJAX helpers.
+* Updated the uninstall query to use a prepared table identifier.
+* Rewrote the WordPress.org readme in standard English.
+* Removed duplicated pagination markup and duplicated lead detail fields.
+
 = 1.0.2 =
 
-* Nome público padronizado para F10 Lead Capture.
-* Cabeçalho de licença GPL adicionado.
-* Cabeçalho de atualização externa removido para compatibilidade com o WordPress.org.
-* Compatibilidade declarada até o WordPress 7.0.
-* Serviços externos e dados enviados documentados.
-* Arquivos ocultos removidos do pacote de distribuição.
+* Standardized the public plugin name as F10 Lead Capture.
+* Added the GPL license headers.
+* Removed external update headers for WordPress.org compatibility.
+* Documented external services and transmitted data.
+* Removed hidden files from the distribution package.
 
 = 1.0.1 =
 
-* Metadados e documentação pública otimizados para F10 Software, CRM escolar, captura de leads e Brevo.
+* Improved public metadata and documentation for F10 Software, school CRM, lead capture, and Brevo.
 
 = 1.0.0 =
 
-* Primeira versão pública.
-* Formulário por shortcode.
-* Persistência local dos leads.
-* Integração com a API F10.
-* Notificação opcional pelo Brevo.
-* Histórico, exportação e reenvio.
+* Initial public release.
+* Added shortcode form and local lead storage.
+* Added optional F10 Software and Brevo integrations.
+* Added administrative history, CSV export, and retry processing.
