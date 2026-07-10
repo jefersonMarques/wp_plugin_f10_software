@@ -4,51 +4,53 @@ O **F10 Lead Capture** cria formulários de captação de leads no WordPress, sa
 
 A solução foi desenvolvida para sites, blogs e landing pages de escolas, cursos livres, escolas de idiomas, cursos técnicos, escolas profissionalizantes e redes educacionais que precisam integrar o marketing digital ao atendimento comercial.
 
-## Para que serve
-
-O plugin resolve quatro pontos principais:
-
-1. Exibe um formulário responsivo por shortcode.
-2. Permite escolher quais dados serão solicitados ao visitante.
-3. Salva o lead localmente antes de chamar serviços externos.
-4. Envia o contato para a API da F10 e, opcionalmente, para o Brevo.
-
-Mesmo quando uma integração externa apresenta instabilidade, o contato permanece armazenado no WordPress e pode ser reenviado posteriormente.
-
-## Sobre a F10 Software
-
-A [F10 Software](https://f10.com.br/) oferece tecnologia para gestão escolar, captação de alunos, atendimento comercial, financeiro, pedagógico e comunicação entre escolas, alunos e responsáveis.
-
-- [Conheça a F10 Software](https://f10.com.br/)
-- [Veja o CRM Escolar da F10](https://f10.com.br/solucoes/crm-escolar)
-- [Solicite uma demonstração](https://f10.com.br/contato)
-- [Conteúdos sobre gestão escolar](https://blog.f10.com.br/)
-
 ## Principais recursos
 
 - Campos configuráveis de nome, curso/interesse, telefone, WhatsApp, e-mail, escola/empresa e observações.
-- Ativação individual de cada campo.
-- Rótulos personalizados apenas no frontend, sem alterar as chaves técnicas da API.
-- Shortcode configurável para páginas, posts e landing pages.
-- Armazenamento em tabela própria antes do envio externo.
-- Integração com o endpoint oficial da API F10.
-- Notificação opcional por e-mail transacional via Brevo.
-- Registro automático da página de captura, referência e parâmetros UTM.
-- Histórico administrativo com filtros, detalhes técnicos e exportação CSV.
-- Reenvio manual e tentativas automáticas via WP-Cron.
-- Proteção com nonce, honeypot, rate limit e hash do IP.
-- Consentimento de privacidade configurável.
+- Ativação individual e rótulos personalizados no frontend.
+- Armazenamento local antes do envio externo.
+- Integração com a API F10 e notificação opcional via Brevo.
+- Registro da página, referência e parâmetros UTM.
+- Histórico, detalhes técnicos, CSV e reenvio de falhas.
+- Quatro modelos visuais prontos com personalização responsiva.
+- Pré-visualização para desktop e mobile.
+- Pós-conversão com download de arquivo ou abertura de link.
+- Rastreamento de downloads e acessos dentro do histórico e do CSV.
+
+## Aparência do formulário
+
+Acesse **Leads F10 → Aparência** para escolher entre os modelos **Clássico F10**, **Minimalista**, **Suave** e **Escuro**.
+
+A tela permite ajustar com pré-visualização em desktop e mobile:
+
+- largura máxima e alinhamento;
+- quantidade de colunas;
+- espaçamento interno e distância entre campos;
+- cores do formulário, campos, textos e botão;
+- bordas, arredondamentos e sombra;
+- tamanhos do título;
+- largura do botão.
+
+As alterações são aplicadas aos shortcodes existentes, sem precisar editar os posts.
+
+## Pós-conversão e materiais
+
+Acesse **Leads F10 → Pós-conversão** para definir o que será oferecido depois do envio:
+
+- download de arquivo selecionado na Biblioteca de Mídia;
+- abertura de uma URL;
+- botão manual;
+- abertura automática após um atraso configurável.
+
+O lead registra o tipo da ação, URL, texto do botão, primeiro acionamento e quantidade total de acionamentos. A lista mostra **Baixou**, **Acessou** ou **Pendente**, e os mesmos dados são exportados no CSV.
+
+O rastreamento confirma que o visitante acionou o download ou link. O navegador não informa se o arquivo baixado foi posteriormente aberto.
 
 ## Configuração da F10
 
-Acesse **Leads F10 → Configurações** e informe:
+Acesse **Leads F10 → Configurações** e informe o token JWT, o ID da unidade, a fonte e a mídia fornecidos ou cadastrados com a equipe F10.
 
-- token JWT fornecido pela equipe F10;
-- ID da unidade fornecido pela equipe F10;
-- fonte cadastrada no F10;
-- mídia cadastrada no F10.
-
-O endpoint não precisa ser informado. O plugin utiliza sempre:
+O endpoint é fixo:
 
 ```text
 https://nuvem.f10.com.br/fx-api/digitacao
@@ -58,30 +60,7 @@ Ajuda sobre fonte e mídia:
 
 https://ajuda.f10.com.br/kb/pt-br/article/119833/fontes-eventos-e-cadastro-de-visitas
 
-## Campos configuráveis do formulário
-
-Na seção **Campos do formulário**, cada campo possui:
-
-- opção **Ativar**;
-- nome exibido no formulário.
-
-A personalização altera apenas o texto mostrado ao visitante. Os campos enviados à API continuam usando os nomes técnicos esperados pela F10.
-
-Campos disponíveis:
-
-- nome;
-- curso ou interesse;
-- telefone;
-- WhatsApp, enviado como `celular`;
-- e-mail;
-- escola ou empresa, enviada como `colegio`;
-- observações, enviadas dentro de `obs`.
-
-Os campos `extra1` e `extra2` são preenchidos automaticamente com o caminho e a URL completa da página de captura.
-
 ## Payload enviado à F10
-
-A chamada utiliza um objeto JSON plano:
 
 ```json
 {
@@ -102,103 +81,50 @@ A chamada utiliza um objeto JSON plano:
 }
 ```
 
-O token é enviado no corpo da requisição, conforme o contrato da API F10. O campo `tipo_api` é sempre `2`.
-
-Quando apenas telefone ou WhatsApp estiver preenchido, o plugin utiliza o número disponível como fallback para os campos `telefone` e `celular`.
+Quando apenas telefone ou WhatsApp estiver preenchido, o número disponível é usado como fallback para `telefone` e `celular`.
 
 ## Instalação
 
-1. Baixe o ZIP ou copie os arquivos para `/wp-content/plugins/f10-lead-capture/`.
-2. Ative **F10 Lead Capture** no WordPress.
+1. Instale o ZIP no WordPress.
+2. Ative **F10 Lead Capture**.
 3. Acesse **Leads F10 → Configurações**.
-4. Configure a integração F10 e os campos do formulário.
-5. Configure o Brevo apenas quando desejar notificações por e-mail.
-6. Insira o shortcode em um bloco **Shortcode**.
+4. Configure a integração e os campos.
+5. Ajuste **Aparência** e **Pós-conversão** quando necessário.
+6. Insira `[f10_lead_form]` em um bloco Shortcode.
 
 ## Shortcode
-
-Uso básico:
 
 ```text
 [f10_lead_form]
 ```
 
-Exemplo personalizado:
+Exemplo:
 
 ```text
 [f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Artigo"]
 ```
 
-Atributos disponíveis:
+## Persistência, segurança e privacidade
 
-| Atributo | Finalidade |
-|---|---|
-| `title` | Título exibido no formulário. |
-| `description` | Texto complementar abaixo do título. |
-| `button` | Texto do botão de envio. |
-| `product` | Valor padrão do curso/interesse. |
-| `form_id` | Identificador interno do formulário. |
-| `source` | Origem descritiva da captura no WordPress. |
-| `sub_source` | Suborigem ou campanha. |
-| `show_institution` | Mantido para compatibilidade; `no` oculta escola/empresa. |
-| `redirect_url` | URL permitida para redirecionamento após o sucesso. |
+Cada contato é gravado em `{prefix}_f10_leads` antes das chamadas externas. Respostas HTTP 200 da F10 são validadas pelo conteúdo: somente `incluidos.digitacao` maior que zero, sem `nao_incluidas`, representa sucesso.
 
-## Persistência e recuperação
-
-Cada contato é gravado na tabela `{prefix}_f10_leads` antes das chamadas externas. O histórico mantém respostas HTTP, erros, quantidade de tentativas e próxima tentativa programada.
-
-A versão 1.0.4 inclui migração automática para adicionar telefone, observações e as novas preferências de campos sem apagar leads existentes.
-
-## Segurança e privacidade
-
-- Configurações restritas a administradores.
-- Tokens e chaves não são devolvidos integralmente ao navegador durante a edição; a tela mostra apenas uma prévia mascarada.
-- Nonce e honeypot no formulário.
-- Rate limit contra envios repetitivos.
+- Nonce, honeypot e rate limit no formulário.
 - IP armazenado apenas como hash.
-- Exportação CSV protegida contra fórmulas de planilha.
+- Exportação CSV protegida contra fórmulas.
+- Rastreamento de pós-conversão armazenado localmente, sem telemetria externa.
 - Exclusão de dados na desinstalação desativada por padrão.
-
-Nunca publique tokens JWT, chaves do Brevo ou credenciais reais no repositório.
 
 ## Requisitos
 
 - WordPress 6.2 ou superior.
 - PHP 7.4 ou superior.
-- Credenciais válidas da integração F10 para envio ao sistema.
-- Conta Brevo com remetente autorizado apenas quando a notificação estiver ativa.
-
-## Estrutura do projeto
-
-```text
-assets/
-  css/form.css
-  js/form.js
-includes/
-  admin/
-    trait-f10-lead-capture-admin-leads.php
-    trait-f10-lead-capture-admin-settings.php
-  class-f10-lead-capture-activator.php
-  class-f10-lead-capture-admin.php
-  class-f10-lead-capture-config.php
-  class-f10-lead-capture-deactivator.php
-  class-f10-lead-capture-form.php
-  class-f10-lead-capture-integrations.php
-  class-f10-lead-capture-plugin.php
-  class-f10-lead-capture-repository.php
-f10-lead-capture.php
-readme.txt
-uninstall.php
-```
+- Credenciais F10 para envio à API.
+- Conta Brevo somente quando a notificação estiver ativa.
 
 ## Licença
 
 GPL-2.0-or-later.
 
-## Correção 1.0.6
+## Versão 1.1.0
 
-A versão 1.0.6 corrige o envio AJAX quando o navegador interpreta `form.action` como o campo oculto `name="action"`. O JavaScript agora lê explicitamente o atributo HTML do formulário, garantindo o envio para `wp-admin/admin-ajax.php`. A tela de configurações também exibe uma prévia mascarada das credenciais salvas.
-
-## Correção 1.0.5
-
-A versão 1.0.5 corrige um erro fatal que podia ocorrer ao salvar posts contendo o shortcode `[f10_lead_form]`. O problema estava na renderização dos campos obrigatórios durante o autosave da REST API do WordPress.
+A versão 1.1.0 adiciona personalização visual responsiva, modelos prontos e ações pós-conversão rastreáveis. Downloads e acessos a links aparecem na lista de leads, nos detalhes e no CSV.
