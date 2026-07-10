@@ -45,6 +45,7 @@ final class F10_Lead_Capture_Plugin
         array_unshift(
             $links,
             '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-settings')) . '">Configurações</a>',
+            '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-forms')) . '">Formulários</a>',
             '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-appearance')) . '">Aparência</a>'
         );
 
