@@ -13,6 +13,8 @@ final class F10_Lead_Capture_Form
         add_shortcode('f10_lead_form', array($this, 'render_shortcode'));
         add_action('wp_ajax_f10_submit_lead', array($this, 'handle_submission'));
         add_action('wp_ajax_nopriv_f10_submit_lead', array($this, 'handle_submission'));
+        add_action('wp_ajax_f10_track_conversion', array($this, 'handle_conversion_tracking'));
+        add_action('wp_ajax_nopriv_f10_track_conversion', array($this, 'handle_conversion_tracking'));
     }
 
     public function render_shortcode(array $attributes = array()): string
@@ -36,8 +38,11 @@ final class F10_Lead_Capture_Form
         self::$instance_count++;
         $form_identifier = 'f10-lead-form-' . self::$instance_count;
         $settings = $this->get_settings();
+        $appearance = F10_Lead_Capture_Config::get_appearance();
         $require_consent = $settings['require_consent'] === '1';
         $show_institution = strtolower((string) $attributes['show_institution']) !== 'no';
+        $wrapper_classes = $this->appearance_classes($appearance);
+        $wrapper_style = $this->appearance_style($appearance);
 
         wp_enqueue_style(
             'f10-lead-capture-form',
@@ -56,7 +61,11 @@ final class F10_Lead_Capture_Form
 
         ob_start();
         ?>
-        <div class="f10-lead-capture" data-f10-lead-container>
+        <div
+            class="<?php echo esc_attr(implode(' ', $wrapper_classes)); ?>"
+            style="<?php echo esc_attr($wrapper_style); ?>"
+            data-f10-lead-container
+        >
             <div class="f10-lead-capture__header">
                 <?php if (trim((string) $attributes['title']) !== '') : ?>
                     <h2 class="f10-lead-capture__title"><?php echo esc_html((string) $attributes['title']); ?></h2>
@@ -138,6 +147,7 @@ final class F10_Lead_Capture_Form
                 </button>
 
                 <div class="f10-lead-capture__message" data-f10-message role="status" aria-live="polite"></div>
+                <div class="f10-lead-capture__conversion" data-f10-conversion aria-live="polite"></div>
             </form>
         </div>
         <?php
@@ -192,6 +202,7 @@ final class F10_Lead_Capture_Form
             );
         }
 
+        $conversion_action = $this->resolve_conversion_action();
         $lead_data = array(
             'name' => $values['name'] !== '' ? $values['name'] : 'Lead WordPress',
             'phone' => $values['phone'],
@@ -215,6 +226,11 @@ final class F10_Lead_Capture_Form
             'ip_hash' => $this->get_ip_hash(),
             'user_agent' => $this->get_user_agent(),
             'consent_at' => $consent ? current_time('mysql', true) : null,
+            'conversion_type' => $conversion_action['type'],
+            'conversion_status' => $conversion_action['type'] === 'none' ? 'none' : 'pending',
+            'conversion_url' => $conversion_action['url'],
+            'conversion_label' => $conversion_action['label'],
+            'conversion_behavior' => $conversion_action['behavior'],
         );
 
         $lead_id = F10_Lead_Capture_Repository::create($lead_data);
@@ -241,14 +257,40 @@ final class F10_Lead_Capture_Form
             );
         }
 
-        $redirect_url = wp_validate_redirect($this->posted_url('redirect_url'), '');
-
         wp_send_json_success(
             array(
                 'message' => (string) $settings['success_message'],
-                'redirectUrl' => $redirect_url,
+                'conversionAction' => $this->build_conversion_response($lead_id, $conversion_action),
             )
         );
+    }
+
+    public function handle_conversion_tracking(): void
+    {
+        $lead_id = $this->posted_int('lead_id');
+        $token = $this->posted_text('token', 128);
+
+        if ($lead_id <= 0 || $token === '') {
+            wp_send_json_error(array('message' => 'Ação inválida.'), 400);
+        }
+
+        $expected_token = F10_Lead_Capture_Config::conversion_token($lead_id);
+
+        if (!hash_equals($expected_token, $token)) {
+            wp_send_json_error(array('message' => 'Não foi possível validar a ação.'), 403);
+        }
+
+        $lead = F10_Lead_Capture_Repository::get($lead_id);
+
+        if (!$lead || !in_array((string) ($lead['conversion_type'] ?? ''), array('download', 'link'), true)) {
+            wp_send_json_error(array('message' => 'Ação não encontrada.'), 404);
+        }
+
+        if (!F10_Lead_Capture_Repository::track_conversion($lead_id)) {
+            wp_send_json_error(array('message' => 'Não foi possível registrar a ação.'), 500);
+        }
+
+        wp_send_json_success(array('tracked' => true));
     }
 
     private function render_field(
@@ -261,8 +303,13 @@ final class F10_Lead_Capture_Form
         $field_id = $form_identifier . '-' . $field_key;
         $required = !empty($field['required']);
         $request_key = (string) $field['request_key'];
+        $field_classes = array('f10-lead-capture__field');
+
+        if ($field['type'] === 'textarea') {
+            $field_classes[] = 'f10-lead-capture__field--wide';
+        }
         ?>
-        <label class="f10-lead-capture__field" for="<?php echo esc_attr($field_id); ?>">
+        <label class="<?php echo esc_attr(implode(' ', $field_classes)); ?>" for="<?php echo esc_attr($field_id); ?>">
             <span>
                 <?php echo esc_html($label); ?>
                 <?php if (!$required) : ?><small>(opcional)</small><?php endif; ?>
@@ -353,6 +400,164 @@ final class F10_Lead_Capture_Form
         return '';
     }
 
+    private function resolve_conversion_action(): array
+    {
+        $shortcode_redirect = $this->sanitize_public_url($this->posted_url('redirect_url'));
+        $conversion = F10_Lead_Capture_Config::get_conversion();
+
+        if ($shortcode_redirect !== '') {
+            return array(
+                'type' => 'link',
+                'behavior' => 'automatic',
+                'url' => $shortcode_redirect,
+                'label' => 'Continuar',
+                'title' => '',
+                'description' => '',
+                'open_new_tab' => false,
+                'delay_ms' => 700,
+            );
+        }
+
+        if (($conversion['enabled'] ?? '0') !== '1') {
+            return $this->empty_conversion_action();
+        }
+
+        $type = in_array((string) ($conversion['type'] ?? ''), array('download', 'link'), true)
+            ? (string) $conversion['type']
+            : 'none';
+        $url = $this->sanitize_public_url(F10_Lead_Capture_Config::conversion_url($conversion));
+
+        if ($type === 'none' || $url === '') {
+            return $this->empty_conversion_action();
+        }
+
+        return array(
+            'type' => $type,
+            'behavior' => ($conversion['behavior'] ?? '') === 'automatic' ? 'automatic' : 'button',
+            'url' => $url,
+            'label' => trim((string) ($conversion['label'] ?? '')) ?: ($type === 'download' ? 'Baixar material' : 'Acessar conteúdo'),
+            'title' => trim((string) ($conversion['title'] ?? '')),
+            'description' => trim((string) ($conversion['description'] ?? '')),
+            'open_new_tab' => ($conversion['open_new_tab'] ?? '0') === '1',
+            'delay_ms' => max(0, min(10000, absint($conversion['delay_ms'] ?? 800))),
+        );
+    }
+
+    private function empty_conversion_action(): array
+    {
+        return array(
+            'type' => 'none',
+            'behavior' => 'button',
+            'url' => '',
+            'label' => '',
+            'title' => '',
+            'description' => '',
+            'open_new_tab' => false,
+            'delay_ms' => 0,
+        );
+    }
+
+    private function build_conversion_response(int $lead_id, array $action): ?array
+    {
+        if ($action['type'] === 'none' || $action['url'] === '') {
+            return null;
+        }
+
+        return array(
+            'leadId' => $lead_id,
+            'token' => F10_Lead_Capture_Config::conversion_token($lead_id),
+            'trackEndpoint' => admin_url('admin-ajax.php'),
+            'type' => $action['type'],
+            'behavior' => $action['behavior'],
+            'url' => $action['url'],
+            'label' => $action['label'],
+            'title' => $action['title'],
+            'description' => $action['description'],
+            'openNewTab' => (bool) $action['open_new_tab'],
+            'delayMs' => (int) $action['delay_ms'],
+        );
+    }
+
+    private function appearance_classes(array $appearance): array
+    {
+        $alignment = in_array((string) ($appearance['alignment'] ?? ''), array('left', 'center', 'full'), true)
+            ? (string) $appearance['alignment']
+            : 'center';
+        $shadow = in_array((string) ($appearance['shadow'] ?? ''), array('none', 'subtle', 'strong'), true)
+            ? (string) $appearance['shadow']
+            : 'subtle';
+        $classes = array(
+            'f10-lead-capture',
+            'f10-lead-capture--align-' . $alignment,
+            'f10-lead-capture--shadow-' . $shadow,
+        );
+
+        if (($appearance['button_width'] ?? 'auto') === 'full') {
+            $classes[] = 'f10-lead-capture--button-full';
+        }
+
+        return $classes;
+    }
+
+    private function appearance_style(array $appearance): string
+    {
+        $numeric_variables = array(
+            '--f10-form-max-width' => array('form_max_width', 320, 1600, 820),
+            '--f10-desktop-columns' => array('desktop_columns', 1, 2, 2),
+            '--f10-mobile-columns' => array('mobile_columns', 1, 2, 1),
+            '--f10-padding-desktop' => array('padding_desktop', 0, 100, 48),
+            '--f10-padding-mobile' => array('padding_mobile', 0, 64, 24),
+            '--f10-field-gap' => array('field_gap', 0, 48, 18),
+            '--f10-form-border-width' => array('form_border_width', 0, 8, 1),
+            '--f10-form-radius' => array('form_radius', 0, 60, 24),
+            '--f10-field-radius' => array('field_radius', 0, 40, 12),
+            '--f10-button-radius' => array('button_radius', 0, 40, 12),
+            '--f10-title-size-desktop' => array('title_size_desktop', 18, 72, 38),
+            '--f10-title-size-mobile' => array('title_size_mobile', 18, 56, 30),
+            '--f10-description-size' => array('description_size', 12, 24, 16),
+        );
+        $color_variables = array(
+            '--f10-form-background' => array('form_background', '#ffffff'),
+            '--f10-form-border-color' => array('form_border_color', '#d9dee8'),
+            '--f10-form-text-color' => array('form_text_color', '#101828'),
+            '--f10-title-color' => array('title_color', '#000a57'),
+            '--f10-description-color' => array('description_color', '#667085'),
+            '--f10-field-background' => array('field_background', '#ffffff'),
+            '--f10-field-border-color' => array('field_border_color', '#d9dee8'),
+            '--f10-field-text-color' => array('field_text_color', '#101828'),
+            '--f10-button-background' => array('button_background', '#ea6d0b'),
+            '--f10-button-hover-background' => array('button_hover_background', '#d85f00'),
+            '--f10-button-text-color' => array('button_text_color', '#ffffff'),
+        );
+        $parts = array();
+
+        foreach ($numeric_variables as $variable => $config) {
+            $value = isset($appearance[$config[0]]) ? absint($appearance[$config[0]]) : $config[3];
+            $value = max($config[1], min($config[2], $value));
+            $suffix = in_array($variable, array('--f10-desktop-columns', '--f10-mobile-columns'), true) ? '' : 'px';
+            $parts[] = $variable . ':' . $value . $suffix;
+        }
+
+        foreach ($color_variables as $variable => $config) {
+            $value = isset($appearance[$config[0]]) ? sanitize_hex_color((string) $appearance[$config[0]]) : null;
+            $parts[] = $variable . ':' . ($value ?: $config[1]);
+        }
+
+        return implode(';', $parts);
+    }
+
+    private function sanitize_public_url(string $url): string
+    {
+        $url = esc_url_raw(trim($url));
+
+        if ($url === '') {
+            return '';
+        }
+
+        $scheme = strtolower((string) wp_parse_url($url, PHP_URL_SCHEME));
+        return in_array($scheme, array('http', 'https'), true) ? $url : '';
+    }
+
     private function consume_rate_limit(): bool
     {
         $key = 'f10_lead_rate_' . substr($this->get_ip_hash(), 0, 32);
@@ -426,6 +631,12 @@ final class F10_Lead_Capture_Form
         }
 
         return substr(esc_url_raw($raw_value), 0, 2000);
+    }
+
+    private function posted_int(string $key): int
+    {
+        $value = filter_input(INPUT_POST, $key, FILTER_VALIDATE_INT);
+        return is_int($value) ? $value : 0;
     }
 
     private function get_settings(): array
