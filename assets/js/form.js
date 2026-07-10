@@ -82,7 +82,13 @@
         try {
             populateMetadata(form);
 
-            var response = await fetch(form.action, {
+            var endpoint = form.getAttribute('action');
+
+            if (!endpoint) {
+                throw new Error('Endpoint do formulário não configurado.');
+            }
+
+            var response = await fetch(new URL(endpoint, window.location.href).toString(), {
                 method: 'POST',
                 body: new FormData(form),
                 credentials: 'same-origin',
