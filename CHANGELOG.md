@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.5 — 2026-07-10
+
+### Corrigido
+
+- Erro fatal ao renderizar campos obrigatórios configuráveis no editor de blocos e nos autosaves da REST API.
+- Chamada inválida `required()` substituída pelo atributo HTML nativo `required`.
+
 ## 1.0.4 — 2026-07-10
 
 ### Alterado
