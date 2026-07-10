@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Activator
 {
-    private const DB_VERSION = '1.2.0';
+    private const DB_VERSION = '1.3.0';
     private const DB_VERSION_OPTION = 'f10_lead_capture_db_version';
 
     public static function activate(): void
@@ -70,12 +70,20 @@ final class F10_Lead_Capture_Activator
             last_error text NULL,
             last_attempt_at datetime NULL,
             next_retry_at datetime NULL,
+            conversion_type varchar(20) NOT NULL DEFAULT 'none',
+            conversion_status varchar(20) NOT NULL DEFAULT 'none',
+            conversion_url text NULL,
+            conversion_label varchar(190) NULL,
+            conversion_behavior varchar(20) NULL,
+            conversion_count int(10) unsigned NOT NULL DEFAULT 0,
+            conversion_at datetime NULL,
             created_at datetime NOT NULL,
             updated_at datetime NOT NULL,
             PRIMARY KEY  (id),
             KEY status_retry (status, next_retry_at),
             KEY created_at (created_at),
-            KEY email (email)
+            KEY email (email),
+            KEY conversion_status (conversion_status, conversion_at)
         ) {$charset_collate};";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -95,10 +103,31 @@ final class F10_Lead_Capture_Activator
 
         if ($current === null) {
             add_option($option_name, $settings, '', false);
+        } else {
+            update_option($option_name, $settings, false);
+        }
+
+        self::ensure_option(
+            'f10_lead_capture_appearance',
+            F10_Lead_Capture_Config::appearance_defaults()
+        );
+        self::ensure_option(
+            'f10_lead_capture_conversion',
+            F10_Lead_Capture_Config::conversion_defaults()
+        );
+    }
+
+    private static function ensure_option(string $option_name, array $defaults): void
+    {
+        $current = get_option($option_name, null);
+        $value = wp_parse_args(is_array($current) ? $current : array(), $defaults);
+
+        if ($current === null) {
+            add_option($option_name, $value, '', false);
             return;
         }
 
-        update_option($option_name, $settings, false);
+        update_option($option_name, $value, false);
     }
 
     private static function schedule_retry_event(): void
