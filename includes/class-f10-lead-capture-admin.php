@@ -1,0 +1,140 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-settings.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-leads.php';
+
+final class F10_Lead_Capture_Admin
+{
+    use F10_Lead_Capture_Admin_Settings_Trait;
+    use F10_Lead_Capture_Admin_Leads_Trait;
+
+    private const OPTION_NAME = 'f10_lead_capture_settings';
+
+    public function register_hooks(): void
+    {
+        add_action('admin_menu', array($this, 'register_menu'));
+        add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_post_f10_retry_lead', array($this, 'handle_retry'));
+        add_action('admin_post_f10_delete_lead', array($this, 'handle_delete'));
+        add_action('admin_post_f10_export_leads', array($this, 'handle_export'));
+    }
+
+    public function register_menu(): void
+    {
+        add_menu_page(
+            'Leads F10',
+            'Leads F10',
+            'manage_options',
+            'f10-leads',
+            array($this, 'render_leads_page'),
+            'dashicons-groups',
+            26
+        );
+
+        add_submenu_page(
+            'f10-leads',
+            'Leads capturados',
+            'Leads',
+            'manage_options',
+            'f10-leads',
+            array($this, 'render_leads_page')
+        );
+
+        add_submenu_page(
+            'f10-leads',
+            'Configurações',
+            'Configurações',
+            'manage_options',
+            'f10-lead-settings',
+            array($this, 'render_settings_page')
+        );
+    }
+
+    public function register_settings(): void
+    {
+        register_setting(
+            'f10_lead_capture_settings_group',
+            self::OPTION_NAME,
+            array($this, 'sanitize_settings')
+        );
+    }
+
+    private function render_notice(): void
+    {
+        $notice = isset($_GET['f10_notice']) ? sanitize_key(wp_unslash((string) $_GET['f10_notice'])) : '';
+
+        if ($notice === 'retried') {
+            echo '<div class="notice notice-success is-dismissible"><p>O reenvio foi processado. Consulte os status e respostas abaixo.</p></div>';
+        }
+
+        if ($notice === 'deleted') {
+            echo '<div class="notice notice-success is-dismissible"><p>Lead excluído permanentemente.</p></div>';
+        }
+    }
+
+    private function render_status_badge(string $status): void
+    {
+        $colors = array(
+            'completed' => array('#067647', '#ecfdf3'),
+            'stored' => array('#175cd3', '#eff8ff'),
+            'partial' => array('#b54708', '#fffaeb'),
+            'failed' => array('#b42318', '#fef3f2'),
+            'pending' => array('#344054', '#f2f4f7'),
+        );
+        $palette = $colors[$status] ?? array('#344054', '#f2f4f7');
+        $label = $this->status_labels()[$status] ?? ucfirst($status);
+
+        printf(
+            '<span style="display:inline-block;padding:4px 8px;border-radius:999px;color:%s;background:%s;font-weight:600">%s</span>',
+            esc_attr($palette[0]),
+            esc_attr($palette[1]),
+            esc_html($label)
+        );
+    }
+
+    private function status_labels(): array
+    {
+        return array(
+            'pending' => 'Pendente',
+            'completed' => 'Concluído',
+            'partial' => 'Parcial',
+            'failed' => 'Falhou',
+            'stored' => 'Somente salvo',
+        );
+    }
+
+    private function format_date(string $utc_date): string
+    {
+        if ($utc_date === '') {
+            return '—';
+        }
+
+        return get_date_from_gmt($utc_date, 'd/m/Y H:i:s');
+    }
+
+    private function format_phone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
+
+        if (strlen($digits) === 11) {
+            return preg_replace('/^(\d{2})(\d{5})(\d{4})$/', '($1) $2-$3', $digits) ?: $digits;
+        }
+
+        if (strlen($digits) === 10) {
+            return preg_replace('/^(\d{2})(\d{4})(\d{4})$/', '($1) $2-$3', $digits) ?: $digits;
+        }
+
+        return $digits;
+    }
+
+    private function require_capability(): void
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die('Você não possui permissão para acessar esta página.');
+        }
+    }
+}
