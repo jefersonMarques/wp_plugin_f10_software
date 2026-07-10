@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -177,6 +177,13 @@ Yes. Administrators can enable or disable the name, course, phone, WhatsApp, ema
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.0.7 =
+
+* Validates the F10 business response instead of relying only on the HTTP status.
+* Treats a response as successful only when `incluidos.digitacao` is greater than zero and no `nao_incluidas` errors are present.
+* Marks the overall lead as failed when the primary F10 integration fails, even if the Brevo notification succeeds.
+* Reconciles previously stored false-positive F10 successes during the plugin update.
 
 = 1.0.6 =
 
