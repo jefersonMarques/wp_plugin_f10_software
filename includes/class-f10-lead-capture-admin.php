@@ -7,18 +7,17 @@ if (!defined('ABSPATH')) {
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-settings.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-leads.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-appearance.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-conversion.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-forms.php';
 
 final class F10_Lead_Capture_Admin
 {
     use F10_Lead_Capture_Admin_Settings_Trait;
     use F10_Lead_Capture_Admin_Leads_Trait;
     use F10_Lead_Capture_Admin_Appearance_Trait;
-    use F10_Lead_Capture_Admin_Conversion_Trait;
+    use F10_Lead_Capture_Admin_Forms_Trait;
 
     private const OPTION_NAME = 'f10_lead_capture_settings';
     private const APPEARANCE_OPTION = 'f10_lead_capture_appearance';
-    private const CONVERSION_OPTION = 'f10_lead_capture_conversion';
 
     public function register_hooks(): void
     {
@@ -28,6 +27,9 @@ final class F10_Lead_Capture_Admin
         add_action('admin_post_f10_retry_lead', array($this, 'handle_retry'));
         add_action('admin_post_f10_delete_lead', array($this, 'handle_delete'));
         add_action('admin_post_f10_export_leads', array($this, 'handle_export'));
+        add_action('admin_post_f10_save_form', array($this, 'handle_save_form'));
+        add_action('admin_post_f10_duplicate_form', array($this, 'handle_duplicate_form'));
+        add_action('admin_post_f10_delete_form', array($this, 'handle_delete_form'));
     }
 
     public function register_menu(): void
@@ -53,20 +55,20 @@ final class F10_Lead_Capture_Admin
 
         add_submenu_page(
             'f10-leads',
+            'Formulários',
+            'Formulários',
+            'manage_options',
+            'f10-lead-forms',
+            array($this, 'render_forms_page')
+        );
+
+        add_submenu_page(
+            'f10-leads',
             'Aparência do formulário',
             'Aparência',
             'manage_options',
             'f10-lead-appearance',
             array($this, 'render_appearance_page')
-        );
-
-        add_submenu_page(
-            'f10-leads',
-            'Pós-conversão',
-            'Pós-conversão',
-            'manage_options',
-            'f10-lead-conversion',
-            array($this, 'render_conversion_page')
         );
 
         add_submenu_page(
@@ -92,19 +94,13 @@ final class F10_Lead_Capture_Admin
             self::APPEARANCE_OPTION,
             array($this, 'sanitize_appearance')
         );
-
-        register_setting(
-            'f10_lead_capture_conversion_group',
-            self::CONVERSION_OPTION,
-            array($this, 'sanitize_conversion')
-        );
     }
 
     public function enqueue_admin_assets(string $hook_suffix): void
     {
         $page = sanitize_key($this->query_text('page', 80));
 
-        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-conversion'), true)) {
+        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-forms'), true)) {
             return;
         }
 
@@ -138,11 +134,11 @@ final class F10_Lead_Capture_Admin
             );
         }
 
-        if ($page === 'f10-lead-conversion') {
+        if ($page === 'f10-lead-forms') {
             wp_enqueue_media();
             wp_enqueue_script(
-                'f10-lead-capture-admin-conversion',
-                F10_LEAD_CAPTURE_URL . 'assets/js/admin-conversion.js',
+                'f10-lead-capture-admin-forms',
+                F10_LEAD_CAPTURE_URL . 'assets/js/admin-forms.js',
                 array(),
                 F10_LEAD_CAPTURE_VERSION,
                 true
