@@ -1,12 +1,20 @@
 # Changelog
 
+## 1.2.3 — 2026-07-10
+
+### Corrigido
+
+- Text domain alinhado ao slug `f10-captura-de-leads` esperado pelo diretório WordPress.org.
+- Saída da exportação CSV reorganizada para que o Plugin Check reconheça a exceção de saída não HTML somente no ponto final de impressão.
+- Exceção de alteração de esquema na desinstalação delimitada especificamente ao `DROP TABLE` opcional.
+
 ## 1.2.2 — 2026-07-10
 
 ### Corrigido
 
 - A pós-conversão agora substitui estruturalmente o formulário completo.
-- O componente de resultado é movido para fora da tag `<form>` antes da troca de estado.
-- Regras de visibilidade inline com prioridade `important` impedem interferência do tema ou construtor de páginas.
+- O componente de resultado foi movido para fora da tag `<form>`.
+- Regras de visibilidade resistentes ao CSS do tema foram adicionadas.
 - Formulários configurados apenas para confirmação também ocultam os campos após o sucesso.
 
 ## 1.2.1 — 2026-07-10
