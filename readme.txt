@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -153,6 +153,12 @@ No. Brevo notifications are optional.
 Yes. Leads are stored locally and failed integrations can be retried manually or automatically.
 
 == Changelog ==
+
+= 1.2.3 =
+
+* Aligns the plugin text domain with the WordPress.org slug `f10-captura-de-leads`.
+* Refactors CSV output so Plugin Check recognizes the dedicated non-HTML CSV escaping at the final output point.
+* Documents and scopes the intentional database schema removal performed only during explicit plugin uninstallation.
 
 = 1.2.2 =
 
