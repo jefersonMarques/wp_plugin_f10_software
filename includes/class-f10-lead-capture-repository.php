@@ -19,44 +19,49 @@ final class F10_Lead_Capture_Repository
         global $wpdb;
 
         $now = current_time('mysql', true);
-        $formats = array_fill(0, 23, '%s');
-        $formats[] = '%d';
-        $formats[] = '%s';
-        $formats[] = '%s';
+        $insert_data = array(
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?: null,
+            'whatsapp' => $data['whatsapp'],
+            'email' => $data['email'],
+            'institution_name' => $data['institution_name'] ?: null,
+            'product' => $data['product'] ?: null,
+            'notes' => $data['notes'] ?: null,
+            'form_id' => $data['form_id'] ?: 'default',
+            'source_label' => $data['source_label'] ?: null,
+            'sub_source' => $data['sub_source'] ?: null,
+            'page_url' => $data['page_url'] ?: null,
+            'referrer_url' => $data['referrer_url'] ?: null,
+            'utm_source' => $data['utm_source'] ?: null,
+            'utm_medium' => $data['utm_medium'] ?: null,
+            'utm_campaign' => $data['utm_campaign'] ?: null,
+            'utm_term' => $data['utm_term'] ?: null,
+            'utm_content' => $data['utm_content'] ?: null,
+            'ip_hash' => $data['ip_hash'] ?: null,
+            'user_agent' => $data['user_agent'] ?: null,
+            'consent_at' => $data['consent_at'] ?: null,
+            'status' => 'pending',
+            'f10_status' => 'pending',
+            'brevo_status' => 'pending',
+            'attempts' => 0,
+            'conversion_type' => $data['conversion_type'] ?: 'none',
+            'conversion_status' => $data['conversion_status'] ?: 'none',
+            'conversion_url' => $data['conversion_url'] ?: null,
+            'conversion_label' => $data['conversion_label'] ?: null,
+            'conversion_behavior' => $data['conversion_behavior'] ?: null,
+            'conversion_count' => 0,
+            'created_at' => $now,
+            'updated_at' => $now,
+        );
+        $formats = array(
+            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s',
+            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s',
+            '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d',
+            '%s', '%s',
+        );
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A gravação ocorre em tabela própria do plugin e invalida o cache relacionado.
-        $inserted = $wpdb->insert(
-            self::table_name(),
-            array(
-                'name' => $data['name'],
-                'phone' => $data['phone'] ?: null,
-                'whatsapp' => $data['whatsapp'],
-                'email' => $data['email'],
-                'institution_name' => $data['institution_name'] ?: null,
-                'product' => $data['product'] ?: null,
-                'notes' => $data['notes'] ?: null,
-                'form_id' => $data['form_id'] ?: 'default',
-                'source_label' => $data['source_label'] ?: null,
-                'sub_source' => $data['sub_source'] ?: null,
-                'page_url' => $data['page_url'] ?: null,
-                'referrer_url' => $data['referrer_url'] ?: null,
-                'utm_source' => $data['utm_source'] ?: null,
-                'utm_medium' => $data['utm_medium'] ?: null,
-                'utm_campaign' => $data['utm_campaign'] ?: null,
-                'utm_term' => $data['utm_term'] ?: null,
-                'utm_content' => $data['utm_content'] ?: null,
-                'ip_hash' => $data['ip_hash'] ?: null,
-                'user_agent' => $data['user_agent'] ?: null,
-                'consent_at' => $data['consent_at'] ?: null,
-                'status' => 'pending',
-                'f10_status' => 'pending',
-                'brevo_status' => 'pending',
-                'attempts' => 0,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ),
-            $formats
-        );
+        $inserted = $wpdb->insert(self::table_name(), $insert_data, $formats);
 
         if ($inserted === false) {
             return 0;
@@ -106,7 +111,7 @@ final class F10_Lead_Capture_Repository
         foreach ($data as $key => $value) {
             $formats[] = in_array(
                 $key,
-                array('attempts', 'f10_http_status', 'brevo_http_status'),
+                array('attempts', 'f10_http_status', 'brevo_http_status', 'conversion_count'),
                 true
             ) ? '%d' : '%s';
         }
@@ -123,6 +128,37 @@ final class F10_Lead_Capture_Repository
         self::clear_cache($lead_id);
 
         return $result !== false;
+    }
+
+    public static function track_conversion(int $lead_id): bool
+    {
+        global $wpdb;
+
+        $now = current_time('mysql', true);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Incremento atômico do contador de conversão na tabela própria do plugin.
+        $updated = $wpdb->query(
+            $wpdb->prepare(
+                "UPDATE %i
+                 SET conversion_status = %s,
+                     conversion_count = conversion_count + 1,
+                     conversion_at = COALESCE(conversion_at, %s),
+                     updated_at = %s
+                 WHERE id = %d
+                   AND conversion_type IN (%s, %s)",
+                self::table_name(),
+                'completed',
+                $now,
+                $now,
+                $lead_id,
+                'download',
+                'link'
+            )
+        );
+
+        self::clear_cache($lead_id);
+
+        return $updated !== false && $updated > 0;
     }
 
     public static function delete(int $lead_id): bool
