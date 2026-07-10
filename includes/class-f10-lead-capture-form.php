@@ -21,19 +21,33 @@ final class F10_Lead_Capture_Form
     {
         $attributes = shortcode_atts(
             array(
-                'title' => 'Fale com um especialista',
-                'description' => 'Preencha seus dados e a equipe entrará em contato.',
-                'button' => 'Quero saber mais',
-                'product' => 'Software F10',
-                'form_id' => 'wordpress-form',
-                'source' => 'WordPress',
-                'sub_source' => 'Formulário de conteúdo',
-                'show_institution' => 'yes',
+                'id' => F10_Lead_Capture_Config::DEFAULT_FORM_ID,
+                'title' => '',
+                'description' => '',
+                'button' => '',
+                'product' => '',
+                'form_id' => '',
+                'source' => '',
+                'sub_source' => '',
+                'show_institution' => '',
                 'redirect_url' => '',
             ),
             $attributes,
             'f10_lead_form'
         );
+
+        $selected_id = F10_Lead_Capture_Config::sanitize_form_id((string) $attributes['id']);
+        $form_config = F10_Lead_Capture_Config::get_form($selected_id);
+
+        if (!is_array($form_config)) {
+            $form_config = F10_Lead_Capture_Config::get_default_form();
+        }
+
+        if (($form_config['active'] ?? '0') !== '1') {
+            return current_user_can('manage_options')
+                ? '<!-- F10 Lead Capture: formulário inativo ' . esc_html((string) $form_config['id']) . ' -->'
+                : '';
+        }
 
         self::$instance_count++;
         $form_identifier = 'f10-lead-form-' . self::$instance_count;
@@ -43,6 +57,15 @@ final class F10_Lead_Capture_Form
         $show_institution = strtolower((string) $attributes['show_institution']) !== 'no';
         $wrapper_classes = $this->appearance_classes($appearance);
         $wrapper_style = $this->appearance_style($appearance);
+        $title = $this->shortcode_value($attributes, 'title', (string) $form_config['title']);
+        $description = $this->shortcode_value($attributes, 'description', (string) $form_config['description']);
+        $button = $this->shortcode_value($attributes, 'button', (string) $form_config['button']);
+        $product = $this->shortcode_value($attributes, 'product', (string) $form_config['product']);
+        $source = $this->shortcode_value($attributes, 'source', (string) $form_config['source']);
+        $sub_source = $this->shortcode_value($attributes, 'sub_source', (string) $form_config['sub_source']);
+        $lead_form_id = trim((string) $attributes['form_id']) !== ''
+            ? sanitize_text_field((string) $attributes['form_id'])
+            : (string) $form_config['id'];
 
         wp_enqueue_style(
             'f10-lead-capture-form',
@@ -65,14 +88,15 @@ final class F10_Lead_Capture_Form
             class="<?php echo esc_attr(implode(' ', $wrapper_classes)); ?>"
             style="<?php echo esc_attr($wrapper_style); ?>"
             data-f10-lead-container
+            data-f10-form-config="<?php echo esc_attr((string) $form_config['id']); ?>"
         >
             <div class="f10-lead-capture__header">
-                <?php if (trim((string) $attributes['title']) !== '') : ?>
-                    <h2 class="f10-lead-capture__title"><?php echo esc_html((string) $attributes['title']); ?></h2>
+                <?php if (trim($title) !== '') : ?>
+                    <h2 class="f10-lead-capture__title"><?php echo esc_html($title); ?></h2>
                 <?php endif; ?>
 
-                <?php if (trim((string) $attributes['description']) !== '') : ?>
-                    <p class="f10-lead-capture__description"><?php echo esc_html((string) $attributes['description']); ?></p>
+                <?php if (trim($description) !== '') : ?>
+                    <p class="f10-lead-capture__description"><?php echo esc_html($description); ?></p>
                 <?php endif; ?>
             </div>
 
@@ -87,10 +111,11 @@ final class F10_Lead_Capture_Form
                 <input type="hidden" name="action" value="f10_submit_lead">
                 <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('f10_lead_submit')); ?>">
                 <input type="hidden" name="form_loaded_at" value="<?php echo esc_attr((string) time()); ?>">
-                <input type="hidden" name="form_id" value="<?php echo esc_attr((string) $attributes['form_id']); ?>">
-                <input type="hidden" name="default_product" value="<?php echo esc_attr((string) $attributes['product']); ?>">
-                <input type="hidden" name="source_label" value="<?php echo esc_attr((string) $attributes['source']); ?>">
-                <input type="hidden" name="sub_source" value="<?php echo esc_attr((string) $attributes['sub_source']); ?>">
+                <input type="hidden" name="form_config_id" value="<?php echo esc_attr((string) $form_config['id']); ?>">
+                <input type="hidden" name="form_id" value="<?php echo esc_attr($lead_form_id); ?>">
+                <input type="hidden" name="default_product" value="<?php echo esc_attr($product); ?>">
+                <input type="hidden" name="source_label" value="<?php echo esc_attr($source); ?>">
+                <input type="hidden" name="sub_source" value="<?php echo esc_attr($sub_source); ?>">
                 <input type="hidden" name="redirect_url" value="<?php echo esc_url((string) $attributes['redirect_url']); ?>">
                 <input type="hidden" name="page_url" value="" data-f10-page-url>
                 <input type="hidden" name="referrer_url" value="" data-f10-referrer-url>
@@ -102,20 +127,17 @@ final class F10_Lead_Capture_Form
 
                 <div class="f10-lead-capture__honeypot" aria-hidden="true">
                     <label for="<?php echo esc_attr($form_identifier); ?>-website">Website</label>
-                    <input
-                        id="<?php echo esc_attr($form_identifier); ?>-website"
-                        type="text"
-                        name="website"
-                        value=""
-                        tabindex="-1"
-                        autocomplete="off"
-                    >
+                    <input id="<?php echo esc_attr($form_identifier); ?>-website" type="text" name="website" value="" tabindex="-1" autocomplete="off">
                 </div>
 
                 <div class="f10-lead-capture__grid">
-                    <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) : ?>
+                    <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $definition) : ?>
                         <?php
-                        if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+                        $configured = is_array($form_config['fields'][$field_key] ?? null)
+                            ? $form_config['fields'][$field_key]
+                            : array();
+
+                        if (($configured['enabled'] ?? '0') !== '1') {
                             continue;
                         }
 
@@ -123,12 +145,15 @@ final class F10_Lead_Capture_Form
                             continue;
                         }
 
+                        $field = $definition;
+                        $field['required'] = ($configured['required'] ?? '0') === '1';
+                        $label = trim((string) ($configured['label'] ?? '')) ?: (string) $definition['label'];
                         $this->render_field(
                             $form_identifier,
                             $field_key,
                             $field,
-                            F10_Lead_Capture_Config::field_label($field_key, $settings),
-                            $field_key === 'course' ? (string) $attributes['product'] : ''
+                            $label,
+                            $field_key === 'course' ? $product : ''
                         );
                         ?>
                     <?php endforeach; ?>
@@ -142,7 +167,7 @@ final class F10_Lead_Capture_Form
                 <?php endif; ?>
 
                 <button class="f10-lead-capture__button" type="submit" data-f10-submit>
-                    <span data-f10-button-label><?php echo esc_html((string) $attributes['button']); ?></span>
+                    <span data-f10-button-label><?php echo esc_html($button); ?></span>
                     <span class="f10-lead-capture__spinner" aria-hidden="true"></span>
                 </button>
 
@@ -186,8 +211,15 @@ final class F10_Lead_Capture_Form
         }
 
         $settings = $this->get_settings();
-        $values = $this->read_configured_fields($settings);
-        $validation_error = $this->validate_configured_fields($settings, $values);
+        $form_config_id = F10_Lead_Capture_Config::sanitize_form_id($this->posted_text('form_config_id', 100));
+        $form_config = F10_Lead_Capture_Config::get_form($form_config_id);
+
+        if (!is_array($form_config) || ($form_config['active'] ?? '0') !== '1') {
+            wp_send_json_error(array('message' => 'Este formulário não está disponível.'), 404);
+        }
+
+        $values = $this->read_configured_fields($form_config);
+        $validation_error = $this->validate_configured_fields($form_config, $values);
 
         if ($validation_error !== '') {
             wp_send_json_error(array('message' => $validation_error), 422);
@@ -202,7 +234,7 @@ final class F10_Lead_Capture_Form
             );
         }
 
-        $conversion_action = $this->resolve_conversion_action();
+        $conversion_action = $this->resolve_conversion_action($form_config);
         $lead_data = array(
             'name' => $values['name'] !== '' ? $values['name'] : 'Lead WordPress',
             'phone' => $values['phone'],
@@ -211,11 +243,11 @@ final class F10_Lead_Capture_Form
             'institution_name' => $values['school'],
             'product' => $values['course'] !== ''
                 ? $values['course']
-                : $this->posted_text('default_product', 190),
+                : ($this->posted_text('default_product', 190) ?: (string) $form_config['product']),
             'notes' => $values['notes'],
-            'form_id' => $this->posted_text('form_id', 100) ?: 'wordpress-form',
-            'source_label' => $this->posted_text('source_label', 190) ?: 'WordPress',
-            'sub_source' => $this->posted_text('sub_source', 190),
+            'form_id' => $this->posted_text('form_id', 100) ?: (string) $form_config['id'],
+            'source_label' => $this->posted_text('source_label', 190) ?: (string) $form_config['source'],
+            'sub_source' => $this->posted_text('sub_source', 190) ?: (string) $form_config['sub_source'],
             'page_url' => $this->posted_url('page_url'),
             'referrer_url' => $this->posted_url('referrer_url'),
             'utm_source' => $this->posted_text('utm_source', 190),
@@ -259,7 +291,7 @@ final class F10_Lead_Capture_Form
 
         wp_send_json_success(
             array(
-                'message' => (string) $settings['success_message'],
+                'message' => (string) $form_config['success_message'],
                 'conversionAction' => $this->build_conversion_response($lead_id, $conversion_action),
             )
         );
@@ -338,7 +370,7 @@ final class F10_Lead_Capture_Form
         <?php
     }
 
-    private function read_configured_fields(array $settings): array
+    private function read_configured_fields(array $form_config): array
     {
         $values = array(
             'name' => '',
@@ -351,7 +383,11 @@ final class F10_Lead_Capture_Form
         );
 
         foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
-            if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+            $configured = is_array($form_config['fields'][$field_key] ?? null)
+                ? $form_config['fields'][$field_key]
+                : array();
+
+            if (($configured['enabled'] ?? '0') !== '1') {
                 continue;
             }
 
@@ -374,17 +410,21 @@ final class F10_Lead_Capture_Form
         return $values;
     }
 
-    private function validate_configured_fields(array $settings, array $values): string
+    private function validate_configured_fields(array $form_config, array $values): string
     {
         foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
-            if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+            $configured = is_array($form_config['fields'][$field_key] ?? null)
+                ? $form_config['fields'][$field_key]
+                : array();
+
+            if (($configured['enabled'] ?? '0') !== '1') {
                 continue;
             }
 
-            $label = F10_Lead_Capture_Config::field_label($field_key, $settings);
+            $label = trim((string) ($configured['label'] ?? '')) ?: (string) $field['label'];
             $value = isset($values[$field_key]) ? (string) $values[$field_key] : '';
 
-            if (!empty($field['required']) && $value === '') {
+            if (($configured['required'] ?? '0') === '1' && $value === '') {
                 return 'Preencha o campo ' . $label . '.';
             }
 
@@ -400,10 +440,9 @@ final class F10_Lead_Capture_Form
         return '';
     }
 
-    private function resolve_conversion_action(): array
+    private function resolve_conversion_action(array $form_config): array
     {
         $shortcode_redirect = $this->sanitize_public_url($this->posted_url('redirect_url'));
-        $conversion = F10_Lead_Capture_Config::get_conversion();
 
         if ($shortcode_redirect !== '') {
             return array(
@@ -418,10 +457,9 @@ final class F10_Lead_Capture_Form
             );
         }
 
-        if (($conversion['enabled'] ?? '0') !== '1') {
-            return $this->empty_conversion_action();
-        }
-
+        $conversion = is_array($form_config['conversion'] ?? null)
+            ? F10_Lead_Capture_Config::normalize_conversion($form_config['conversion'])
+            : F10_Lead_Capture_Config::conversion_defaults();
         $type = in_array((string) ($conversion['type'] ?? ''), array('download', 'link'), true)
             ? (string) $conversion['type']
             : 'none';
@@ -515,6 +553,11 @@ final class F10_Lead_Capture_Form
             '--f10-title-size-desktop' => array('title_size_desktop', 18, 72, 38),
             '--f10-title-size-mobile' => array('title_size_mobile', 18, 56, 30),
             '--f10-description-size' => array('description_size', 12, 24, 16),
+            '--f10-conversion-border-width' => array('conversion_border_width', 0, 8, 1),
+            '--f10-conversion-radius' => array('conversion_radius', 0, 60, 16),
+            '--f10-conversion-padding' => array('conversion_padding', 0, 64, 24),
+            '--f10-conversion-button-radius' => array('conversion_button_radius', 0, 40, 12),
+            '--f10-conversion-title-size' => array('conversion_title_size', 16, 48, 22),
         );
         $color_variables = array(
             '--f10-form-background' => array('form_background', '#ffffff'),
@@ -528,6 +571,14 @@ final class F10_Lead_Capture_Form
             '--f10-button-background' => array('button_background', '#ea6d0b'),
             '--f10-button-hover-background' => array('button_hover_background', '#d85f00'),
             '--f10-button-text-color' => array('button_text_color', '#ffffff'),
+            '--f10-conversion-background' => array('conversion_background', '#f8fafc'),
+            '--f10-conversion-border-color' => array('conversion_border_color', '#d9dee8'),
+            '--f10-conversion-title-color' => array('conversion_title_color', '#000a57'),
+            '--f10-conversion-description-color' => array('conversion_description_color', '#667085'),
+            '--f10-conversion-icon-color' => array('conversion_icon_color', '#067647'),
+            '--f10-conversion-button-background' => array('conversion_button_background', '#ea6d0b'),
+            '--f10-conversion-button-hover-background' => array('conversion_button_hover_background', '#d85f00'),
+            '--f10-conversion-button-text-color' => array('conversion_button_text_color', '#ffffff'),
         );
         $parts = array();
 
@@ -543,7 +594,28 @@ final class F10_Lead_Capture_Form
             $parts[] = $variable . ':' . ($value ?: $config[1]);
         }
 
+        $conversion_shadow = in_array((string) ($appearance['conversion_shadow'] ?? ''), array('none', 'subtle', 'strong'), true)
+            ? (string) $appearance['conversion_shadow']
+            : 'subtle';
+        $shadow_values = array(
+            'none' => 'none',
+            'subtle' => '0 12px 32px rgba(16,24,40,.08)',
+            'strong' => '0 20px 55px rgba(16,24,40,.20)',
+        );
+        $parts[] = '--f10-conversion-shadow:' . $shadow_values[$conversion_shadow];
+        $parts[] = '--f10-conversion-button-width:' . (($appearance['conversion_button_width'] ?? 'auto') === 'full' ? '100%' : 'auto');
+
         return implode(';', $parts);
+    }
+
+    private function shortcode_value(array $attributes, string $key, string $default): string
+    {
+        if (!isset($attributes[$key])) {
+            return $default;
+        }
+
+        $value = trim((string) $attributes[$key]);
+        return $value !== '' ? $value : $default;
     }
 
     private function sanitize_public_url(string $url): string
