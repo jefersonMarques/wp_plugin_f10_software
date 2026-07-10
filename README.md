@@ -206,3 +206,7 @@ includes/
 ## Licença
 
 GPL-2.0-or-later.
+
+## Correção 1.2.1
+
+Após um envio bem-sucedido, o formulário é substituído pelo componente de pós-conversão. O componente não é mais acrescentado abaixo dos campos. Quando não há download ou link configurado, a mesma área apresenta somente a confirmação de sucesso.
