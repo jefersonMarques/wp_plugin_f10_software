@@ -273,7 +273,7 @@ final class F10_Lead_Capture_Form
                     name="<?php echo esc_attr($request_key); ?>"
                     rows="4"
                     maxlength="<?php echo esc_attr((string) $field['max_length']); ?>"
-                    <?php required($required); ?>
+                    <?php if ($required) : ?>required<?php endif; ?>
                 ><?php echo esc_textarea($default_value); ?></textarea>
             <?php else : ?>
                 <input
@@ -284,7 +284,7 @@ final class F10_Lead_Capture_Form
                     maxlength="<?php echo esc_attr((string) $field['max_length']); ?>"
                     <?php if ($field['autocomplete'] !== '') : ?>autocomplete="<?php echo esc_attr((string) $field['autocomplete']); ?>"<?php endif; ?>
                     <?php if ($field['type'] === 'tel') : ?>inputmode="tel" placeholder="(00) 00000-0000" data-f10-phone<?php endif; ?>
-                    <?php required($required); ?>
+                    <?php if ($required) : ?>required<?php endif; ?>
                 >
             <?php endif; ?>
         </label>
