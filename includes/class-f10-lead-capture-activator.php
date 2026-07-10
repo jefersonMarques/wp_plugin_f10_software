@@ -6,13 +6,14 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Activator
 {
-    private const DB_VERSION = '1.3.0';
+    private const DB_VERSION = '1.4.0';
     private const DB_VERSION_OPTION = 'f10_lead_capture_db_version';
 
     public static function activate(): void
     {
         self::create_table();
         self::ensure_settings();
+        self::ensure_forms();
         self::schedule_retry_event();
         F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
@@ -26,6 +27,7 @@ final class F10_Lead_Capture_Activator
 
         self::create_table();
         self::ensure_settings();
+        self::ensure_forms();
         F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
     }
@@ -111,9 +113,27 @@ final class F10_Lead_Capture_Activator
             'f10_lead_capture_appearance',
             F10_Lead_Capture_Config::appearance_defaults()
         );
-        self::ensure_option(
-            'f10_lead_capture_conversion',
-            F10_Lead_Capture_Config::conversion_defaults()
+    }
+
+    private static function ensure_forms(): void
+    {
+        $current = get_option(F10_Lead_Capture_Config::FORMS_OPTION, null);
+
+        if (is_array($current) && !empty($current)) {
+            F10_Lead_Capture_Config::save_forms($current);
+            return;
+        }
+
+        $default = F10_Lead_Capture_Config::default_form(
+            F10_Lead_Capture_Config::get_settings(),
+            (array) get_option('f10_lead_capture_conversion', array())
+        );
+
+        add_option(
+            F10_Lead_Capture_Config::FORMS_OPTION,
+            array($default['id'] => $default),
+            '',
+            false
         );
     }
 
