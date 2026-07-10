@@ -10,17 +10,17 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     {
         $this->require_capability();
 
-        $action = isset($_GET['action']) ? sanitize_key(wp_unslash((string) $_GET['action'])) : '';
-        $lead_id = isset($_GET['lead_id']) ? absint($_GET['lead_id']) : 0;
+        $action = sanitize_key($this->query_text('action', 30));
+        $lead_id = $this->query_int('lead_id');
 
         if ($action === 'view' && $lead_id > 0) {
             $this->render_lead_details($lead_id);
             return;
         }
 
-        $status = isset($_GET['status']) ? sanitize_key(wp_unslash((string) $_GET['status'])) : '';
-        $search = isset($_GET['s']) ? sanitize_text_field(wp_unslash((string) $_GET['s'])) : '';
-        $page = isset($_GET['paged']) ? max(1, absint($_GET['paged'])) : 1;
+        $status = sanitize_key($this->query_text('status', 30));
+        $search = $this->query_text('s', 190);
+        $page = max(1, $this->query_int('paged', 1));
         $per_page = 20;
         $result = F10_Lead_Capture_Repository::paginate(
             array('status' => $status, 'search' => $search),
@@ -95,7 +95,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="mailto:<?php echo esc_attr((string) $lead['email']); ?>"><?php echo esc_html((string) $lead['email']); ?></a>
+                                    <a href="<?php echo esc_url('mailto:' . (string) $lead['email']); ?>"><?php echo esc_html((string) $lead['email']); ?></a>
                                     <br><?php echo esc_html($this->format_phone((string) $lead['whatsapp'])); ?>
                                 </td>
                                 <td>
@@ -141,7 +141,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     public function handle_retry(): void
     {
         $this->require_capability();
-        $lead_id = isset($_GET['lead_id']) ? absint($_GET['lead_id']) : 0;
+        $lead_id = $this->query_int('lead_id');
         check_admin_referer('f10_retry_lead_' . $lead_id);
 
         if ($lead_id > 0) {
@@ -150,7 +150,12 @@ trait F10_Lead_Capture_Admin_Leads_Trait
 
         wp_safe_redirect(
             add_query_arg(
-                array('page' => 'f10-leads', 'action' => 'view', 'lead_id' => $lead_id, 'f10_notice' => 'retried'),
+                array(
+                    'page' => 'f10-leads',
+                    'action' => 'view',
+                    'lead_id' => $lead_id,
+                    'f10_notice' => 'retried',
+                ),
                 admin_url('admin.php')
             )
         );
@@ -160,7 +165,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     public function handle_delete(): void
     {
         $this->require_capability();
-        $lead_id = isset($_GET['lead_id']) ? absint($_GET['lead_id']) : 0;
+        $lead_id = $this->query_int('lead_id');
         check_admin_referer('f10_delete_lead_' . $lead_id);
 
         if ($lead_id > 0) {
@@ -181,8 +186,8 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         $this->require_capability();
         check_admin_referer('f10_export_leads');
 
-        $status = isset($_GET['status']) ? sanitize_key(wp_unslash((string) $_GET['status'])) : '';
-        $search = isset($_GET['s']) ? sanitize_text_field(wp_unslash((string) $_GET['s'])) : '';
+        $status = sanitize_key($this->query_text('status', 30));
+        $search = $this->query_text('s', 190);
         $leads = F10_Lead_Capture_Repository::all_for_export(
             array('status' => $status, 'search' => $search)
         );
@@ -191,26 +196,21 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         header('Content-Type: text/csv; charset=UTF-8');
         header('Content-Disposition: attachment; filename="f10-leads-' . gmdate('Y-m-d-His') . '.csv"');
 
-        $output = fopen('php://output', 'wb');
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Marca BOM necessária para compatibilidade do CSV com planilhas.
+        echo "\xEF\xBB\xBF";
 
-        if ($output === false) {
-            wp_die('Não foi possível gerar o arquivo CSV.');
-        }
-
-        fwrite($output, "\xEF\xBB\xBF");
-        fputcsv(
-            $output,
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A função build_csv_line aplica escape em cada célula.
+        echo $this->build_csv_line(
             array(
                 'ID', 'Data', 'Nome', 'WhatsApp', 'E-mail', 'Escola/empresa', 'Produto',
                 'Origem', 'Suborigem', 'Página', 'Referência', 'UTM Source', 'UTM Medium',
-                'UTM Campaign', 'UTM Term', 'UTM Content', 'Status', 'F10', 'Brevo', 'Tentativas'
-            ),
-            ';'
+                'UTM Campaign', 'UTM Term', 'UTM Content', 'Status', 'F10', 'Brevo', 'Tentativas',
+            )
         );
 
         foreach ($leads as $lead) {
-            fputcsv(
-                $output,
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- A função build_csv_line aplica escape em cada célula.
+            echo $this->build_csv_line(
                 array(
                     $lead['id'],
                     $this->format_date((string) $lead['created_at']),
@@ -232,12 +232,10 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                     $lead['f10_status'],
                     $lead['brevo_status'],
                     $lead['attempts'],
-                ),
-                ';'
+                )
             );
         }
 
-        fclose($output);
         exit;
     }
 
@@ -342,5 +340,26 @@ trait F10_Lead_Capture_Admin_Leads_Trait
             ),
             'f10_delete_lead_' . $lead_id
         );
+    }
+
+    private function build_csv_line(array $values): string
+    {
+        $escaped_values = array_map(array($this, 'escape_csv_cell'), $values);
+        return implode(';', $escaped_values) . "\r\n";
+    }
+
+    private function escape_csv_cell($value): string
+    {
+        $normalized_value = str_replace(
+            array("\r\n", "\r"),
+            "\n",
+            (string) $value
+        );
+
+        if (preg_match('/^[=+\-@]/', $normalized_value) === 1) {
+            $normalized_value = "'" . $normalized_value;
+        }
+
+        return '"' . str_replace('"', '""', $normalized_value) . '"';
     }
 }
