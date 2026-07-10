@@ -19,7 +19,7 @@ final class F10_Lead_Capture_Repository
         global $wpdb;
 
         $now = current_time('mysql', true);
-        $formats = array_fill(0, 21, '%s');
+        $formats = array_fill(0, 23, '%s');
         $formats[] = '%d';
         $formats[] = '%s';
         $formats[] = '%s';
@@ -29,10 +29,12 @@ final class F10_Lead_Capture_Repository
             self::table_name(),
             array(
                 'name' => $data['name'],
+                'phone' => $data['phone'] ?: null,
                 'whatsapp' => $data['whatsapp'],
                 'email' => $data['email'],
                 'institution_name' => $data['institution_name'] ?: null,
                 'product' => $data['product'] ?: null,
+                'notes' => $data['notes'] ?: null,
                 'form_id' => $data['form_id'] ?: 'default',
                 'source_label' => $data['source_label'] ?: null,
                 'sub_source' => $data['sub_source'] ?: null,
@@ -158,8 +160,10 @@ final class F10_Lead_Capture_Repository
                        %s = ''
                        OR name LIKE %s
                        OR email LIKE %s
+                       OR phone LIKE %s
                        OR whatsapp LIKE %s
                        OR institution_name LIKE %s
+                       OR product LIKE %s
                    )
                  ORDER BY created_at DESC, id DESC
                  LIMIT %d OFFSET %d",
@@ -167,6 +171,8 @@ final class F10_Lead_Capture_Repository
                 $status,
                 $status,
                 $search,
+                $search_like,
+                $search_like,
                 $search_like,
                 $search_like,
                 $search_like,
@@ -186,13 +192,17 @@ final class F10_Lead_Capture_Repository
                        %s = ''
                        OR name LIKE %s
                        OR email LIKE %s
+                       OR phone LIKE %s
                        OR whatsapp LIKE %s
                        OR institution_name LIKE %s
+                       OR product LIKE %s
                    )",
                 self::table_name(),
                 $status,
                 $status,
                 $search,
+                $search_like,
+                $search_like,
                 $search_like,
                 $search_like,
                 $search_like,
@@ -251,8 +261,10 @@ final class F10_Lead_Capture_Repository
                        %s = ''
                        OR name LIKE %s
                        OR email LIKE %s
+                       OR phone LIKE %s
                        OR whatsapp LIKE %s
                        OR institution_name LIKE %s
+                       OR product LIKE %s
                    )
                  ORDER BY created_at DESC
                  LIMIT %d",
@@ -260,6 +272,8 @@ final class F10_Lead_Capture_Repository
                 $status,
                 $status,
                 $search,
+                $search_like,
+                $search_like,
                 $search_like,
                 $search_like,
                 $search_like,
