@@ -79,7 +79,7 @@ final class F10_Lead_Capture_Form
                 <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('f10_lead_submit')); ?>">
                 <input type="hidden" name="form_loaded_at" value="<?php echo esc_attr((string) time()); ?>">
                 <input type="hidden" name="form_id" value="<?php echo esc_attr((string) $attributes['form_id']); ?>">
-                <input type="hidden" name="product" value="<?php echo esc_attr((string) $attributes['product']); ?>">
+                <input type="hidden" name="default_product" value="<?php echo esc_attr((string) $attributes['product']); ?>">
                 <input type="hidden" name="source_label" value="<?php echo esc_attr((string) $attributes['source']); ?>">
                 <input type="hidden" name="sub_source" value="<?php echo esc_attr((string) $attributes['sub_source']); ?>">
                 <input type="hidden" name="redirect_url" value="<?php echo esc_url((string) $attributes['redirect_url']); ?>">
@@ -104,36 +104,25 @@ final class F10_Lead_Capture_Form
                 </div>
 
                 <div class="f10-lead-capture__grid">
-                    <label class="f10-lead-capture__field">
-                        <span>Nome</span>
-                        <input type="text" name="name" autocomplete="name" maxlength="190" required>
-                    </label>
+                    <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) : ?>
+                        <?php
+                        if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+                            continue;
+                        }
 
-                    <label class="f10-lead-capture__field">
-                        <span>WhatsApp</span>
-                        <input
-                            type="tel"
-                            name="whatsapp"
-                            inputmode="tel"
-                            autocomplete="tel"
-                            maxlength="20"
-                            placeholder="(00) 00000-0000"
-                            data-f10-phone
-                            required
-                        >
-                    </label>
+                        if ($field_key === 'school' && !$show_institution) {
+                            continue;
+                        }
 
-                    <label class="f10-lead-capture__field">
-                        <span>E-mail</span>
-                        <input type="email" name="email" autocomplete="email" maxlength="190" required>
-                    </label>
-
-                    <?php if ($show_institution) : ?>
-                        <label class="f10-lead-capture__field">
-                            <span>Nome da escola ou empresa <small>(opcional)</small></span>
-                            <input type="text" name="institution_name" autocomplete="organization" maxlength="190">
-                        </label>
-                    <?php endif; ?>
+                        $this->render_field(
+                            $form_identifier,
+                            $field_key,
+                            $field,
+                            F10_Lead_Capture_Config::field_label($field_key, $settings),
+                            $field_key === 'course' ? (string) $attributes['product'] : ''
+                        );
+                        ?>
+                    <?php endforeach; ?>
                 </div>
 
                 <?php if ($require_consent) : ?>
@@ -187,18 +176,14 @@ final class F10_Lead_Capture_Form
         }
 
         $settings = $this->get_settings();
-        $name = $this->posted_text('name', 190);
-        $whatsapp = preg_replace('/\D+/', '', $this->posted_text('whatsapp', 30)) ?: '';
-        $email = sanitize_email($this->posted_text('email', 190));
-        $institution_name = $this->posted_text('institution_name', 190);
-        $consent = $this->posted_text('consent', 5) === '1';
+        $values = $this->read_configured_fields($settings);
+        $validation_error = $this->validate_configured_fields($settings, $values);
 
-        if ($name === '' || strlen($whatsapp) < 10 || strlen($whatsapp) > 13 || !is_email($email)) {
-            wp_send_json_error(
-                array('message' => 'Informe nome, WhatsApp com DDD e um e-mail válido.'),
-                422
-            );
+        if ($validation_error !== '') {
+            wp_send_json_error(array('message' => $validation_error), 422);
         }
+
+        $consent = $this->posted_text('consent', 5) === '1';
 
         if ($settings['require_consent'] === '1' && !$consent) {
             wp_send_json_error(
@@ -208,11 +193,15 @@ final class F10_Lead_Capture_Form
         }
 
         $lead_data = array(
-            'name' => $name,
-            'whatsapp' => $whatsapp,
-            'email' => $email,
-            'institution_name' => $institution_name,
-            'product' => $this->posted_text('product', 190),
+            'name' => $values['name'] !== '' ? $values['name'] : 'Lead WordPress',
+            'phone' => $values['phone'],
+            'whatsapp' => $values['whatsapp'],
+            'email' => $values['email'],
+            'institution_name' => $values['school'],
+            'product' => $values['course'] !== ''
+                ? $values['course']
+                : $this->posted_text('default_product', 190),
+            'notes' => $values['notes'],
             'form_id' => $this->posted_text('form_id', 100) ?: 'wordpress-form',
             'source_label' => $this->posted_text('source_label', 190) ?: 'WordPress',
             'sub_source' => $this->posted_text('sub_source', 190),
@@ -262,6 +251,108 @@ final class F10_Lead_Capture_Form
         );
     }
 
+    private function render_field(
+        string $form_identifier,
+        string $field_key,
+        array $field,
+        string $label,
+        string $default_value
+    ): void {
+        $field_id = $form_identifier . '-' . $field_key;
+        $required = !empty($field['required']);
+        $request_key = (string) $field['request_key'];
+        ?>
+        <label class="f10-lead-capture__field" for="<?php echo esc_attr($field_id); ?>">
+            <span>
+                <?php echo esc_html($label); ?>
+                <?php if (!$required) : ?><small>(opcional)</small><?php endif; ?>
+            </span>
+            <?php if ($field['type'] === 'textarea') : ?>
+                <textarea
+                    id="<?php echo esc_attr($field_id); ?>"
+                    name="<?php echo esc_attr($request_key); ?>"
+                    rows="4"
+                    maxlength="<?php echo esc_attr((string) $field['max_length']); ?>"
+                    <?php required($required); ?>
+                ><?php echo esc_textarea($default_value); ?></textarea>
+            <?php else : ?>
+                <input
+                    id="<?php echo esc_attr($field_id); ?>"
+                    type="<?php echo esc_attr((string) $field['type']); ?>"
+                    name="<?php echo esc_attr($request_key); ?>"
+                    value="<?php echo esc_attr($default_value); ?>"
+                    maxlength="<?php echo esc_attr((string) $field['max_length']); ?>"
+                    <?php if ($field['autocomplete'] !== '') : ?>autocomplete="<?php echo esc_attr((string) $field['autocomplete']); ?>"<?php endif; ?>
+                    <?php if ($field['type'] === 'tel') : ?>inputmode="tel" placeholder="(00) 00000-0000" data-f10-phone<?php endif; ?>
+                    <?php required($required); ?>
+                >
+            <?php endif; ?>
+        </label>
+        <?php
+    }
+
+    private function read_configured_fields(array $settings): array
+    {
+        $values = array(
+            'name' => '',
+            'course' => '',
+            'phone' => '',
+            'whatsapp' => '',
+            'email' => '',
+            'school' => '',
+            'notes' => '',
+        );
+
+        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
+            if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+                continue;
+            }
+
+            $request_key = (string) $field['request_key'];
+            $value = $field['type'] === 'textarea'
+                ? $this->posted_textarea($request_key, (int) $field['max_length'])
+                : $this->posted_text($request_key, (int) $field['max_length']);
+
+            if ($field['type'] === 'tel') {
+                $value = preg_replace('/\D+/', '', $value) ?: '';
+            }
+
+            if ($field['type'] === 'email') {
+                $value = sanitize_email($value);
+            }
+
+            $values[$field_key] = $value;
+        }
+
+        return $values;
+    }
+
+    private function validate_configured_fields(array $settings, array $values): string
+    {
+        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
+            if (!F10_Lead_Capture_Config::is_field_enabled($field_key, $settings)) {
+                continue;
+            }
+
+            $label = F10_Lead_Capture_Config::field_label($field_key, $settings);
+            $value = isset($values[$field_key]) ? (string) $values[$field_key] : '';
+
+            if (!empty($field['required']) && $value === '') {
+                return 'Preencha o campo ' . $label . '.';
+            }
+
+            if ($field['type'] === 'tel' && $value !== '' && (strlen($value) < 10 || strlen($value) > 13)) {
+                return 'Informe um número válido no campo ' . $label . ', incluindo o DDD.';
+            }
+
+            if ($field['type'] === 'email' && $value !== '' && !is_email($value)) {
+                return 'Informe um e-mail válido no campo ' . $label . '.';
+            }
+        }
+
+        return '';
+    }
+
     private function consume_rate_limit(): bool
     {
         $key = 'f10_lead_rate_' . substr($this->get_ip_hash(), 0, 32);
@@ -298,12 +389,7 @@ final class F10_Lead_Capture_Form
 
     private function posted_text(string $key, int $max_length): string
     {
-        $raw_value = filter_input(
-            INPUT_POST,
-            $key,
-            FILTER_UNSAFE_RAW,
-            FILTER_REQUIRE_SCALAR
-        );
+        $raw_value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 
         if (!is_string($raw_value)) {
             return '';
@@ -316,14 +402,24 @@ final class F10_Lead_Capture_Form
             : substr($value, 0, $max_length);
     }
 
+    private function posted_textarea(string $key, int $max_length): string
+    {
+        $raw_value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
+
+        if (!is_string($raw_value)) {
+            return '';
+        }
+
+        $value = sanitize_textarea_field($raw_value);
+
+        return function_exists('mb_substr')
+            ? mb_substr($value, 0, $max_length)
+            : substr($value, 0, $max_length);
+    }
+
     private function posted_url(string $key): string
     {
-        $raw_value = filter_input(
-            INPUT_POST,
-            $key,
-            FILTER_UNSAFE_RAW,
-            FILTER_REQUIRE_SCALAR
-        );
+        $raw_value = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
 
         if (!is_string($raw_value)) {
             return '';
@@ -334,13 +430,6 @@ final class F10_Lead_Capture_Form
 
     private function get_settings(): array
     {
-        return wp_parse_args(
-            (array) get_option('f10_lead_capture_settings', array()),
-            array(
-                'require_consent' => '1',
-                'consent_text' => 'Autorizo o contato da equipe comercial sobre as soluções apresentadas.',
-                'success_message' => 'Dados recebidos com sucesso. Nossa equipe entrará em contato.',
-            )
-        );
+        return F10_Lead_Capture_Config::get_settings();
     }
 }
