@@ -4,7 +4,7 @@ Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,7 +168,6 @@ Yes. The plugin records UTM Source, UTM Medium, UTM Campaign, UTM Term, and UTM 
 
 Yes. The shortcode can be added multiple times with different `form_id`, `product`, `source`, and `sub_source` values.
 
-
 = Can form fields be customized? =
 
 Yes. Administrators can enable or disable the name, course, phone, WhatsApp, email, school or company, and notes fields. Each enabled field can also use a custom frontend label without changing the technical key sent to F10 Software.
@@ -178,6 +177,12 @@ Yes. Administrators can enable or disable the name, course, phone, WhatsApp, ema
 No. The plugin does not include usage telemetry, advertising trackers, or affiliate tracking.
 
 == Changelog ==
+
+= 1.0.6 =
+
+* Fixed form submissions incorrectly requesting `/[object HTMLInputElement]` instead of WordPress `admin-ajax.php`.
+* The JavaScript now reads the literal form action attribute, avoiding collisions with the hidden `action` field.
+* Added masked previews for saved F10 JWT tokens and Brevo API keys in the settings screen.
 
 = 1.0.5 =
 
