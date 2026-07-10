@@ -20,13 +20,12 @@ trait F10_Lead_Capture_Admin_Settings_Trait
             ? ''
             : ($api_key_input !== '' ? sanitize_text_field($api_key_input) : (string) $current['brevo_api_key']);
 
-        return array(
+        $settings = array(
             'f10_enabled' => !empty($input['f10_enabled']) ? '1' : '0',
-            'f10_url' => isset($input['f10_url']) ? esc_url_raw((string) $input['f10_url']) : '',
             'f10_token' => $f10_token,
             'f10_unit_id' => isset($input['f10_unit_id']) ? (string) absint($input['f10_unit_id']) : '',
-            'f10_source' => isset($input['f10_source']) ? sanitize_text_field((string) $input['f10_source']) : 'Site',
-            'f10_media' => isset($input['f10_media']) ? sanitize_text_field((string) $input['f10_media']) : 'WordPress',
+            'f10_source' => isset($input['f10_source']) ? sanitize_text_field((string) $input['f10_source']) : '',
+            'f10_media' => isset($input['f10_media']) ? sanitize_text_field((string) $input['f10_media']) : '',
             'brevo_enabled' => !empty($input['brevo_enabled']) ? '1' : '0',
             'brevo_api_key' => $brevo_api_key,
             'brevo_recipient_email' => isset($input['brevo_recipient_email'])
@@ -50,6 +49,17 @@ trait F10_Lead_Capture_Admin_Settings_Trait
                 : '5',
             'delete_data_on_uninstall' => !empty($input['delete_data_on_uninstall']) ? '1' : '0',
         );
+
+        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
+            $enabled_key = 'field_' . $field_key . '_enabled';
+            $label_key = 'field_' . $field_key . '_label';
+            $label = isset($input[$label_key]) ? sanitize_text_field((string) $input[$label_key]) : '';
+
+            $settings[$enabled_key] = !empty($input[$enabled_key]) ? '1' : '0';
+            $settings[$label_key] = $label !== '' ? $label : (string) $field['label'];
+        }
+
+        return $settings;
     }
 
     public function render_settings_page(): void
@@ -57,6 +67,7 @@ trait F10_Lead_Capture_Admin_Settings_Trait
         $this->require_capability();
         $settings = $this->get_settings();
         $jwt_status = F10_Lead_Capture_Integrations::inspect_jwt((string) $settings['f10_token']);
+        $help_url = 'https://ajuda.f10.com.br/kb/pt-br/article/119833/fontes-eventos-e-cadastro-de-visitas';
         ?>
         <div class="wrap">
             <h1>Configurações do F10 Lead Capture</h1>
@@ -66,40 +77,97 @@ trait F10_Lead_Capture_Admin_Settings_Trait
                 <?php settings_fields('f10_lead_capture_settings_group'); ?>
 
                 <h2>Integração com a F10</h2>
-                <p>Os campos abaixo correspondem ao contrato utilizado pelo site da F10 para criar leads.</p>
+                <p>Os leads são enviados para o endpoint oficial da F10 usando o formato de digitação da API.</p>
                 <table class="form-table" role="presentation">
                     <tr>
                         <th scope="row">Ativar envio para F10</th>
                         <td><label><input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_enabled]" value="1" <?php checked($settings['f10_enabled'], '1'); ?>> Enviar cada novo lead para a API da F10</label></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="f10_url">URL da API F10</label></th>
+                        <th scope="row">URL da API F10</th>
                         <td>
-                            <input id="f10_url" class="regular-text code" type="url" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_url]" value="<?php echo esc_attr((string) $settings['f10_url']); ?>" placeholder="https://...">
-                            <p class="description">Endpoint completo que recebe o payload de leads.</p>
+                            <code><?php echo esc_html(F10_Lead_Capture_Config::F10_ENDPOINT); ?></code>
+                            <p class="description">Endpoint fixo utilizado automaticamente pelo plugin.</p>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="f10_token">Token JWT F10</label></th>
+                        <th scope="row">
+                            <label for="f10_token">Token JWT F10</label>
+                            <?php echo wp_kses_post($this->render_help_icon('Solicitar à equipe F10 o token para envio de leads.')); ?>
+                        </th>
                         <td>
-                            <input id="f10_token" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_token]" value="" autocomplete="new-password" placeholder="<?php echo $settings['f10_token'] ? 'Token configurado — deixe em branco para manter' : 'Informe o token JWT'; ?>">
+                            <input id="f10_token" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_token]" value="" autocomplete="new-password" placeholder="<?php echo esc_attr($settings['f10_token'] ? 'Token configurado — deixe em branco para manter' : 'Informe o token JWT'); ?>">
                             <label style="display:block;margin-top:8px"><input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[clear_f10_token]" value="1"> Remover o token salvo</label>
                             <p class="description"><?php echo esc_html($this->jwt_status_message($jwt_status)); ?></p>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="f10_unit_id">ID da unidade</label></th>
+                        <th scope="row">
+                            <label for="f10_unit_id">ID da unidade</label>
+                            <?php echo wp_kses_post($this->render_help_icon('Solicitar à equipe F10 o ID da sua unidade.')); ?>
+                        </th>
                         <td><input id="f10_unit_id" type="number" min="1" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_unit_id]" value="<?php echo esc_attr((string) $settings['f10_unit_id']); ?>"></td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="f10_source">Fonte</label></th>
-                        <td><input id="f10_source" class="regular-text" type="text" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_source]" value="<?php echo esc_attr((string) $settings['f10_source']); ?>" placeholder="Site"></td>
+                        <th scope="row">
+                            <label for="f10_source">Fonte</label>
+                            <?php echo wp_kses_post($this->render_help_icon('Consulte como configurar fontes e eventos no F10.', $help_url)); ?>
+                        </th>
+                        <td>
+                            <input id="f10_source" class="regular-text" type="text" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_source]" value="<?php echo esc_attr((string) $settings['f10_source']); ?>" placeholder="Ex.: Site F10">
+                            <p class="description">Mesmo texto informado no F10. <a href="<?php echo esc_url($help_url); ?>" target="_blank" rel="noopener noreferrer">Ver ajuda sobre fontes e mídias</a>.</p>
+                        </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="f10_media">Mídia</label></th>
-                        <td><input id="f10_media" class="regular-text" type="text" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_media]" value="<?php echo esc_attr((string) $settings['f10_media']); ?>" placeholder="WordPress"></td>
+                        <th scope="row">
+                            <label for="f10_media">Mídia</label>
+                            <?php echo wp_kses_post($this->render_help_icon('Consulte como configurar fontes e eventos no F10.', $help_url)); ?>
+                        </th>
+                        <td>
+                            <input id="f10_media" class="regular-text" type="text" name="<?php echo esc_attr(self::OPTION_NAME); ?>[f10_media]" value="<?php echo esc_attr((string) $settings['f10_media']); ?>" placeholder="Ex.: Site F10">
+                            <p class="description">Mesmo texto informado no F10. <a href="<?php echo esc_url($help_url); ?>" target="_blank" rel="noopener noreferrer">Ver ajuda sobre fontes e mídias</a>.</p>
+                        </td>
                     </tr>
                 </table>
+
+                <hr>
+                <h2>Campos do formulário</h2>
+                <p>Ative apenas os campos que devem aparecer. O rótulo pode ser alterado sem modificar o nome técnico enviado à API F10.</p>
+                <table class="widefat striped" style="max-width:920px;margin-bottom:24px">
+                    <thead>
+                        <tr>
+                            <th style="width:220px">Campo da API</th>
+                            <th style="width:120px">Exibir</th>
+                            <th>Nome exibido no formulário</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) : ?>
+                            <?php
+                            $enabled_key = 'field_' . $field_key . '_enabled';
+                            $label_key = 'field_' . $field_key . '_label';
+                            ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo esc_html((string) $field['label']); ?></strong>
+                                    <?php if (!empty($field['required'])) : ?>
+                                        <br><small>Obrigatório quando ativo</small>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[<?php echo esc_attr($enabled_key); ?>]" value="1" <?php checked($settings[$enabled_key], '1'); ?>>
+                                        Ativar
+                                    </label>
+                                </td>
+                                <td>
+                                    <input class="regular-text" type="text" name="<?php echo esc_attr(self::OPTION_NAME); ?>[<?php echo esc_attr($label_key); ?>]" value="<?php echo esc_attr((string) $settings[$label_key]); ?>" maxlength="120">
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p class="description">Os campos técnicos <code>token</code>, <code>tipo_api</code>, <code>unidade_id</code>, <code>fonte</code> e <code>midia</code> vêm das configurações. <code>extra1</code> e <code>extra2</code> são preenchidos automaticamente com o caminho e a URL completa da página de captura.</p>
 
                 <hr>
                 <h2>Notificação por e-mail via Brevo</h2>
@@ -111,7 +179,7 @@ trait F10_Lead_Capture_Admin_Settings_Trait
                     <tr>
                         <th scope="row"><label for="brevo_api_key">Chave da API Brevo</label></th>
                         <td>
-                            <input id="brevo_api_key" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[brevo_api_key]" value="" autocomplete="new-password" placeholder="<?php echo $settings['brevo_api_key'] ? 'Chave configurada — deixe em branco para manter' : 'xkeysib-...'; ?>">
+                            <input id="brevo_api_key" class="regular-text code" type="password" name="<?php echo esc_attr(self::OPTION_NAME); ?>[brevo_api_key]" value="" autocomplete="new-password" placeholder="<?php echo esc_attr($settings['brevo_api_key'] ? 'Chave configurada — deixe em branco para manter' : 'xkeysib-...'); ?>">
                             <label style="display:block;margin-top:8px"><input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[clear_brevo_api_key]" value="1"> Remover a chave salva</label>
                         </td>
                     </tr>
@@ -169,9 +237,20 @@ trait F10_Lead_Capture_Admin_Settings_Trait
             <p><code>[f10_lead_form]</code></p>
             <p>Exemplo personalizado:</p>
             <p><code>[f10_lead_form title="Receba uma demonstração" button="Quero uma demonstração" product="Sistema de gestão escolar" source="Blog F10" sub_source="Post sobre cursos livres"]</code></p>
-            <p>Para ocultar o campo de escola/empresa, use <code>show_institution="no"</code>.</p>
         </div>
         <?php
+    }
+
+    private function render_help_icon(string $message, string $url = ''): string
+    {
+        $icon = '<span class="dashicons dashicons-editor-help" aria-hidden="true" style="font-size:17px;width:17px;height:17px;vertical-align:text-bottom"></span>';
+        $content = $icon . '<span class="screen-reader-text">' . esc_html($message) . '</span>';
+
+        if ($url !== '') {
+            return '<a href="' . esc_url($url) . '" target="_blank" rel="noopener noreferrer" title="' . esc_attr($message) . '">' . $content . '</a>';
+        }
+
+        return '<span title="' . esc_attr($message) . '" tabindex="0">' . $content . '</span>';
     }
 
     private function jwt_status_message(array $jwt_status): string
@@ -197,26 +276,6 @@ trait F10_Lead_Capture_Admin_Settings_Trait
 
     private function get_settings(): array
     {
-        return wp_parse_args(
-            (array) get_option(self::OPTION_NAME, array()),
-            array(
-                'f10_enabled' => '1',
-                'f10_url' => '',
-                'f10_token' => '',
-                'f10_unit_id' => '',
-                'f10_source' => 'Site',
-                'f10_media' => 'WordPress',
-                'brevo_enabled' => '0',
-                'brevo_api_key' => '',
-                'brevo_recipient_email' => '',
-                'brevo_sender_email' => sanitize_email((string) get_option('admin_email')),
-                'brevo_sender_name' => 'Leads F10',
-                'require_consent' => '1',
-                'consent_text' => 'Autorizo o contato da equipe comercial sobre as soluções apresentadas.',
-                'success_message' => 'Dados recebidos com sucesso. Nossa equipe entrará em contato.',
-                'max_retry_attempts' => '5',
-                'delete_data_on_uninstall' => '0',
-            )
-        );
+        return F10_Lead_Capture_Config::get_settings();
     }
 }
