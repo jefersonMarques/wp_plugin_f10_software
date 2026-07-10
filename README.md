@@ -152,7 +152,7 @@ A versão 1.0.4 inclui migração automática para adicionar telefone, observaç
 ## Segurança e privacidade
 
 - Configurações restritas a administradores.
-- Tokens e chaves não são devolvidos ao navegador durante a edição.
+- Tokens e chaves não são devolvidos integralmente ao navegador durante a edição; a tela mostra apenas uma prévia mascarada.
 - Nonce e honeypot no formulário.
 - Rate limit contra envios repetitivos.
 - IP armazenado apenas como hash.
@@ -194,3 +194,11 @@ uninstall.php
 ## Licença
 
 GPL-2.0-or-later.
+
+## Correção 1.0.6
+
+A versão 1.0.6 corrige o envio AJAX quando o navegador interpreta `form.action` como o campo oculto `name="action"`. O JavaScript agora lê explicitamente o atributo HTML do formulário, garantindo o envio para `wp-admin/admin-ajax.php`. A tela de configurações também exibe uma prévia mascarada das credenciais salvas.
+
+## Correção 1.0.5
+
+A versão 1.0.5 corrige um erro fatal que podia ocorrer ao salvar posts contendo o shortcode `[f10_lead_form]`. O problema estava na renderização dos campos obrigatórios durante o autosave da REST API do WordPress.
