@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.4 — 2026-07-10
+
+### Alterado
+
+- Endpoint da API F10 fixado em `https://nuvem.f10.com.br/fx-api/digitacao`.
+- Payload F10 atualizado para o formato plano com token no corpo e `tipo_api` igual a `2`.
+- Campos do formulário passaram a permitir ativação individual e rótulo personalizado no frontend.
+- Adicionados telefone e observações ao banco de leads, ao painel, ao CSV e ao Brevo.
+- Adicionadas ajudas contextuais para token, unidade, fonte e mídia.
+- Migração automática do banco adicionada para instalações existentes.
+
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
 ## 1.0.3 — 2026-07-10
