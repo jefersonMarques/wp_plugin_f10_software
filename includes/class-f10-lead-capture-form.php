@@ -158,9 +158,7 @@ final class F10_Lead_Capture_Form
 
     public function handle_submission(): void
     {
-        $nonce = $this->posted_text('nonce', 200);
-
-        if (!wp_verify_nonce($nonce, 'f10_lead_submit')) {
+        if (check_ajax_referer('f10_lead_submit', 'nonce', false) === false) {
             wp_send_json_error(
                 array('message' => 'Não foi possível validar o formulário. Atualize a página e tente novamente.'),
                 403
@@ -300,11 +298,18 @@ final class F10_Lead_Capture_Form
 
     private function posted_text(string $key, int $max_length): string
     {
-        if (!isset($_POST[$key]) || is_array($_POST[$key])) {
+        $raw_value = filter_input(
+            INPUT_POST,
+            $key,
+            FILTER_UNSAFE_RAW,
+            FILTER_REQUIRE_SCALAR
+        );
+
+        if (!is_string($raw_value)) {
             return '';
         }
 
-        $value = sanitize_text_field(wp_unslash((string) $_POST[$key]));
+        $value = sanitize_text_field($raw_value);
 
         return function_exists('mb_substr')
             ? mb_substr($value, 0, $max_length)
@@ -313,12 +318,18 @@ final class F10_Lead_Capture_Form
 
     private function posted_url(string $key): string
     {
-        if (!isset($_POST[$key]) || is_array($_POST[$key])) {
+        $raw_value = filter_input(
+            INPUT_POST,
+            $key,
+            FILTER_UNSAFE_RAW,
+            FILTER_REQUIRE_SCALAR
+        );
+
+        if (!is_string($raw_value)) {
             return '';
         }
 
-        $value = esc_url_raw(wp_unslash((string) $_POST[$key]));
-        return substr($value, 0, 2000);
+        return substr(esc_url_raw($raw_value), 0, 2000);
     }
 
     private function get_settings(): array
