@@ -6,18 +6,25 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-settings.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-leads.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-appearance.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-conversion.php';
 
 final class F10_Lead_Capture_Admin
 {
     use F10_Lead_Capture_Admin_Settings_Trait;
     use F10_Lead_Capture_Admin_Leads_Trait;
+    use F10_Lead_Capture_Admin_Appearance_Trait;
+    use F10_Lead_Capture_Admin_Conversion_Trait;
 
     private const OPTION_NAME = 'f10_lead_capture_settings';
+    private const APPEARANCE_OPTION = 'f10_lead_capture_appearance';
+    private const CONVERSION_OPTION = 'f10_lead_capture_conversion';
 
     public function register_hooks(): void
     {
         add_action('admin_menu', array($this, 'register_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
         add_action('admin_post_f10_retry_lead', array($this, 'handle_retry'));
         add_action('admin_post_f10_delete_lead', array($this, 'handle_delete'));
         add_action('admin_post_f10_export_leads', array($this, 'handle_export'));
@@ -46,6 +53,24 @@ final class F10_Lead_Capture_Admin
 
         add_submenu_page(
             'f10-leads',
+            'Aparência do formulário',
+            'Aparência',
+            'manage_options',
+            'f10-lead-appearance',
+            array($this, 'render_appearance_page')
+        );
+
+        add_submenu_page(
+            'f10-leads',
+            'Pós-conversão',
+            'Pós-conversão',
+            'manage_options',
+            'f10-lead-conversion',
+            array($this, 'render_conversion_page')
+        );
+
+        add_submenu_page(
+            'f10-leads',
             'Configurações',
             'Configurações',
             'manage_options',
@@ -61,6 +86,68 @@ final class F10_Lead_Capture_Admin
             self::OPTION_NAME,
             array($this, 'sanitize_settings')
         );
+
+        register_setting(
+            'f10_lead_capture_appearance_group',
+            self::APPEARANCE_OPTION,
+            array($this, 'sanitize_appearance')
+        );
+
+        register_setting(
+            'f10_lead_capture_conversion_group',
+            self::CONVERSION_OPTION,
+            array($this, 'sanitize_conversion')
+        );
+    }
+
+    public function enqueue_admin_assets(string $hook_suffix): void
+    {
+        $page = sanitize_key($this->query_text('page', 80));
+
+        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-conversion'), true)) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'f10-lead-capture-form',
+            F10_LEAD_CAPTURE_URL . 'assets/css/form.css',
+            array(),
+            F10_LEAD_CAPTURE_VERSION
+        );
+
+        wp_enqueue_style(
+            'f10-lead-capture-admin',
+            F10_LEAD_CAPTURE_URL . 'assets/css/admin.css',
+            array(),
+            F10_LEAD_CAPTURE_VERSION
+        );
+
+        if ($page === 'f10-lead-appearance') {
+            wp_enqueue_script(
+                'f10-lead-capture-admin-appearance',
+                F10_LEAD_CAPTURE_URL . 'assets/js/admin-appearance.js',
+                array(),
+                F10_LEAD_CAPTURE_VERSION,
+                true
+            );
+
+            wp_localize_script(
+                'f10-lead-capture-admin-appearance',
+                'F10LeadAppearance',
+                array('presets' => F10_Lead_Capture_Config::appearance_presets())
+            );
+        }
+
+        if ($page === 'f10-lead-conversion') {
+            wp_enqueue_media();
+            wp_enqueue_script(
+                'f10-lead-capture-admin-conversion',
+                F10_LEAD_CAPTURE_URL . 'assets/js/admin-conversion.js',
+                array(),
+                F10_LEAD_CAPTURE_VERSION,
+                true
+            );
+        }
     }
 
     private function render_notice(): void
