@@ -1,5 +1,5 @@
 === F10 Lead Capture ===
-Contributors: f10software
+Contributors: rafamarques, f10software
 Tags: lead capture, contact form, crm, brevo, school management
 Requires at least: 6.2
 Requires PHP: 7.4
