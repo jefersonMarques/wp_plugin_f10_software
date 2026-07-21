@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.4 — 2026-07-21
+
+### Corrigido
+
+- Modal do WhatsApp limitado à largura do botão flutuante em alguns navegadores e temas.
+- Overlay ajustado para ocupar toda a viewport, inclusive em telas pequenas.
+- Largura e altura responsivas do formulário reforçadas para evitar rolagem horizontal.
+- Estilo estrutural aplicado também inline para neutralizar cache antigo de CSS.
+
 ## 1.3.3 — 2026-07-21
 
 ### Corrigido
