@@ -4,7 +4,7 @@ Tags: lead capture, contact form, whatsapp, crm, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,12 @@ No. Brevo notifications are optional.
 Yes. Leads are stored locally and failed integrations can be retried manually or automatically.
 
 == Changelog ==
+
+= 1.3.2 =
+
+* Replaces multiple-selection boxes with searchable checkbox lists.
+* Highlights selected pages, content, and categories.
+* Centers the WhatsApp icon inside the floating button and preview.
 
 = 1.3.1 =
 
