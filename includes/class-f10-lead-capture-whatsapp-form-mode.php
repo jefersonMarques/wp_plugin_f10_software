@@ -28,8 +28,14 @@ final class F10_Lead_Capture_WhatsApp_Form_Mode
             return $new_value;
         }
 
-        $input = isset($_POST['f10_whatsapp']) && is_array($_POST['f10_whatsapp'])
-            ? wp_unslash($_POST['f10_whatsapp'])
+        $raw_input = filter_input(
+            INPUT_POST,
+            'f10_whatsapp',
+            FILTER_UNSAFE_RAW,
+            FILTER_REQUIRE_ARRAY
+        );
+        $input = is_array($raw_input)
+            ? map_deep($raw_input, 'sanitize_text_field')
             : array();
         $mode = sanitize_key((string) ($input['form_display_mode'] ?? 'smart'));
 
