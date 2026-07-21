@@ -31,6 +31,7 @@ final class F10_Lead_Capture_Plugin
         remove_action('wp_footer', array($whatsapp, 'render_widget'), 30);
         add_action('wp_footer', array($whatsapp, 'render_widget'), 5);
         add_filter('script_loader_tag', array($this, 'defer_whatsapp_script'), 10, 2);
+        add_action('wp_enqueue_scripts', array($this, 'add_whatsapp_layout_fix'), 40);
 
         if (is_admin()) {
             $admin = new F10_Lead_Capture_Admin();
@@ -55,6 +56,20 @@ final class F10_Lead_Capture_Plugin
         }
 
         return str_replace(' src=', ' defer src=', $tag);
+    }
+
+    public function add_whatsapp_layout_fix(): void
+    {
+        if (!wp_style_is('f10-lead-capture-whatsapp', 'enqueued')) {
+            return;
+        }
+
+        $css = '.f10-whatsapp-widget.is-visible{transform:none!important}'
+            . '.f10-whatsapp-widget__overlay{width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;box-sizing:border-box!important}'
+            . '.f10-whatsapp-widget__dialog{width:min(390px,calc(100vw - 48px))!important;max-width:390px!important;min-width:0!important;box-sizing:border-box!important;max-height:calc(100vh - 48px)!important;max-height:calc(100dvh - 48px)!important}'
+            . '@media(max-width:767px){.f10-whatsapp-widget__dialog{width:100%!important;max-width:none!important;max-height:92vh!important;max-height:92dvh!important}}';
+
+        wp_add_inline_style('f10-lead-capture-whatsapp', $css);
     }
 
     public function add_settings_link(array $links): array
