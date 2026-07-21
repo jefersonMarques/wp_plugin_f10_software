@@ -27,6 +27,11 @@ final class F10_Lead_Capture_Plugin
         $whatsapp = new F10_Lead_Capture_WhatsApp();
         $whatsapp->register_hooks();
 
+        // O HTML precisa existir antes de o script do rodapé executar.
+        remove_action('wp_footer', array($whatsapp, 'render_widget'), 30);
+        add_action('wp_footer', array($whatsapp, 'render_widget'), 5);
+        add_filter('script_loader_tag', array($this, 'defer_whatsapp_script'), 10, 2);
+
         if (is_admin()) {
             $admin = new F10_Lead_Capture_Admin();
             $admin->register_hooks();
@@ -41,6 +46,15 @@ final class F10_Lead_Capture_Plugin
             'plugin_action_links_' . plugin_basename(F10_LEAD_CAPTURE_FILE),
             array($this, 'add_settings_link')
         );
+    }
+
+    public function defer_whatsapp_script(string $tag, string $handle): string
+    {
+        if ($handle !== 'f10-lead-capture-whatsapp' || strpos($tag, ' defer') !== false) {
+            return $tag;
+        }
+
+        return str_replace(' src=', ' defer src=', $tag);
     }
 
     public function add_settings_link(array $links): array
