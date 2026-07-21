@@ -65,11 +65,24 @@
 .f10-whatsapp-widget__dialog-icon {
     display: grid;
     place-items: center;
+    line-height: 0;
 }
 
-.f10-whatsapp-widget__icon svg {
+.f10-whatsapp-widget__trigger > .f10-whatsapp-widget__icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 32px;
     height: 32px;
+    transform: translate(-50%, -50%);
+}
+
+.f10-whatsapp-widget__icon svg,
+.f10-whatsapp-widget__dialog-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     fill: currentColor;
 }
 
@@ -191,7 +204,6 @@
 .f10-whatsapp-widget__dialog-icon svg {
     width: 27px;
     height: 27px;
-    fill: currentColor;
 }
 
 .f10-whatsapp-widget__dialog h2 {
