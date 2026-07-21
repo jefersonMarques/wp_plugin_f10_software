@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
 final class F10_Lead_Capture_WhatsApp
 {
     private ?array $widget = null;
+    private array $request_data = array();
 
     public function register_hooks(): void
     {
@@ -206,9 +207,7 @@ final class F10_Lead_Capture_WhatsApp
 
     public function handle_submission(): void
     {
-        if (check_ajax_referer('f10_lead_capture_whatsapp_submit', 'nonce', false) === false) {
-            wp_send_json_error(array('message' => 'Não foi possível validar o formulário. Atualize a página.'), 403);
-        }
+        $this->prepare_ajax_request();
 
         if ($this->posted_text('website', 200) !== '') {
             wp_send_json_success(array('message' => 'Dados recebidos com sucesso.'));
@@ -335,6 +334,8 @@ final class F10_Lead_Capture_WhatsApp
 
     public function handle_tracking(): void
     {
+        $this->prepare_ajax_request();
+
         $lead_id = absint($this->posted_text('lead_id', 20));
         $token = $this->posted_text('token', 128);
 
@@ -359,13 +360,28 @@ final class F10_Lead_Capture_WhatsApp
         wp_send_json_success(array('tracked' => true));
     }
 
+    private function prepare_ajax_request(): void
+    {
+        if (check_ajax_referer('f10_lead_capture_whatsapp_submit', 'nonce', false) === false) {
+            wp_send_json_error(
+                array('message' => 'Não foi possível validar a solicitação. Atualize a página.'),
+                403
+            );
+        }
+
+        $raw_request = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
+        $this->request_data = is_array($raw_request)
+            ? map_deep($raw_request, 'sanitize_text_field')
+            : array();
+    }
+
     private function posted_text(string $key, int $max_length): string
     {
-        if (!isset($_POST[$key]) || !is_scalar($_POST[$key])) {
+        if (!isset($this->request_data[$key]) || !is_scalar($this->request_data[$key])) {
             return '';
         }
 
-        $value = sanitize_text_field(wp_unslash((string) $_POST[$key]));
+        $value = (string) $this->request_data[$key];
 
         return function_exists('mb_substr')
             ? mb_substr($value, 0, $max_length)
