@@ -4,7 +4,7 @@ Tags: lead capture, contact form, whatsapp, crm, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -77,6 +77,12 @@ When a visitor submits the floating capture form, the plugin builds a `https://w
 The plugin stores submitted lead information in the WordPress database. IP addresses are stored only as HMAC hashes for abuse prevention. The floating WhatsApp feature may store the visitor name, WhatsApp number, and expiration timestamp in browser local storage for seven days after a successful submission.
 
 == Changelog ==
+
+= 1.3.4 =
+
+* Fixes the floating form width when the widget container creates a transformed positioning context.
+* Forces the overlay to use the full viewport and keeps the dialog responsive on narrow screens.
+* Adds an inline layout safeguard so cached CSS cannot preserve the previous narrow modal.
 
 = 1.3.3 =
 
