@@ -4,7 +4,7 @@ Tags: lead capture, contact form, whatsapp, crm, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,12 @@ No. Brevo notifications are optional.
 Yes. Leads are stored locally and failed integrations can be retried manually or automatically.
 
 == Changelog ==
+
+= 1.3.1 =
+
+* Fixes alignment and field sizing in the WhatsApp administration editor.
+* Improves responsive form layout and full-width content selectors.
+* Updates the WhatsApp icon used in the widget and preview.
 
 = 1.3.0 =
 
