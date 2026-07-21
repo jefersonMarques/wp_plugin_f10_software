@@ -3,7 +3,7 @@
  * Plugin Name: F10 Lead Capture
  * Plugin URI: https://github.com/jefersonMarques/wp_plugin_f10_software
  * Description: Create lead forms and floating WhatsApp capture widgets, store contacts locally, and integrate WordPress with F10 Software and Brevo.
- * Version: 1.3.4
+ * Version: 1.3.6
  * Author: F10 Software
  * Author URI: https://f10.com.br/
  * License: GPLv2 or later
@@ -17,13 +17,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('F10_LEAD_CAPTURE_VERSION', '1.3.4');
+define('F10_LEAD_CAPTURE_VERSION', '1.3.6');
 define('F10_LEAD_CAPTURE_FILE', __FILE__);
 define('F10_LEAD_CAPTURE_PATH', plugin_dir_path(__FILE__));
 define('F10_LEAD_CAPTURE_URL', plugin_dir_url(__FILE__));
 
 require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-config.php';
 require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-whatsapp-config.php';
+require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-whatsapp-form-mode.php';
 require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-activator.php';
 require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-deactivator.php';
 require_once F10_LEAD_CAPTURE_PATH . 'includes/class-f10-lead-capture-repository.php';

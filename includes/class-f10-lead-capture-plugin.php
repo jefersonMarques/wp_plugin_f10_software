@@ -31,6 +31,13 @@ final class F10_Lead_Capture_Plugin
         remove_action('wp_footer', array($whatsapp, 'render_widget'), 30);
         add_action('wp_footer', array($whatsapp, 'render_widget'), 5);
         add_filter('script_loader_tag', array($this, 'defer_whatsapp_script'), 10, 2);
+        add_filter(
+            'pre_update_option_' . F10_Lead_Capture_WhatsApp_Config::OPTION_NAME,
+            array('F10_Lead_Capture_WhatsApp_Form_Mode', 'apply_posted_mode'),
+            10,
+            2
+        );
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_whatsapp_form_mode_script'), 35);
         add_action('wp_enqueue_scripts', array($this, 'add_whatsapp_layout_fix'), 40);
 
         if (is_admin()) {
@@ -67,6 +74,10 @@ final class F10_Lead_Capture_Plugin
         $css = '.f10-whatsapp-widget.is-visible{transform:none!important}'
             . '.f10-whatsapp-widget__overlay{width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;box-sizing:border-box!important}'
             . '.f10-whatsapp-widget__dialog{width:min(390px,calc(100vw - 48px))!important;max-width:390px!important;min-width:0!important;box-sizing:border-box!important;max-height:calc(100vh - 48px)!important;max-height:calc(100dvh - 48px)!important}'
+            . '.f10-whatsapp-widget__dialog-header{align-items:center!important;padding-right:52px!important}'
+            . '.f10-whatsapp-widget__dialog-icon{position:relative!important;overflow:hidden!important}'
+            . '.f10-whatsapp-widget__dialog-icon svg,.f10-whatsapp-widget__dialog-icon::after{position:absolute!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%)!important}'
+            . '.f10-whatsapp-widget__close{display:grid!important;place-items:center!important;padding:0!important;font-size:22px!important;line-height:0!important}'
             . '@media(max-width:767px){.f10-whatsapp-widget__dialog{width:100%!important;max-width:none!important;max-height:92vh!important;max-height:92dvh!important}}';
 
         wp_add_inline_style('f10-lead-capture-whatsapp', $css);

@@ -11,6 +11,38 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Form_Trait
         ?>
         <section class="f10-admin-card">
             <h2>Formulário</h2>
+            <div class="f10-whatsapp-form-behavior">
+                <div class="f10-whatsapp-form-behavior__heading">
+                    <strong>Quando solicitar os dados?</strong>
+                    <p>Defina se o formulário deve aparecer novamente depois que o visitante já enviou nome e WhatsApp.</p>
+                </div>
+                <div class="f10-whatsapp-form-behavior__options">
+                    <label class="f10-whatsapp-form-behavior__option">
+                        <input type="radio" name="f10_whatsapp[form_display_mode]" value="always" <?php checked($widget['form_display_mode'], 'always'); ?>>
+                        <span>
+                            <strong>Sempre abrir formulário</strong>
+                            <small>Solicita os dados em todos os cliques. Cada envio registra um novo lead.</small>
+                        </span>
+                    </label>
+                    <label class="f10-whatsapp-form-behavior__option">
+                        <input type="radio" name="f10_whatsapp[form_display_mode]" value="smart" <?php checked($widget['form_display_mode'], 'smart'); ?>>
+                        <span>
+                            <strong>Abrir somente se os dados não foram enviados</strong>
+                            <small>Recomendado. Após o primeiro envio, abre direto por 7 dias neste navegador e nesta configuração.</small>
+                        </span>
+                    </label>
+                    <label class="f10-whatsapp-form-behavior__option f10-whatsapp-form-behavior__option--warning">
+                        <input type="radio" name="f10_whatsapp[form_display_mode]" value="never" <?php checked($widget['form_display_mode'], 'never'); ?>>
+                        <span>
+                            <strong>Nunca abrir formulário</strong>
+                            <small>Abre o WhatsApp diretamente. O visitante não será cadastrado como lead pelo plugin.</small>
+                        </span>
+                    </label>
+                </div>
+                <p class="f10-whatsapp-form-behavior__notice">
+                    Na opção recomendada, o formulário volta a aparecer após 7 dias, ao limpar os dados do navegador, usar aba anônima ou acessar por outro dispositivo.
+                </p>
+            </div>
             <div class="f10-control-grid">
                 <label class="f10-control">
                     <span>Título</span>

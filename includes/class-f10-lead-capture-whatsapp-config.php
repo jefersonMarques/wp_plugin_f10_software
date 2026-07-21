@@ -33,6 +33,7 @@ final class F10_Lead_Capture_WhatsApp_Config
             'form_description' => 'Preencha seus dados para continuar o atendimento pelo WhatsApp.',
             'form_offline_description' => 'Estamos fora do horário de atendimento, mas você pode deixar seus dados e continuar pelo WhatsApp.',
             'button_label' => 'Continuar no WhatsApp',
+            'form_display_mode' => 'smart',
             'message_template' => 'Olá! Meu nome é {name}. Gostaria de saber mais sobre os cursos da {site_name}.',
             'schedule_enabled' => '0',
             'outside_behavior' => 'open',
@@ -125,6 +126,11 @@ final class F10_Lead_Capture_WhatsApp_Config
             array('open', 'capture_only', 'hide'),
             true
         ) ? (string) $widget['outside_behavior'] : 'open';
+        $form_display_mode = in_array(
+            (string) $widget['form_display_mode'],
+            array('always', 'smart', 'never'),
+            true
+        ) ? (string) $widget['form_display_mode'] : 'smart';
 
         return array(
             'id' => $id,
@@ -159,6 +165,7 @@ final class F10_Lead_Capture_WhatsApp_Config
                 100,
                 'Continuar no WhatsApp'
             ),
+            'form_display_mode' => $form_display_mode,
             'message_template' => self::limited_textarea(
                 (string) $widget['message_template'],
                 1000,
