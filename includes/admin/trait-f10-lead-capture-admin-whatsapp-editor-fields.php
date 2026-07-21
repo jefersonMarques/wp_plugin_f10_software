@@ -77,14 +77,33 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
                 <span><?php echo esc_html($label); ?></span>
                 <input type="search" placeholder="Digite parte do título" data-f10-option-filter="<?php echo esc_attr($key); ?>">
             </label>
-            <select name="<?php echo esc_attr($name); ?>" multiple size="7" data-f10-option-list="<?php echo esc_attr($key); ?>">
-                <?php foreach ($options as $option) : ?>
-                    <option value="<?php echo esc_attr((string) $option['id']); ?>" data-label="<?php echo esc_attr(strtolower($option['label'])); ?>" <?php selected(in_array($option['id'], $selected_ids, true)); ?>>
-                        <?php echo esc_html($option['label']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <small>Use Ctrl ou Command para selecionar mais de um item.</small>
+            <div
+                class="f10-whatsapp-checklist"
+                role="group"
+                aria-label="<?php echo esc_attr($label); ?>"
+                data-f10-option-list="<?php echo esc_attr($key); ?>"
+            >
+                <?php if (!$options) : ?>
+                    <p class="f10-whatsapp-checklist__empty">Nenhum conteúdo disponível.</p>
+                <?php else : ?>
+                    <?php foreach ($options as $option) : ?>
+                        <label
+                            class="f10-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
+                            data-f10-option-item
+                            data-label="<?php echo esc_attr(strtolower($option['label'])); ?>"
+                        >
+                            <input
+                                type="checkbox"
+                                name="<?php echo esc_attr($name); ?>"
+                                value="<?php echo esc_attr((string) $option['id']); ?>"
+                                <?php checked(in_array($option['id'], $selected_ids, true)); ?>
+                            >
+                            <span><?php echo esc_html($option['label']); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <small>Marque um ou mais itens. Os selecionados ficam destacados.</small>
         </div>
         <?php
     }
@@ -97,13 +116,33 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
                 <span>Categorias</span>
                 <input type="search" placeholder="Digite parte do nome" data-f10-option-filter="categories">
             </label>
-            <select name="f10_whatsapp[category_ids][]" multiple size="7" data-f10-option-list="categories">
-                <?php foreach ($options as $option) : ?>
-                    <option value="<?php echo esc_attr((string) $option['id']); ?>" data-label="<?php echo esc_attr(strtolower($option['label'])); ?>" <?php selected(in_array($option['id'], $selected_ids, true)); ?>>
-                        <?php echo esc_html($option['label']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <div
+                class="f10-whatsapp-checklist"
+                role="group"
+                aria-label="Categorias"
+                data-f10-option-list="categories"
+            >
+                <?php if (!$options) : ?>
+                    <p class="f10-whatsapp-checklist__empty">Nenhuma categoria disponível.</p>
+                <?php else : ?>
+                    <?php foreach ($options as $option) : ?>
+                        <label
+                            class="f10-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
+                            data-f10-option-item
+                            data-label="<?php echo esc_attr(strtolower($option['label'])); ?>"
+                        >
+                            <input
+                                type="checkbox"
+                                name="f10_whatsapp[category_ids][]"
+                                value="<?php echo esc_attr((string) $option['id']); ?>"
+                                <?php checked(in_array($option['id'], $selected_ids, true)); ?>
+                            >
+                            <span><?php echo esc_html($option['label']); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+            <small>Marque uma ou mais categorias. As selecionadas ficam destacadas.</small>
         </div>
         <?php
     }
