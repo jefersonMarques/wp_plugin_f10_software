@@ -268,6 +268,29 @@
         }
     }
 
+    function getFormDisplayMode() {
+        var mode = String(widget.form_display_mode || 'smart');
+
+        return ['always', 'smart', 'never'].indexOf(mode) !== -1 ? mode : 'smart';
+    }
+
+    function prefillVisitor(visitor) {
+        if (!form || !visitor) {
+            return;
+        }
+
+        var nameField = form.querySelector('[name="name"]');
+        var whatsappField = form.querySelector('[name="whatsapp"]');
+
+        if (nameField && !nameField.value) {
+            nameField.value = String(visitor.name || '');
+        }
+
+        if (whatsappField && !whatsappField.value) {
+            whatsappField.value = formatPhone(visitor.whatsapp || '');
+        }
+    }
+
     function handleTrigger() {
         state = resolveScheduleState();
 
@@ -275,11 +298,22 @@
             return;
         }
 
+        var mode = getFormDisplayMode();
         var stored = getStoredVisitor();
+        var canOpenWhatsApp = state.online || state.behavior === 'open';
 
-        if (stored && (state.online || state.behavior === 'open')) {
+        if (mode === 'never') {
+            openWhatsApp(buildWhatsAppUrl({ name: '', whatsapp: '' }));
+            return;
+        }
+
+        if (mode === 'smart' && stored && canOpenWhatsApp) {
             openWhatsApp(buildWhatsAppUrl(stored));
             return;
+        }
+
+        if (mode === 'always' && stored) {
+            prefillVisitor(stored);
         }
 
         openDialog();
@@ -292,6 +326,7 @@
 
         var data = new FormData();
         data.append('action', 'f10_lead_capture_track_whatsapp');
+        data.append('nonce', String(config.nonce || ''));
         data.append('lead_id', String(payload.leadId));
         data.append('token', String(payload.token));
 
