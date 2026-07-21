@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.3.7 — 2026-07-21
+
+### Corrigido
+
+- Verificação de nonce adicionada ao rastreamento da abertura do WhatsApp.
+- Dados AJAX sanitizados uma única vez antes do processamento dos campos.
+- Array de configuração do modo do formulário sanitizado antes da leitura dos campos.
+
+## 1.3.6 — 2026-07-21
+
+### Adicionado
+
+- Configuração para sempre abrir o formulário, abrir apenas quando os dados ainda não foram enviados ou nunca abrir o formulário.
+- Explicação visível sobre a reutilização dos dados por sete dias no mesmo navegador.
+- Aviso explícito de que a opção sem formulário não captura o lead.
+
+## 1.3.5 — 2026-07-21
+
+### Corrigido
+
+- Alinhamento do ícone do WhatsApp dentro do cabeçalho do modal.
+- Centralização do botão de fechar para manter o X visualmente no meio do contêiner.
+
 ## 1.3.4 — 2026-07-21
 
 ### Corrigido
@@ -7,7 +30,6 @@
 - Modal do WhatsApp limitado à largura do botão flutuante em alguns navegadores e temas.
 - Overlay ajustado para ocupar toda a viewport, inclusive em telas pequenas.
 - Largura e altura responsivas do formulário reforçadas para evitar rolagem horizontal.
-- Estilo estrutural aplicado também inline para neutralizar cache antigo de CSS.
 
 ## 1.3.3 — 2026-07-21
 
