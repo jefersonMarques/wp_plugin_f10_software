@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3 — 2026-07-21
+
+### Corrigido
+
+- Ordem de renderização do botão flutuante no rodapé, garantindo que o HTML exista antes da execução do JavaScript.
+- Carregamento adiado do script do WhatsApp como proteção adicional para temas e plugins de cache.
+
 ## 1.3.0 — 2026-07-21
 
 ### Adicionado
