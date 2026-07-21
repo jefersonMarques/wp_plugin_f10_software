@@ -12,15 +12,15 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
         <section class="f10-admin-card">
             <h2>Atendimento</h2>
             <div class="f10-control-grid">
-                <label>
+                <label class="f10-control">
                     <span>Nome interno</span>
                     <input type="text" name="f10_whatsapp[name]" value="<?php echo esc_attr($widget['name']); ?>" maxlength="190" required data-f10-whatsapp-preview-name>
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Identificador</span>
                     <input type="text" name="f10_whatsapp[id]" value="<?php echo esc_attr($widget['id']); ?>" maxlength="100" placeholder="atendimento-comercial">
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Número do WhatsApp</span>
                     <input type="tel" name="f10_whatsapp[phone]" value="<?php echo esc_attr($this->whatsapp_display_phone($widget['phone'])); ?>" maxlength="20" inputmode="tel" placeholder="(00) 00000-0000" required>
                     <small>O código do Brasil +55 será aplicado automaticamente.</small>
@@ -114,14 +114,14 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
         <section class="f10-admin-card">
             <h2>Aparência</h2>
             <div class="f10-control-grid">
-                <label>
+                <label class="f10-control">
                     <span>Posição</span>
                     <select name="f10_whatsapp[position]" data-f10-whatsapp-preview-position>
                         <option value="right" <?php selected($widget['position'], 'right'); ?>>Direita</option>
                         <option value="left" <?php selected($widget['position'], 'left'); ?>>Esquerda</option>
                     </select>
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Design</span>
                     <select name="f10_whatsapp[design]" data-f10-whatsapp-preview-design>
                         <option value="static" <?php selected($widget['design'], 'static'); ?>>Padrão</option>
@@ -130,11 +130,11 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
                         <option value="attention" <?php selected($widget['design'], 'attention'); ?>>Atenção</option>
                     </select>
                 </label>
-                <label>
+                <label class="f10-control f10-whatsapp-color-control">
                     <span>Cor</span>
                     <input type="color" name="f10_whatsapp[color]" value="<?php echo esc_attr($widget['color']); ?>" data-f10-whatsapp-preview-color>
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Aparecer após</span>
                     <select name="f10_whatsapp[delay_seconds]">
                         <?php for ($second = 0; $second <= 5; $second++) : ?>
@@ -144,11 +144,11 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
                         <?php endfor; ?>
                     </select>
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Badge online</span>
                     <input type="text" name="f10_whatsapp[badge_online]" value="<?php echo esc_attr($widget['badge_online']); ?>" maxlength="80" data-f10-whatsapp-preview-badge>
                 </label>
-                <label>
+                <label class="f10-control">
                     <span>Badge offline</span>
                     <input type="text" name="f10_whatsapp[badge_offline]" value="<?php echo esc_attr($widget['badge_offline']); ?>" maxlength="80">
                 </label>
