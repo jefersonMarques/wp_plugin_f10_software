@@ -1,6 +1,6 @@
 # F10 Lead Capture — formulários WordPress integrados ao F10 Software
 
-O **F10 Lead Capture** cria e gerencia formulários de captação no WordPress, salva os contatos no banco do site e pode enviá-los ao **F10 Software** e ao **Brevo**.
+O **F10 Lead Capture** cria e gerencia formulários e botões flutuantes de WhatsApp no WordPress, salva os contatos no banco do site e pode enviá-los ao **F10 Software** e ao **Brevo**.
 
 ## Principais recursos
 
@@ -15,6 +15,9 @@ O **F10 Lead Capture** cria e gerencia formulários de captação no WordPress, 
 - Armazenamento local antes das integrações externas.
 - Integração opcional com F10 Software e Brevo.
 - Histórico, filtros, respostas técnicas, reenvio e exportação CSV.
+- Botões flutuantes de WhatsApp com captura de nome e número antes de abrir a conversa.
+- Segmentação por site todo, conteúdos ou categorias, com exclusões opcionais.
+- Horário de atendimento, estados online/offline e pré-visualização ao vivo.
 
 ## Formulários
 
@@ -109,6 +112,38 @@ Atributos antigos continuam disponíveis como sobrescritas opcionais:
 | `show_institution` | `no` oculta o campo de escola/empresa. |
 | `redirect_url` | Sobrescreve a ação pós-conversão com redirecionamento automático. |
 
+## WhatsApp flutuante
+
+Acesse **Leads F10 → WhatsApp** para adicionar atendimentos com números e regras diferentes.
+
+Cada configuração possui:
+
+- nome interno e número de destino;
+- exibição no site todo, em conteúdos específicos ou em categorias;
+- exclusão opcional de páginas e outros conteúdos;
+- posição à direita ou à esquerda;
+- visual padrão, pulsante, radar ou atenção;
+- cor, badge online/offline e atraso de 0 a 5 segundos;
+- visibilidade em desktop e mobile;
+- formulário compacto com nome e WhatsApp;
+- mensagem enviada ao WhatsApp com variáveis de página e campanha;
+- agenda semanal e comportamento fora do horário;
+- pré-visualização durante a configuração.
+
+O lead é salvo na mesma tabela dos formulários antes de o navegador abrir `https://wa.me/`. As integrações F10 e Brevo utilizam o mesmo fluxo já existente. Após uma conversão bem-sucedida, nome e WhatsApp permanecem no armazenamento local do navegador por sete dias para evitar novo preenchimento.
+
+Variáveis disponíveis na mensagem:
+
+```text
+{name}
+{visitor_whatsapp}
+{site_name}
+{page_title}
+{page_url}
+{utm_source}
+{utm_campaign}
+```
+
 ## Configuração da integração F10
 
 Acesse **Leads F10 → Configurações** e informe:
@@ -151,9 +186,9 @@ https://ajuda.f10.com.br/kb/pt-br/article/119833/fontes-eventos-e-cadastro-de-vi
 
 Uma resposta é considerada bem-sucedida somente quando `incluidos.digitacao` é maior que zero e não existem erros em `nao_incluidas`.
 
-## Migração para a versão 1.2.0
+## Migração e atualização
 
-A atualização cria o **Formulário principal** usando automaticamente:
+A atualização preserva os leads e formulários existentes. A migração original cria o **Formulário principal** usando automaticamente:
 
 - os textos padrão já utilizados;
 - os campos e rótulos salvos anteriormente;
@@ -182,18 +217,27 @@ O shortcode `[f10_lead_form]` continua funcionando e nenhum lead existente é re
 ```text
 assets/
   css/
+    admin-whatsapp.css
     admin.css
     form.css
+    whatsapp.css
   js/
     admin-appearance.js
     admin-forms.js
+    admin-whatsapp.js
     form.js
+    whatsapp.js
 includes/
   admin/
     trait-f10-lead-capture-admin-appearance.php
     trait-f10-lead-capture-admin-forms.php
     trait-f10-lead-capture-admin-leads.php
     trait-f10-lead-capture-admin-settings.php
+    trait-f10-lead-capture-admin-whatsapp.php
+    trait-f10-lead-capture-admin-whatsapp-editor.php
+    trait-f10-lead-capture-admin-whatsapp-editor-fields.php
+    trait-f10-lead-capture-admin-whatsapp-editor-form.php
+    trait-f10-lead-capture-admin-whatsapp-lead-labels.php
   class-f10-lead-capture-activator.php
   class-f10-lead-capture-admin.php
   class-f10-lead-capture-config.php
@@ -201,6 +245,9 @@ includes/
   class-f10-lead-capture-integrations.php
   class-f10-lead-capture-plugin.php
   class-f10-lead-capture-repository.php
+  class-f10-lead-capture-submission-service.php
+  class-f10-lead-capture-whatsapp-config.php
+  class-f10-lead-capture-whatsapp.php
 ```
 
 ## Licença
@@ -210,11 +257,13 @@ GPL-2.0-or-later.
 ## Correção 1.2.1
 
 Após um envio bem-sucedido, o formulário é substituído pelo componente de pós-conversão. O componente não é mais acrescentado abaixo dos campos. Quando não há download ou link configurado, a mesma área apresenta somente a confirmação de sucesso.
-
 ## Correção 1.2.2
 
 Após o envio bem-sucedido, o formulário completo é removido da visualização e substituído pela caixa de pós-conversão. O resultado não é mais renderizado dentro da tag `<form>`, evitando interferência de estilos do tema ou do construtor de páginas.
-
 ## Correção 1.2.3
 
 A versão 1.2.3 alinha o text domain ao slug `f10-captura-de-leads`, reorganiza a escrita do CSV para atender ao Plugin Check sem aplicar escape HTML aos dados exportados e restringe a exceção de alteração de esquema exclusivamente à remoção opcional da tabela durante a desinstalação.
+
+## Versão 1.3.0
+
+A versão 1.3.0 adiciona widgets flutuantes de WhatsApp voltados a escolas e negócios de ensino livre. O visitante informa nome e WhatsApp, o lead é armazenado localmente e processado pelas integrações habilitadas, e a conversa configurada é aberta em seguida. A atualização também adiciona rastreamento da abertura do WhatsApp, segmentação por conteúdo e agenda semanal.

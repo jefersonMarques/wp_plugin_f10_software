@@ -1,0 +1,207 @@
+.f10-whatsapp-admin-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+    gap: 24px;
+    align-items: start;
+    max-width: 1450px;
+}
+
+.f10-whatsapp-admin-settings {
+    min-width: 0;
+}
+
+.f10-whatsapp-admin-preview-column {
+    position: sticky;
+    top: 48px;
+}
+
+.f10-whatsapp-admin-preview-card {
+    padding: 20px;
+    border: 1px solid #dcdcde;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(16, 24, 40, .07);
+}
+
+.f10-whatsapp-admin-preview-card h2 {
+    margin-top: 0;
+}
+
+.f10-whatsapp-targeting-options {
+    display: grid;
+    gap: 9px;
+    margin-bottom: 18px;
+}
+
+.f10-whatsapp-targeting-options label,
+.f10-checkbox-control {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+}
+
+.f10-whatsapp-selector {
+    display: grid;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.f10-whatsapp-selector[hidden] {
+    display: none;
+}
+
+.f10-whatsapp-selector label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+}
+
+.f10-whatsapp-selector select {
+    width: 100%;
+    min-height: 120px;
+}
+
+.f10-whatsapp-schedule {
+    margin-top: 16px;
+}
+
+.f10-whatsapp-schedule input[type="time"] {
+    width: 112px;
+}
+
+.f10-whatsapp-outside-behavior {
+    display: grid;
+    gap: 7px;
+    max-width: 420px;
+    margin-top: 16px;
+    font-weight: 600;
+}
+
+.f10-whatsapp-admin-preview {
+    display: grid;
+    gap: 18px;
+}
+
+.f10-whatsapp-admin-preview__page {
+    position: relative;
+    min-height: 310px;
+    overflow: hidden;
+    border: 1px solid #d0d5dd;
+    border-radius: 14px;
+    background: linear-gradient(160deg, #f8fafc, #eef2f6);
+}
+
+.f10-whatsapp-admin-preview__content {
+    display: grid;
+    gap: 14px;
+    padding: 36px 28px;
+}
+
+.f10-whatsapp-admin-preview__content span {
+    display: block;
+    height: 14px;
+    border-radius: 99px;
+    background: #dbe2ea;
+}
+
+.f10-whatsapp-admin-preview__content span:first-child {
+    width: 72%;
+    height: 24px;
+    background: #c5ced9;
+}
+
+.f10-whatsapp-admin-preview__content span:nth-child(2) {
+    width: 92%;
+}
+
+.f10-whatsapp-admin-preview__content span:nth-child(3) {
+    width: 60%;
+}
+
+.f10-whatsapp-admin-preview__widget {
+    position: absolute;
+    bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.f10-whatsapp-admin-preview__widget--right {
+    right: 18px;
+    flex-direction: row-reverse;
+}
+
+.f10-whatsapp-admin-preview__widget--left {
+    left: 18px;
+}
+
+.f10-whatsapp-admin-preview__widget .f10-whatsapp-widget__trigger {
+    width: 54px;
+    height: 54px;
+    flex-basis: 54px;
+}
+
+.f10-whatsapp-admin-preview__widget .f10-whatsapp-widget__badge {
+    max-width: 165px;
+    font-size: 12px;
+}
+
+.f10-whatsapp-admin-preview__dialog {
+    display: grid;
+    gap: 9px;
+    padding: 18px;
+    border: 1px solid #d0d5dd;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.f10-whatsapp-admin-preview__dialog strong {
+    color: #101828;
+    font-size: 17px;
+}
+
+.f10-whatsapp-admin-preview__dialog p {
+    min-height: 38px;
+    margin: 0;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.f10-whatsapp-admin-preview__dialog label {
+    display: grid;
+    gap: 4px;
+    color: #475467;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.f10-whatsapp-admin-preview__dialog input {
+    min-height: 34px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.f10-whatsapp-admin-preview__dialog button {
+    min-height: 38px;
+    border: 0;
+    border-radius: 9px;
+    color: #fff;
+    background: #25d366;
+    font-weight: 700;
+}
+
+.f10-whatsapp-admin-list .f10-status {
+    display: inline-block;
+}
+
+@media (max-width: 1180px) {
+    .f10-whatsapp-admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .f10-whatsapp-admin-preview-column {
+        position: static;
+    }
+}

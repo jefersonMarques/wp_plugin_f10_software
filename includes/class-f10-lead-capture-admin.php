@@ -8,13 +8,27 @@ require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-settings.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-leads.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-appearance.php';
 require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-forms.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor-fields.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor-form.php';
+require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-lead-labels.php';
 
 final class F10_Lead_Capture_Admin
 {
     use F10_Lead_Capture_Admin_Settings_Trait;
-    use F10_Lead_Capture_Admin_Leads_Trait;
+    use F10_Lead_Capture_Admin_Leads_Trait, F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait {
+        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::lead_form_name insteadof F10_Lead_Capture_Admin_Leads_Trait;
+        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::render_conversion_status insteadof F10_Lead_Capture_Admin_Leads_Trait;
+        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::conversion_type_label insteadof F10_Lead_Capture_Admin_Leads_Trait;
+        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::conversion_status_label insteadof F10_Lead_Capture_Admin_Leads_Trait;
+    }
     use F10_Lead_Capture_Admin_Appearance_Trait;
     use F10_Lead_Capture_Admin_Forms_Trait;
+    use F10_Lead_Capture_Admin_WhatsApp_Trait;
+    use F10_Lead_Capture_Admin_WhatsApp_Editor_Trait;
+    use F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait;
+    use F10_Lead_Capture_Admin_WhatsApp_Editor_Form_Trait;
 
     private const OPTION_NAME = 'f10_lead_capture_settings';
     private const APPEARANCE_OPTION = 'f10_lead_capture_appearance';
@@ -30,6 +44,9 @@ final class F10_Lead_Capture_Admin
         add_action('admin_post_f10_save_form', array($this, 'handle_save_form'));
         add_action('admin_post_f10_duplicate_form', array($this, 'handle_duplicate_form'));
         add_action('admin_post_f10_delete_form', array($this, 'handle_delete_form'));
+        add_action('admin_post_f10_lead_capture_save_whatsapp', array($this, 'handle_save_whatsapp'));
+        add_action('admin_post_f10_lead_capture_duplicate_whatsapp', array($this, 'handle_duplicate_whatsapp'));
+        add_action('admin_post_f10_lead_capture_delete_whatsapp', array($this, 'handle_delete_whatsapp'));
     }
 
     public function register_menu(): void
@@ -60,6 +77,15 @@ final class F10_Lead_Capture_Admin
             'manage_options',
             'f10-lead-forms',
             array($this, 'render_forms_page')
+        );
+
+        add_submenu_page(
+            'f10-leads',
+            'Atendimento por WhatsApp',
+            'WhatsApp',
+            'manage_options',
+            'f10-lead-whatsapp',
+            array($this, 'render_whatsapp_page')
         );
 
         add_submenu_page(
@@ -100,7 +126,7 @@ final class F10_Lead_Capture_Admin
     {
         $page = sanitize_key($this->query_text('page', 80));
 
-        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-forms'), true)) {
+        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-forms', 'f10-lead-whatsapp'), true)) {
             return;
         }
 
@@ -131,6 +157,28 @@ final class F10_Lead_Capture_Admin
                 'f10-lead-capture-admin-appearance',
                 'F10LeadAppearance',
                 array('presets' => F10_Lead_Capture_Config::appearance_presets())
+            );
+        }
+
+        if ($page === 'f10-lead-whatsapp') {
+            wp_enqueue_style(
+                'f10-lead-capture-whatsapp',
+                F10_LEAD_CAPTURE_URL . 'assets/css/whatsapp.css',
+                array(),
+                F10_LEAD_CAPTURE_VERSION
+            );
+            wp_enqueue_style(
+                'f10-lead-capture-admin-whatsapp',
+                F10_LEAD_CAPTURE_URL . 'assets/css/admin-whatsapp.css',
+                array('f10-lead-capture-whatsapp'),
+                F10_LEAD_CAPTURE_VERSION
+            );
+            wp_enqueue_script(
+                'f10-lead-capture-admin-whatsapp',
+                F10_LEAD_CAPTURE_URL . 'assets/js/admin-whatsapp.js',
+                array(),
+                F10_LEAD_CAPTURE_VERSION,
+                true
             );
         }
 

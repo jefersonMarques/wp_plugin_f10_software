@@ -27,5 +27,6 @@ delete_option('f10_lead_capture_settings');
 delete_option('f10_lead_capture_appearance');
 delete_option('f10_lead_capture_conversion');
 delete_option('f10_lead_capture_forms');
+delete_option('f10_lead_capture_whatsapp_widgets');
 delete_option('f10_lead_capture_db_version');
 wp_clear_scheduled_hook('f10_lead_capture_retry_event');

@@ -24,6 +24,9 @@ final class F10_Lead_Capture_Plugin
         $form = new F10_Lead_Capture_Form();
         $form->register_hooks();
 
+        $whatsapp = new F10_Lead_Capture_WhatsApp();
+        $whatsapp->register_hooks();
+
         if (is_admin()) {
             $admin = new F10_Lead_Capture_Admin();
             $admin->register_hooks();
@@ -46,6 +49,7 @@ final class F10_Lead_Capture_Plugin
             $links,
             '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-settings')) . '">Configurações</a>',
             '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-forms')) . '">Formulários</a>',
+            '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-whatsapp')) . '">WhatsApp</a>',
             '<a href="' . esc_url(admin_url('admin.php?page=f10-lead-appearance')) . '">Aparência</a>'
         );
 

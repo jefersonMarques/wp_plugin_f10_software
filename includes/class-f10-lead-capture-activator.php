@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 final class F10_Lead_Capture_Activator
 {
-    private const DB_VERSION = '1.4.0';
+    private const DB_VERSION = '1.5.0';
     private const DB_VERSION_OPTION = 'f10_lead_capture_db_version';
 
     public static function activate(): void
@@ -14,6 +14,7 @@ final class F10_Lead_Capture_Activator
         self::create_table();
         self::ensure_settings();
         self::ensure_forms();
+        self::ensure_whatsapp_widgets();
         self::schedule_retry_event();
         F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
@@ -28,6 +29,7 @@ final class F10_Lead_Capture_Activator
         self::create_table();
         self::ensure_settings();
         self::ensure_forms();
+        self::ensure_whatsapp_widgets();
         F10_Lead_Capture_Integrations::reconcile_stored_f10_results();
         update_option(self::DB_VERSION_OPTION, self::DB_VERSION, false);
     }
@@ -115,6 +117,7 @@ final class F10_Lead_Capture_Activator
         );
     }
 
+
     private static function ensure_forms(): void
     {
         $current = get_option(F10_Lead_Capture_Config::FORMS_OPTION, null);
@@ -135,6 +138,20 @@ final class F10_Lead_Capture_Activator
             '',
             false
         );
+    }
+
+    private static function ensure_whatsapp_widgets(): void
+    {
+        $current = get_option(F10_Lead_Capture_WhatsApp_Config::OPTION_NAME, null);
+
+        if ($current === null) {
+            add_option(F10_Lead_Capture_WhatsApp_Config::OPTION_NAME, array(), '', false);
+            return;
+        }
+
+        if (is_array($current)) {
+            F10_Lead_Capture_WhatsApp_Config::save_widgets($current);
+        }
     }
 
     private static function ensure_option(string $option_name, array $defaults): void

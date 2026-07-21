@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.3.0 — 2026-07-21
+
+### Adicionado
+
+- Submenu **WhatsApp** com criação, edição, duplicação e exclusão de atendimentos.
+- Botão flutuante com formulário de nome e WhatsApp antes da abertura da conversa.
+- Segmentação para site todo, conteúdos específicos ou categorias, com exclusões.
+- Posição à direita ou à esquerda e visuais padrão, pulsante, radar e atenção.
+- Cor, badges online/offline, atraso de exibição e visibilidade por dispositivo.
+- Agenda semanal com comportamento configurável fora do horário.
+- Pré-visualização ao vivo no painel administrativo.
+- Mensagem do WhatsApp com variáveis de visitante, site, página e campanha.
+- Reutilização local dos dados do visitante por sete dias após conversão.
+- Rastreamento da abertura do WhatsApp.
+
+### Alterado
+
+- Serviço de submissão dedicado adicionado para o fluxo de captura pelo WhatsApp.
+- Tipo de conversão ampliado para registrar aberturas do WhatsApp.
+- Versão do plugin atualizada para `1.3.0`.
+
 ## 1.2.3 — 2026-07-10
 
 ### Corrigido

@@ -145,14 +145,15 @@ final class F10_Lead_Capture_Repository
                      conversion_at = COALESCE(conversion_at, %s),
                      updated_at = %s
                  WHERE id = %d
-                   AND conversion_type IN (%s, %s)",
+                   AND conversion_type IN (%s, %s, %s)",
                 self::table_name(),
                 'completed',
                 $now,
                 $now,
                 $lead_id,
                 'download',
-                'link'
+                'link',
+                'whatsapp'
             )
         );
 
@@ -184,6 +185,7 @@ final class F10_Lead_Capture_Repository
         $normalized_filters = self::normalize_filters($filters);
         $status = $normalized_filters['status'];
         $search = $normalized_filters['search'];
+        $source_type = $normalized_filters['source_type'];
         $search_like = '%' . $wpdb->esc_like($search) . '%';
         $offset = max(0, ($page - 1) * $per_page);
 
@@ -192,6 +194,11 @@ final class F10_Lead_Capture_Repository
             $wpdb->prepare(
                 "SELECT * FROM %i
                  WHERE (%s = '' OR status = %s)
+                   AND (
+                       %s = ''
+                       OR (%s = 'whatsapp' AND source_label = 'WhatsApp flutuante')
+                       OR (%s = 'forms' AND (source_label IS NULL OR source_label <> 'WhatsApp flutuante'))
+                   )
                    AND (
                        %s = ''
                        OR name LIKE %s
@@ -206,6 +213,9 @@ final class F10_Lead_Capture_Repository
                 self::table_name(),
                 $status,
                 $status,
+                $source_type,
+                $source_type,
+                $source_type,
                 $search,
                 $search_like,
                 $search_like,
@@ -226,6 +236,11 @@ final class F10_Lead_Capture_Repository
                  WHERE (%s = '' OR status = %s)
                    AND (
                        %s = ''
+                       OR (%s = 'whatsapp' AND source_label = 'WhatsApp flutuante')
+                       OR (%s = 'forms' AND (source_label IS NULL OR source_label <> 'WhatsApp flutuante'))
+                   )
+                   AND (
+                       %s = ''
                        OR name LIKE %s
                        OR email LIKE %s
                        OR phone LIKE %s
@@ -236,6 +251,9 @@ final class F10_Lead_Capture_Repository
                 self::table_name(),
                 $status,
                 $status,
+                $source_type,
+                $source_type,
+                $source_type,
                 $search,
                 $search_like,
                 $search_like,
@@ -311,6 +329,7 @@ final class F10_Lead_Capture_Repository
         $normalized_filters = self::normalize_filters($filters);
         $status = $normalized_filters['status'];
         $search = $normalized_filters['search'];
+        $source_type = $normalized_filters['source_type'];
         $search_like = '%' . $wpdb->esc_like($search) . '%';
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Exportação administrativa sob demanda de tabela própria.
@@ -318,6 +337,11 @@ final class F10_Lead_Capture_Repository
             $wpdb->prepare(
                 "SELECT * FROM %i
                  WHERE (%s = '' OR status = %s)
+                   AND (
+                       %s = ''
+                       OR (%s = 'whatsapp' AND source_label = 'WhatsApp flutuante')
+                       OR (%s = 'forms' AND (source_label IS NULL OR source_label <> 'WhatsApp flutuante'))
+                   )
                    AND (
                        %s = ''
                        OR name LIKE %s
@@ -332,6 +356,9 @@ final class F10_Lead_Capture_Repository
                 self::table_name(),
                 $status,
                 $status,
+                $source_type,
+                $source_type,
+                $source_type,
                 $search,
                 $search_like,
                 $search_like,
@@ -360,9 +387,18 @@ final class F10_Lead_Capture_Repository
             ? sanitize_text_field((string) $filters['search'])
             : '';
 
+        $source_type = isset($filters['source_type'])
+            ? sanitize_key((string) $filters['source_type'])
+            : '';
+
+        if (!in_array($source_type, array('forms', 'whatsapp'), true)) {
+            $source_type = '';
+        }
+
         return array(
             'status' => $status,
             'search' => $search,
+            'source_type' => $source_type,
         );
     }
 

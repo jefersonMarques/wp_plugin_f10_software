@@ -1,20 +1,22 @@
 === F10 Lead Capture ===
 Contributors: rafamarques, f10software
-Tags: lead capture, contact form, crm, brevo, school management
+Tags: lead capture, contact form, whatsapp, crm, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.2.3
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Create multiple WordPress lead forms, track downloads and links, store contacts locally, and optionally integrate with F10 Software and Brevo.
+Create lead forms and floating WhatsApp capture widgets, store contacts locally, and optionally integrate with F10 Software and Brevo.
 
 == Description ==
 
-F10 Lead Capture provides a form manager for WordPress pages, posts, landing pages, and educational marketing campaigns.
+F10 Lead Capture provides form and floating WhatsApp lead capture management for WordPress pages, posts, landing pages, and educational marketing campaigns.
 
 Each saved form can have its own title, description, button, success message, fields, required rules, source, product, and post-conversion action.
+
+Floating WhatsApp widgets can target the whole site, selected content, or post categories. Visitors first submit their name and WhatsApp number, the lead is stored locally, and then the configured WhatsApp conversation can be opened.
 
 Leads are stored locally before external integrations run. Administrators can review, filter, export, delete, and retry failed integrations.
 
@@ -23,12 +25,15 @@ Leads are stored locally before external integrations run. Administrators can re
 * Multiple independently configured forms.
 * Shortcodes generated for each saved form.
 * Configurable name, course, phone, WhatsApp, email, school/company, and notes fields.
+* Floating WhatsApp lead capture widgets with school-oriented defaults.
+* WhatsApp targeting for the whole site, selected content, or post categories.
+* Left or right position, four visual effects, color, badge, and appearance delay.
+* Weekly opening hours with online and offline behavior.
+* Live WhatsApp widget preview in the WordPress dashboard.
 * Individual labels and required rules per form.
-* Four built-in appearance presets.
+* Four built-in form appearance presets.
 * Responsive desktop and mobile appearance controls.
-* Post-conversion confirmation, Media Library download, or destination link.
-* Manual button or automatic post-conversion behavior.
-* Download and link tracking associated with each lead.
+* Post-conversion confirmation, Media Library download, destination link, or WhatsApp opening.
 * Local storage before sending to external services.
 * Optional F10 Software API integration.
 * Optional Brevo transactional email notification.
@@ -39,9 +44,10 @@ Leads are stored locally before external integrations run. Administrators can re
 
 1. Upload the plugin ZIP through the WordPress Plugins screen.
 2. Activate F10 Lead Capture.
-3. Open F10 Leads > Settings and configure the integrations.
-4. Open F10 Leads > Forms and edit the main form or create a new form.
-5. Copy the generated shortcode into a WordPress Shortcode block.
+3. Open F10 Leads > Settings and configure the optional integrations.
+4. Open F10 Leads > Forms to configure shortcode forms.
+5. Open F10 Leads > WhatsApp to add a floating WhatsApp lead capture widget.
+6. Copy a generated form shortcode into a WordPress Shortcode block when needed.
 
 == Shortcode ==
 
@@ -78,6 +84,29 @@ Each form includes:
 * enabled, optional, and required field settings;
 * confirmation-only, file-download, or destination-link post-conversion behavior.
 
+== WhatsApp ==
+
+Open F10 Leads > WhatsApp to create, edit, duplicate, activate, deactivate, or delete floating WhatsApp widgets.
+
+Each WhatsApp widget includes:
+
+* an internal name and destination number;
+* whole-site, selected-content, or post-category targeting;
+* optional content exclusions;
+* left or right position;
+* static, pulse, radar, or attention visual effect;
+* color, online and offline badges, and a zero-to-five-second delay;
+* desktop and mobile visibility;
+* school-oriented form texts and configurable message template variables;
+* optional weekly business hours and offline behavior;
+* a live preview in the WordPress dashboard.
+
+The visitor submits name and WhatsApp number before WhatsApp opens. The contact is stored in the same local lead table and can use the same optional F10 Software and Brevo integrations.
+
+Supported message variables include `{name}`, `{visitor_whatsapp}`, `{site_name}`, `{page_title}`, `{page_url}`, `{utm_source}`, and `{utm_campaign}`.
+
+After a successful submission, the visitor data is stored in that browser for seven days so later clicks can open the configured WhatsApp conversation without requesting the same fields again. This storage is local to the visitor browser and is not used for advertising or third-party analytics.
+
 == Appearance ==
 
 Open F10 Leads > Appearance.
@@ -88,7 +117,7 @@ The Post-conversion tab controls the result panel background, border, icon, titl
 
 == Post-conversion replacement ==
 
-After a successful submission, the plugin replaces the complete form view with the post-conversion panel. The download or link panel is moved outside the HTML form before the original view is hidden, preventing theme or page-builder CSS from keeping both states visible.
+After a successful form submission, the plugin replaces the complete form view with the post-conversion panel. The download or link panel is moved outside the HTML form before the original view is hidden, preventing theme or page-builder CSS from keeping both states visible.
 
 When no download or link is configured, the same replacement panel displays the configured success confirmation.
 
@@ -100,7 +129,7 @@ The plugin stores integration status, HTTP responses, business errors, attempt c
 
 == External services ==
 
-No lead data is sent to an external service until an administrator enables and configures that integration.
+No lead data is sent to an optional external integration until an administrator enables and configures it. The WhatsApp destination is opened only after the visitor explicitly submits the floating capture form or reuses previously submitted data stored in the same browser.
 
 = F10 Software API =
 
@@ -124,17 +153,35 @@ When enabled, the plugin sends lead information to Brevo to create a transaction
 * Terms: https://www.brevo.com/legal/termsofuse/
 * Privacy: https://www.brevo.com/legal/privacypolicy/
 
+= WhatsApp =
+
+When an administrator configures a floating WhatsApp widget and a visitor submits the widget form, the plugin builds a `https://wa.me/` URL with the configured destination number and message. Depending on the message template, this URL may contain the visitor name, submitted WhatsApp number, current page information, site name, and selected campaign parameters. The browser then navigates to the WhatsApp service.
+
+* Service website: https://www.whatsapp.com/
+* Terms: https://www.whatsapp.com/legal/terms-of-service
+* Privacy: https://www.whatsapp.com/legal/privacy-policy
+
 == Privacy ==
 
 The plugin stores submitted lead information in the WordPress database. Site administrators are responsible for providing an appropriate privacy notice and lawful basis.
 
-IP addresses are stored only as HMAC hashes for abuse prevention. Post-conversion events are stored locally. The plugin does not include third-party telemetry or advertising tracking.
+IP addresses are stored only as HMAC hashes for abuse prevention. Post-conversion events are stored locally. The plugin does not include third-party telemetry, advertising, affiliate tracking, or automatic user tracking.
+
+The floating WhatsApp feature may store the visitor name, WhatsApp number, and expiration timestamp in browser local storage for seven days after a successful submission. This is used only to avoid asking for the same data again on later WhatsApp clicks.
 
 == Frequently Asked Questions ==
 
 = Can I create more than one form? =
 
 Yes. Each form receives its own shortcode identifier.
+
+= Can I configure more than one WhatsApp number? =
+
+Yes. Each widget can use a different number and target the whole site, selected content, or post categories. When more than one widget matches, specific content takes precedence over category targeting, which takes precedence over a whole-site widget.
+
+= Does the floating WhatsApp button save the lead before opening WhatsApp? =
+
+Yes. The visitor submits name and WhatsApp number, the plugin stores the lead locally, processes enabled integrations, and then opens WhatsApp when allowed by the configured schedule.
 
 = Can each form use different fields? =
 
@@ -154,6 +201,14 @@ Yes. Leads are stored locally and failed integrations can be retried manually or
 
 == Changelog ==
 
+= 1.3.0 =
+
+* Adds configurable floating WhatsApp lead capture widgets.
+* Adds whole-site, selected-content, category, and exclusion targeting.
+* Adds school-oriented defaults, business hours, online and offline states, and live preview.
+* Saves WhatsApp contacts through the existing local lead and integration workflow.
+* Adds WhatsApp conversion tracking and clear WhatsApp labels to the lead dashboard.
+
 = 1.2.3 =
 
 * Aligns the plugin text domain with the WordPress.org slug `f10-captura-de-leads`.
@@ -164,7 +219,7 @@ Yes. Leads are stored locally and failed integrations can be retried manually or
 
 * Rebuilt the post-conversion transition so the complete form view is replaced.
 * Moves the post-conversion component outside the HTML form at runtime.
-* Uses inline important visibility rules to resist theme and page-builder CSS.
+* Uses inline important visibility rules to resist theme or page-builder CSS.
 * Confirmation-only forms also replace the original fields with a result panel.
 
 = 1.2.1 =
