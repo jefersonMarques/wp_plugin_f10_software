@@ -31,13 +31,6 @@ final class F10_Lead_Capture_Plugin
         remove_action('wp_footer', array($whatsapp, 'render_widget'), 30);
         add_action('wp_footer', array($whatsapp, 'render_widget'), 5);
         add_filter('script_loader_tag', array($this, 'defer_whatsapp_script'), 10, 2);
-        add_filter(
-            'pre_update_option_' . F10_Lead_Capture_WhatsApp_Config::OPTION_NAME,
-            array('F10_Lead_Capture_WhatsApp_Form_Mode', 'apply_posted_mode'),
-            10,
-            2
-        );
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_whatsapp_form_mode_script'), 35);
         add_action('wp_enqueue_scripts', array($this, 'add_whatsapp_layout_fix'), 40);
 
         if (is_admin()) {
