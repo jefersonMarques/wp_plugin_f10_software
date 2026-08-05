@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: F10 Lead Capture
- * Plugin URI: https://github.com/jefersonMarques/wp_plugin_f10leca_software
+ * Plugin URI: https://github.com/jefersonMarques/wp_plugin_f10_software
  * Description: Create lead forms and floating WhatsApp capture widgets, store contacts locally, and integrate WordPress with F10 Software and Brevo.
  * Version: 1.3.9
  * Author: F10 Software
