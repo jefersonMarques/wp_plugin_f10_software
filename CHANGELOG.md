@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.10 — 2026-08-05
+
+### Alterado
+
+- Nome de exibição alterado para **F10 Escolar - Captura de Leads**.
+- Descrição do cabeçalho principal traduzida para português.
+- Versão do plugin atualizada para `1.3.10`.
+- Slug `f10-captura-de-leads`, domínio de tradução e configurações existentes preservados.
+
+## 1.3.9 — 2026-08-05
+
+### Alterado
+
+- Identificadores globais curtos substituídos pelo prefixo exclusivo `f10leca` e `F10LECA`.
+- Classes, constantes, hooks, ações AJAX, shortcodes, opções, transients, menus e identificadores de assets atualizados.
+- Slug e domínio de tradução preservados.
+
 ## 1.3.7 — 2026-07-21
 
 ### Corrigido
