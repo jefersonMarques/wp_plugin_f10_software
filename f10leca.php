@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: F10 Lead Capture
+ * Plugin Name: F10 Escolar - Captura de Leads
  * Plugin URI: https://github.com/jefersonMarques/wp_plugin_f10_software
- * Description: Create lead forms and floating WhatsApp capture widgets, store contacts locally, and integrate WordPress with F10 Software and Brevo.
- * Version: 1.3.9
+ * Description: Crie formulários e botões flutuantes de WhatsApp, armazene contatos localmente e integre o WordPress com a F10 Software e o Brevo.
+ * Version: 1.3.10
  * Author: F10 Software
  * Author URI: https://f10.com.br/
  * License: GPLv2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('F10LECA_VERSION', '1.3.9');
+define('F10LECA_VERSION', '1.3.10');
 define('F10LECA_FILE', __FILE__);
 define('F10LECA_PATH', plugin_dir_path(__FILE__));
 define('F10LECA_URL', plugin_dir_url(__FILE__));
