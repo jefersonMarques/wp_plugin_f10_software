@@ -1,6 +1,6 @@
 === F10 Lead Capture ===
 Contributors: rafamarques, f10software
-Tags: lead capture, contact form, whatsapp, crm, school management
+Tags: captura de leads, formulário de contato, whatsapp, crm escolar, gestão escolar
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
@@ -8,58 +8,61 @@ Stable tag: 1.3.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Create lead forms and floating WhatsApp capture widgets, store contacts locally, and optionally integrate with F10 Software and Brevo.
+Crie formulários e botões de WhatsApp para captar leads, armazenar contatos e integrar o WordPress com a F10 Software e o Brevo.
 
 == Description ==
 
-F10 Lead Capture provides form and floating WhatsApp lead capture management for WordPress pages, posts, landing pages, and educational marketing campaigns.
+O F10 Lead Capture permite criar formulários de captação de leads e botões flutuantes de WhatsApp para páginas, posts, landing pages e campanhas educacionais no WordPress.
 
-Each saved form can have its own title, description, button, success message, fields, required rules, source, product, and post-conversion action.
+Cada formulário pode ter título, descrição, botão, mensagem de sucesso, campos, regras de obrigatoriedade, origem, produto e ação pós-conversão próprios.
 
-Floating WhatsApp widgets can target the whole site, selected content, or post categories. Visitors first submit their name and WhatsApp number, the lead is stored locally, and then the configured WhatsApp conversation can be opened.
+Os widgets flutuantes de WhatsApp podem ser exibidos no site inteiro, em conteúdos específicos ou em categorias de posts. Antes de abrir a conversa, o visitante informa nome e WhatsApp, o lead é armazenado localmente e a conversa configurada pode ser iniciada.
 
-Leads are stored locally before external integrations run. Administrators can review, filter, export, delete, and retry failed integrations.
+Os leads são armazenados no WordPress antes da execução das integrações externas. Administradores podem visualizar, filtrar, exportar, excluir e reenviar integrações com falha.
 
-= Main features =
+O plugin foi desenvolvido para escolas, cursos livres, escolas de idiomas, instituições de ensino e empresas que precisam organizar a captação comercial. Para uma operação acadêmica, financeira e comercial completa, conheça o [sistema de gestão escolar da F10](https://f10.com.br/sistema-de-gestao-escolar).
 
-* Multiple independently configured forms.
-* Shortcodes generated for each saved form.
-* Configurable name, course, phone, WhatsApp, email, school/company, and notes fields.
-* Floating WhatsApp lead capture widgets with school-oriented defaults.
-* WhatsApp targeting for the whole site, selected content, or post categories.
-* Left or right position, four visual effects, color, badge, and appearance delay.
-* Weekly opening hours with online and offline behavior.
-* Live WhatsApp widget preview in the WordPress dashboard.
-* Individual labels and required rules per form.
-* Four built-in form appearance presets.
-* Responsive desktop and mobile appearance controls.
-* Post-conversion confirmation, Media Library download, destination link, or WhatsApp opening.
-* Local storage before sending to external services.
-* Optional F10 Software API integration.
-* Optional Brevo transactional email notification.
-* UTM, page URL, and referrer capture.
-* Lead history, CSV export, retry workflow, honeypot, nonce, and rate limiting.
+= Principais recursos =
+
+* Múltiplos formulários com configurações independentes.
+* Shortcodes gerados para cada formulário salvo.
+* Campos configuráveis de nome, curso, telefone, WhatsApp, e-mail, escola ou empresa e observações.
+* Botões flutuantes de WhatsApp com textos voltados à captação educacional.
+* Segmentação do WhatsApp para o site inteiro, conteúdos específicos ou categorias.
+* Posição à esquerda ou à direita, quatro efeitos visuais, cor, selo e atraso de exibição.
+* Horários semanais de atendimento com comportamento online e offline.
+* Pré-visualização ao vivo do widget de WhatsApp no painel do WordPress.
+* Rótulos e regras de obrigatoriedade independentes por formulário.
+* Quatro modelos visuais prontos para formulários.
+* Controles responsivos para desktop e dispositivos móveis.
+* Pós-conversão com confirmação, download da Biblioteca de Mídia, link de destino ou abertura do WhatsApp.
+* Armazenamento local antes do envio para serviços externos.
+* Integração opcional com a API da F10 Software.
+* Notificação opcional por e-mail transacional via Brevo.
+* Captura de parâmetros UTM, URL da página e referenciador.
+* Histórico de leads, exportação CSV, tentativas de reenvio, honeypot, nonce e limitação de requisições.
 
 == Installation ==
 
-1. Upload the plugin ZIP through the WordPress Plugins screen.
-2. Activate F10 Lead Capture.
-3. Open F10 Leads > Settings and configure the optional integrations.
-4. Open F10 Leads > Forms to configure shortcode forms.
-5. Open F10 Leads > WhatsApp to add a floating WhatsApp lead capture widget.
-6. Copy a generated form shortcode into a WordPress Shortcode block when needed.
+1. No painel do WordPress, acesse Plugins > Adicionar plugin.
+2. Pesquise por F10 Lead Capture ou envie o arquivo ZIP do plugin.
+3. Instale e ative o F10 Lead Capture.
+4. Acesse Leads F10 > Configurações para configurar as integrações opcionais.
+5. Acesse Leads F10 > Formulários para criar e configurar formulários com shortcode.
+6. Acesse Leads F10 > WhatsApp para criar um botão flutuante de captação.
+7. Copie o shortcode gerado e cole em um bloco Shortcode do WordPress quando necessário.
 
 == Shortcode ==
 
-Main form:
+Formulário principal:
 
 `[f10leca_lead_form]`
 
-Specific saved form:
+Formulário salvo específico:
 
 `[f10leca_lead_form id="ebook-school-management"]`
 
-Existing shortcode attributes remain available as optional runtime overrides:
+Os atributos existentes continuam disponíveis como sobrescritas opcionais em tempo de execução:
 
 * `title`
 * `description`
@@ -73,131 +76,139 @@ Existing shortcode attributes remain available as optional runtime overrides:
 
 == Forms ==
 
-Open F10 Leads > Forms to create, edit, duplicate, activate, deactivate, or delete forms.
+Acesse Leads F10 > Formulários para criar, editar, duplicar, ativar, desativar ou excluir formulários.
 
-Each form includes:
+Cada formulário inclui:
 
-* internal name and identifier;
-* frontend title and description;
-* submit button and success message;
-* product, source, and subsource defaults;
-* enabled, optional, and required field settings;
-* confirmation-only, file-download, or destination-link post-conversion behavior.
+* nome interno e identificador;
+* título e descrição exibidos no site;
+* botão de envio e mensagem de sucesso;
+* valores padrão de produto, origem e suborigem;
+* campos habilitados, opcionais e obrigatórios;
+* confirmação simples, download de arquivo ou link de destino após a conversão.
 
 == WhatsApp ==
 
-Open F10 Leads > WhatsApp to create, edit, duplicate, activate, deactivate, or delete floating WhatsApp widgets.
+Acesse Leads F10 > WhatsApp para criar, editar, duplicar, ativar, desativar ou excluir botões flutuantes de WhatsApp.
 
-Each WhatsApp widget includes:
+Cada configuração de WhatsApp inclui:
 
-* an internal name and destination number;
-* whole-site, selected-content, or post-category targeting;
-* optional content exclusions;
-* left or right position;
-* static, pulse, radar, or attention visual effect;
-* color, online and offline badges, and a zero-to-five-second delay;
-* desktop and mobile visibility;
-* school-oriented form texts and configurable message template variables;
-* optional weekly business hours and offline behavior;
-* a live preview in the WordPress dashboard.
+* nome interno e número de destino;
+* exibição no site inteiro, em conteúdos selecionados ou em categorias;
+* exclusões opcionais de conteúdo;
+* posição à esquerda ou à direita;
+* efeito visual estático, pulsante, radar ou de atenção;
+* cor, selos online e offline e atraso de zero a cinco segundos;
+* visibilidade independente para desktop e dispositivos móveis;
+* textos de formulário voltados a escolas e variáveis configuráveis na mensagem;
+* horários semanais opcionais e comportamento fora do atendimento;
+* pré-visualização ao vivo no painel do WordPress.
 
-The visitor submits name and WhatsApp number before WhatsApp opens. The contact is stored in the same local lead table and can use the same optional F10 Software and Brevo integrations.
+O visitante informa nome e WhatsApp antes da abertura da conversa. O contato é armazenado na mesma tabela local de leads e pode utilizar as integrações opcionais com F10 Software e Brevo.
 
-Supported message variables include `{name}`, `{visitor_whatsapp}`, `{site_name}`, `{page_title}`, `{page_url}`, `{utm_source}`, and `{utm_campaign}`.
+As variáveis de mensagem disponíveis incluem `{name}`, `{visitor_whatsapp}`, `{site_name}`, `{page_title}`, `{page_url}`, `{utm_source}` e `{utm_campaign}`.
 
-After a successful submission, the visitor data is stored in that browser for seven days so later clicks can open the configured WhatsApp conversation without requesting the same fields again. This storage is local to the visitor browser and is not used for advertising or third-party analytics.
+Após um envio bem-sucedido, os dados do visitante são mantidos no navegador por sete dias. Durante esse período, novos cliques podem abrir a conversa configurada sem solicitar os mesmos campos novamente. Esse armazenamento é local ao navegador e não é utilizado para publicidade ou análise de terceiros.
 
 == Appearance ==
 
-Open F10 Leads > Appearance.
+Acesse Leads F10 > Aparência.
 
-The Form tab controls presets, width, alignment, columns, spacing, colors, borders, typography, shadows, and button style.
+A aba Formulário controla modelos visuais, largura, alinhamento, colunas, espaçamento, cores, bordas, tipografia, sombras e estilo do botão.
 
-The Post-conversion tab controls the result panel background, border, icon, title, description, spacing, button colors, width, radius, and shadow.
+A aba Pós-conversão controla fundo, borda, ícone, título, descrição, espaçamento, cores do botão, largura, raio e sombra do painel de resultado.
 
 == Post-conversion replacement ==
 
-After a successful form submission, the plugin replaces the complete form view with the post-conversion panel. The download or link panel is moved outside the HTML form before the original view is hidden, preventing theme or page-builder CSS from keeping both states visible.
+Após o envio bem-sucedido, o plugin substitui toda a visualização do formulário pelo painel pós-conversão. O painel de download ou link é movido para fora do elemento HTML do formulário antes da ocultação da tela original, evitando conflitos com CSS de temas e construtores de páginas.
 
-When no download or link is configured, the same replacement panel displays the configured success confirmation.
+Quando nenhum download ou link está configurado, o mesmo painel apresenta a mensagem de confirmação definida pelo administrador.
 
 == Local storage and retries ==
 
-Leads are inserted into the `{prefix}_f10leca_leads` table before external integrations run.
+Os leads são inseridos na tabela `{prefix}_f10leca_leads` antes da execução das integrações externas.
 
-The plugin stores integration status, HTTP responses, business errors, attempt counts, retry dates, and post-conversion activity.
+O plugin armazena status de integração, respostas HTTP, erros de negócio, número de tentativas, datas de reenvio e atividades pós-conversão.
 
 == External services ==
 
-No lead data is sent to an optional external integration until an administrator enables and configures it. The WhatsApp destination is opened only after the visitor explicitly submits the floating capture form or reuses previously submitted data stored in the same browser.
+Nenhum dado de lead é enviado para uma integração externa opcional até que um administrador a habilite e configure. O destino do WhatsApp é aberto somente após o visitante enviar explicitamente o formulário flutuante ou reutilizar dados previamente enviados e armazenados no mesmo navegador.
 
-= F10 Software API =
+= API da F10 Software =
 
-When enabled, the plugin sends lead information to:
+Quando habilitado, o plugin envia os dados do lead para:
 
 `https://nuvem.f10.com.br/fx-api/digitacao`
 
-The payload may contain the configured JWT token, API type, unit ID, source, media, contact information, course or interest, school/company, notes, and capture-page information.
+A requisição pode conter token JWT configurado, tipo de API, ID da unidade, origem, mídia, dados de contato, curso ou interesse, escola ou empresa, observações e informações da página de captura.
 
-A successful HTTP response is also validated by its business content. F10 success requires `incluidos.digitacao` greater than zero and no `nao_incluidas` errors.
+Uma resposta HTTP bem-sucedida também é validada pelo conteúdo de negócio. O envio para a F10 somente é considerado concluído quando `incluidos.digitacao` é maior que zero e não existem erros em `nao_incluidas`.
 
-* Service website: https://f10.com.br/
-* Terms: https://f10.com.br/termos-de-uso
-* Privacy: https://f10.com.br/politica-de-privacidade
+* Site do serviço: https://f10.com.br/
+* Termos: https://f10.com.br/termos-de-uso
+* Privacidade: https://f10.com.br/politica-de-privacidade
 
-= Brevo Transactional Email API =
+= API de e-mail transacional do Brevo =
 
-When enabled, the plugin sends lead information to Brevo to create a transactional email for the configured recipient.
+Quando habilitado, o plugin envia os dados do lead ao Brevo para criar um e-mail transacional destinado ao endereço configurado.
 
-* Service website: https://www.brevo.com/
-* Terms: https://www.brevo.com/legal/termsofuse/
-* Privacy: https://www.brevo.com/legal/privacypolicy/
+* Site do serviço: https://www.brevo.com/
+* Termos: https://www.brevo.com/legal/termsofuse/
+* Privacidade: https://www.brevo.com/legal/privacypolicy/
 
 = WhatsApp =
 
-When an administrator configures a floating WhatsApp widget and a visitor submits the widget form, the plugin builds a `https://wa.me/` URL with the configured destination number and message. Depending on the message template, this URL may contain the visitor name, submitted WhatsApp number, current page information, site name, and selected campaign parameters. The browser then navigates to the WhatsApp service.
+Quando um administrador configura um botão flutuante e o visitante envia o formulário, o plugin cria uma URL `https://wa.me/` com o número de destino e a mensagem configurada. Conforme o modelo da mensagem, a URL pode conter nome do visitante, WhatsApp informado, página atual, nome do site e parâmetros da campanha. O navegador é então direcionado ao serviço do WhatsApp.
 
-* Service website: https://www.whatsapp.com/
-* Terms: https://www.whatsapp.com/legal/terms-of-service
-* Privacy: https://www.whatsapp.com/legal/privacy-policy
+* Site do serviço: https://www.whatsapp.com/
+* Termos: https://www.whatsapp.com/legal/terms-of-service
+* Privacidade: https://www.whatsapp.com/legal/privacy-policy
 
 == Privacy ==
 
-The plugin stores submitted lead information in the WordPress database. Site administrators are responsible for providing an appropriate privacy notice and lawful basis.
+O plugin armazena no banco de dados do WordPress as informações enviadas pelos visitantes. Os administradores do site são responsáveis por apresentar aviso de privacidade adequado e definir uma base legal para o tratamento desses dados.
 
-IP addresses are stored only as HMAC hashes for abuse prevention. Post-conversion events are stored locally. The plugin does not include third-party telemetry, advertising, affiliate tracking, or automatic user tracking.
+Endereços IP são armazenados somente como hashes HMAC para prevenção de abuso. Eventos pós-conversão são armazenados localmente. O plugin não inclui telemetria de terceiros, publicidade, rastreamento de afiliados ou rastreamento automático de usuários.
 
-The floating WhatsApp feature may store the visitor name, WhatsApp number, and expiration timestamp in browser local storage for seven days after a successful submission. This is used only to avoid asking for the same data again on later WhatsApp clicks.
+O recurso de WhatsApp flutuante pode armazenar no navegador o nome do visitante, número do WhatsApp e data de expiração durante sete dias após um envio bem-sucedido. Esses dados são usados somente para evitar a solicitação repetida das mesmas informações em cliques posteriores.
 
 == Frequently Asked Questions ==
 
-= Can I create more than one form? =
+= Posso criar mais de um formulário? =
 
-Yes. Each form receives its own shortcode identifier.
+Sim. Cada formulário recebe seu próprio identificador de shortcode.
 
-= Can I configure more than one WhatsApp number? =
+= Posso configurar mais de um número de WhatsApp? =
 
-Yes. Each widget can use a different number and target the whole site, selected content, or post categories. When more than one widget matches, specific content takes precedence over category targeting, which takes precedence over a whole-site widget.
+Sim. Cada botão pode utilizar um número diferente e ser exibido no site inteiro, em conteúdos selecionados ou em categorias. Quando mais de uma configuração é compatível, conteúdos específicos têm prioridade sobre categorias, e categorias têm prioridade sobre a configuração do site inteiro.
 
-= Does the floating WhatsApp button save the lead before opening WhatsApp? =
+= O botão flutuante salva o lead antes de abrir o WhatsApp? =
 
-Yes. The visitor submits name and WhatsApp number, the plugin stores the lead locally, processes enabled integrations, and then opens WhatsApp when allowed by the configured schedule.
+Sim. O visitante informa nome e WhatsApp, o plugin armazena o lead, processa as integrações habilitadas e abre o WhatsApp quando permitido pelo horário configurado.
 
-= Can each form use different fields? =
+= Cada formulário pode utilizar campos diferentes? =
 
-Yes. Fields, labels, and required rules are configured independently.
+Sim. Campos, rótulos e regras de obrigatoriedade são configurados de forma independente.
 
-= Can a form deliver a PDF or e-book? =
+= Um formulário pode entregar um PDF ou e-book? =
 
-Yes. Select or upload the file through the WordPress Media Library in the form editor.
+Sim. Selecione ou envie o arquivo pela Biblioteca de Mídia do WordPress no editor do formulário.
 
-= Is Brevo required? =
+= O Brevo é obrigatório? =
 
-No. Brevo notifications are optional.
+Não. As notificações pelo Brevo são opcionais.
 
-= Can failed F10 requests be retried? =
+= É possível reenviar solicitações da F10 que falharam? =
 
-Yes. Leads are stored locally and failed integrations can be retried manually or automatically.
+Sim. Os leads permanecem armazenados localmente, e integrações com falha podem ser reenviadas manualmente ou automaticamente.
+
+== Screenshots ==
+
+1. Visão geral do F10 Lead Capture para capturar e organizar leads da escola em um único painel.
+2. Acompanhamento de cada lead com origem, contato, conversão, status, filtros e exportação CSV.
+3. Integração com a F10 Software e distribuição de leads em operações com múltiplas unidades.
+4. Captação e acompanhamento de conversões pelo WhatsApp.
+5. Criação de formulários para campanhas, landing pages e páginas institucionais.
 
 == Changelog ==
 
