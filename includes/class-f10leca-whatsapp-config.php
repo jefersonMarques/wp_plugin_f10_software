@@ -4,9 +4,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-final class F10_Lead_Capture_WhatsApp_Config
+final class F10LECA_WhatsApp_Config
 {
-    public const OPTION_NAME = 'f10_lead_capture_whatsapp_widgets';
+    public const OPTION_NAME = 'f10leca_whatsapp_widgets';
 
     public static function default_widget(): array
     {

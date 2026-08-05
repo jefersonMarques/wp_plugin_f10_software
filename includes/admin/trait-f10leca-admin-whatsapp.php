@@ -4,13 +4,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_WhatsApp_Trait
+trait F10LECA_Admin_WhatsApp_Trait
 {
     public function render_whatsapp_page(): void
     {
         $this->require_capability();
         $view = sanitize_key($this->query_text('view', 30));
-        $widget_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id(
+        $widget_id = F10LECA_WhatsApp_Config::sanitize_widget_id(
             $this->query_text('widget', 100)
         );
 
@@ -25,19 +25,19 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
     public function handle_save_whatsapp(): void
     {
         $this->require_capability();
-        check_admin_referer('f10_lead_capture_save_whatsapp');
+        check_admin_referer('f10leca_save_whatsapp');
 
-        $raw = filter_input(INPUT_POST, 'f10_whatsapp', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
+        $raw = filter_input(INPUT_POST, 'f10leca_whatsapp', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
         $input = is_array($raw) ? $raw : array();
-        $widgets = F10_Lead_Capture_WhatsApp_Config::get_widgets();
-        $original_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id(
+        $widgets = F10LECA_WhatsApp_Config::get_widgets();
+        $original_id = F10LECA_WhatsApp_Config::sanitize_widget_id(
             (string) ($input['original_id'] ?? '')
         );
-        $requested_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id(
+        $requested_id = F10LECA_WhatsApp_Config::sanitize_widget_id(
             (string) ($input['id'] ?? '')
         );
         $name = sanitize_text_field((string) ($input['name'] ?? ''));
-        $phone = F10_Lead_Capture_WhatsApp_Config::normalize_phone(
+        $phone = F10LECA_WhatsApp_Config::normalize_phone(
             sanitize_text_field((string) ($input['phone'] ?? ''))
         );
 
@@ -50,7 +50,7 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
         }
 
         if ($requested_id === '') {
-            $requested_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id($name);
+            $requested_id = F10LECA_WhatsApp_Config::sanitize_widget_id($name);
         }
 
         if ($requested_id === '') {
@@ -65,11 +65,11 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
 
         $existing = $original_id !== '' && isset($widgets[$original_id])
             ? $widgets[$original_id]
-            : F10_Lead_Capture_WhatsApp_Config::default_widget();
+            : F10LECA_WhatsApp_Config::default_widget();
         $schedule_input = is_array($input['schedule'] ?? null) ? $input['schedule'] : array();
         $schedule = array();
 
-        foreach (F10_Lead_Capture_WhatsApp_Config::default_schedule() as $day_key => $day_defaults) {
+        foreach (F10LECA_WhatsApp_Config::default_schedule() as $day_key => $day_defaults) {
             $day = is_array($schedule_input[$day_key] ?? null) ? $schedule_input[$day_key] : array();
             $schedule[$day_key] = array(
                 'enabled' => !empty($day['enabled']) ? '1' : '0',
@@ -109,22 +109,22 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
             'created_at' => (string) ($existing['created_at'] ?? current_time('mysql', true)),
             'updated_at' => current_time('mysql', true),
         );
-        $widget = F10_Lead_Capture_WhatsApp_Config::normalize_widget($widget, $requested_id);
+        $widget = F10LECA_WhatsApp_Config::normalize_widget($widget, $requested_id);
 
         if ($original_id !== '' && $original_id !== $requested_id) {
             unset($widgets[$original_id]);
         }
 
         $widgets[$requested_id] = $widget;
-        F10_Lead_Capture_WhatsApp_Config::save_widgets($widgets);
+        F10LECA_WhatsApp_Config::save_widgets($widgets);
 
         wp_safe_redirect(
             add_query_arg(
                 array(
-                    'page' => 'f10-lead-whatsapp',
+                    'page' => 'f10leca-lead-whatsapp',
                     'view' => 'edit',
                     'widget' => $requested_id,
-                    'f10_notice' => 'whatsapp_saved',
+                    'f10leca_notice' => 'whatsapp_saved',
                 ),
                 admin_url('admin.php')
             )
@@ -135,11 +135,11 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
     public function handle_duplicate_whatsapp(): void
     {
         $this->require_capability();
-        $widget_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id(
+        $widget_id = F10LECA_WhatsApp_Config::sanitize_widget_id(
             $this->query_text('widget', 100)
         );
-        check_admin_referer('f10_lead_capture_duplicate_whatsapp_' . $widget_id);
-        $widgets = F10_Lead_Capture_WhatsApp_Config::get_widgets();
+        check_admin_referer('f10leca_duplicate_whatsapp_' . $widget_id);
+        $widgets = F10LECA_WhatsApp_Config::get_widgets();
 
         if (!isset($widgets[$widget_id])) {
             $this->whatsapp_redirect_notice('whatsapp_missing');
@@ -152,15 +152,15 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
         $copy['created_at'] = current_time('mysql', true);
         $copy['updated_at'] = current_time('mysql', true);
         $widgets[$new_id] = $copy;
-        F10_Lead_Capture_WhatsApp_Config::save_widgets($widgets);
+        F10LECA_WhatsApp_Config::save_widgets($widgets);
 
         wp_safe_redirect(
             add_query_arg(
                 array(
-                    'page' => 'f10-lead-whatsapp',
+                    'page' => 'f10leca-lead-whatsapp',
                     'view' => 'edit',
                     'widget' => $new_id,
-                    'f10_notice' => 'whatsapp_duplicated',
+                    'f10leca_notice' => 'whatsapp_duplicated',
                 ),
                 admin_url('admin.php')
             )
@@ -171,13 +171,13 @@ trait F10_Lead_Capture_Admin_WhatsApp_Trait
     public function handle_delete_whatsapp(): void
     {
         $this->require_capability();
-        $widget_id = F10_Lead_Capture_WhatsApp_Config::sanitize_widget_id(
+        $widget_id = F10LECA_WhatsApp_Config::sanitize_widget_id(
             $this->query_text('widget', 100)
         );
-        check_admin_referer('f10_lead_capture_delete_whatsapp_' . $widget_id);
-        $widgets = F10_Lead_Capture_WhatsApp_Config::get_widgets();
+        check_admin_referer('f10leca_delete_whatsapp_' . $widget_id);
+        $widgets = F10LECA_WhatsApp_Config::get_widgets();
         unset($widgets[$widget_id]);
-        F10_Lead_Capture_WhatsApp_Config::save_widgets($widgets);
+        F10LECA_WhatsApp_Config::save_widgets($widgets);
         $this->whatsapp_redirect_notice('whatsapp_deleted');
     }
 }

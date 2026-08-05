@@ -171,7 +171,7 @@
 
 ### Corrigido
 
-- Nome público padronizado para `F10 Lead Capture`, mantendo o slug e o text domain `f10-lead-capture`.
+- Nome público padronizado para `F10 Lead Capture`, mantendo o slug e o text domain `f10leca`.
 - Licença GPL adicionada ao cabeçalho principal do plugin.
 - Cabeçalho de atualização externa removido para compatibilidade com o diretório WordPress.org.
 - Cabeçalho `Tested up to: 7.0` adicionado ao `readme.txt`.

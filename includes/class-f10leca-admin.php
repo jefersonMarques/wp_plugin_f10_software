@@ -4,49 +4,49 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-settings.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-leads.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-appearance.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-forms.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor-fields.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-editor-form.php';
-require_once __DIR__ . '/admin/trait-f10-lead-capture-admin-whatsapp-lead-labels.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-settings.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-leads.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-appearance.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-forms.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-whatsapp.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-whatsapp-editor.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-whatsapp-editor-fields.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-whatsapp-editor-form.php';
+require_once __DIR__ . '/admin/trait-f10leca-admin-whatsapp-lead-labels.php';
 
-final class F10_Lead_Capture_Admin
+final class F10LECA_Admin
 {
-    use F10_Lead_Capture_Admin_Settings_Trait;
-    use F10_Lead_Capture_Admin_Leads_Trait, F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait {
-        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::lead_form_name insteadof F10_Lead_Capture_Admin_Leads_Trait;
-        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::render_conversion_status insteadof F10_Lead_Capture_Admin_Leads_Trait;
-        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::conversion_type_label insteadof F10_Lead_Capture_Admin_Leads_Trait;
-        F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait::conversion_status_label insteadof F10_Lead_Capture_Admin_Leads_Trait;
+    use F10LECA_Admin_Settings_Trait;
+    use F10LECA_Admin_Leads_Trait, F10LECA_Admin_WhatsApp_Lead_Labels_Trait {
+        F10LECA_Admin_WhatsApp_Lead_Labels_Trait::lead_form_name insteadof F10LECA_Admin_Leads_Trait;
+        F10LECA_Admin_WhatsApp_Lead_Labels_Trait::render_conversion_status insteadof F10LECA_Admin_Leads_Trait;
+        F10LECA_Admin_WhatsApp_Lead_Labels_Trait::conversion_type_label insteadof F10LECA_Admin_Leads_Trait;
+        F10LECA_Admin_WhatsApp_Lead_Labels_Trait::conversion_status_label insteadof F10LECA_Admin_Leads_Trait;
     }
-    use F10_Lead_Capture_Admin_Appearance_Trait;
-    use F10_Lead_Capture_Admin_Forms_Trait;
-    use F10_Lead_Capture_Admin_WhatsApp_Trait;
-    use F10_Lead_Capture_Admin_WhatsApp_Editor_Trait;
-    use F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait;
-    use F10_Lead_Capture_Admin_WhatsApp_Editor_Form_Trait;
+    use F10LECA_Admin_Appearance_Trait;
+    use F10LECA_Admin_Forms_Trait;
+    use F10LECA_Admin_WhatsApp_Trait;
+    use F10LECA_Admin_WhatsApp_Editor_Trait;
+    use F10LECA_Admin_WhatsApp_Editor_Fields_Trait;
+    use F10LECA_Admin_WhatsApp_Editor_Form_Trait;
 
-    private const OPTION_NAME = 'f10_lead_capture_settings';
-    private const APPEARANCE_OPTION = 'f10_lead_capture_appearance';
+    private const OPTION_NAME = 'f10leca_settings';
+    private const APPEARANCE_OPTION = 'f10leca_appearance';
 
     public function register_hooks(): void
     {
         add_action('admin_menu', array($this, 'register_menu'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
-        add_action('admin_post_f10_retry_lead', array($this, 'handle_retry'));
-        add_action('admin_post_f10_delete_lead', array($this, 'handle_delete'));
-        add_action('admin_post_f10_export_leads', array($this, 'handle_export'));
-        add_action('admin_post_f10_save_form', array($this, 'handle_save_form'));
-        add_action('admin_post_f10_duplicate_form', array($this, 'handle_duplicate_form'));
-        add_action('admin_post_f10_delete_form', array($this, 'handle_delete_form'));
-        add_action('admin_post_f10_lead_capture_save_whatsapp', array($this, 'handle_save_whatsapp'));
-        add_action('admin_post_f10_lead_capture_duplicate_whatsapp', array($this, 'handle_duplicate_whatsapp'));
-        add_action('admin_post_f10_lead_capture_delete_whatsapp', array($this, 'handle_delete_whatsapp'));
+        add_action('admin_post_f10leca_retry_lead', array($this, 'handle_retry'));
+        add_action('admin_post_f10leca_delete_lead', array($this, 'handle_delete'));
+        add_action('admin_post_f10leca_export_leads', array($this, 'handle_export'));
+        add_action('admin_post_f10leca_save_form', array($this, 'handle_save_form'));
+        add_action('admin_post_f10leca_duplicate_form', array($this, 'handle_duplicate_form'));
+        add_action('admin_post_f10leca_delete_form', array($this, 'handle_delete_form'));
+        add_action('admin_post_f10leca_save_whatsapp', array($this, 'handle_save_whatsapp'));
+        add_action('admin_post_f10leca_duplicate_whatsapp', array($this, 'handle_duplicate_whatsapp'));
+        add_action('admin_post_f10leca_delete_whatsapp', array($this, 'handle_delete_whatsapp'));
     }
 
     public function register_menu(): void
@@ -55,54 +55,54 @@ final class F10_Lead_Capture_Admin
             'Leads F10',
             'Leads F10',
             'manage_options',
-            'f10-leads',
+            'f10leca-leads',
             array($this, 'render_leads_page'),
             'dashicons-groups',
             26
         );
 
         add_submenu_page(
-            'f10-leads',
+            'f10leca-leads',
             'Leads capturados',
             'Leads',
             'manage_options',
-            'f10-leads',
+            'f10leca-leads',
             array($this, 'render_leads_page')
         );
 
         add_submenu_page(
-            'f10-leads',
+            'f10leca-leads',
             'Formulários',
             'Formulários',
             'manage_options',
-            'f10-lead-forms',
+            'f10leca-lead-forms',
             array($this, 'render_forms_page')
         );
 
         add_submenu_page(
-            'f10-leads',
+            'f10leca-leads',
             'Atendimento por WhatsApp',
             'WhatsApp',
             'manage_options',
-            'f10-lead-whatsapp',
+            'f10leca-lead-whatsapp',
             array($this, 'render_whatsapp_page')
         );
 
         add_submenu_page(
-            'f10-leads',
+            'f10leca-leads',
             'Aparência do formulário',
             'Aparência',
             'manage_options',
-            'f10-lead-appearance',
+            'f10leca-lead-appearance',
             array($this, 'render_appearance_page')
         );
 
         add_submenu_page(
-            'f10-leads',
+            'f10leca-leads',
             'Configurações',
             'Configurações',
             'manage_options',
-            'f10-lead-settings',
+            'f10leca-lead-settings',
             array($this, 'render_settings_page')
         );
     }
@@ -110,13 +110,13 @@ final class F10_Lead_Capture_Admin
     public function register_settings(): void
     {
         register_setting(
-            'f10_lead_capture_settings_group',
+            'f10leca_settings_group',
             self::OPTION_NAME,
             array($this, 'sanitize_settings')
         );
 
         register_setting(
-            'f10_lead_capture_appearance_group',
+            'f10leca_appearance_group',
             self::APPEARANCE_OPTION,
             array($this, 'sanitize_appearance')
         );
@@ -126,69 +126,69 @@ final class F10_Lead_Capture_Admin
     {
         $page = sanitize_key($this->query_text('page', 80));
 
-        if (!in_array($page, array('f10-lead-appearance', 'f10-lead-forms', 'f10-lead-whatsapp'), true)) {
+        if (!in_array($page, array('f10leca-lead-appearance', 'f10leca-lead-forms', 'f10leca-lead-whatsapp'), true)) {
             return;
         }
 
         wp_enqueue_style(
-            'f10-lead-capture-form',
-            F10_LEAD_CAPTURE_URL . 'assets/css/form.css',
+            'f10leca-form',
+            F10LECA_URL . 'assets/css/form.css',
             array(),
-            F10_LEAD_CAPTURE_VERSION
+            F10LECA_VERSION
         );
 
         wp_enqueue_style(
-            'f10-lead-capture-admin',
-            F10_LEAD_CAPTURE_URL . 'assets/css/admin.css',
+            'f10leca-admin',
+            F10LECA_URL . 'assets/css/admin.css',
             array(),
-            F10_LEAD_CAPTURE_VERSION
+            F10LECA_VERSION
         );
 
-        if ($page === 'f10-lead-appearance') {
+        if ($page === 'f10leca-lead-appearance') {
             wp_enqueue_script(
-                'f10-lead-capture-admin-appearance',
-                F10_LEAD_CAPTURE_URL . 'assets/js/admin-appearance.js',
+                'f10leca-admin-appearance',
+                F10LECA_URL . 'assets/js/admin-appearance.js',
                 array(),
-                F10_LEAD_CAPTURE_VERSION,
+                F10LECA_VERSION,
                 true
             );
 
             wp_localize_script(
-                'f10-lead-capture-admin-appearance',
-                'F10LeadAppearance',
-                array('presets' => F10_Lead_Capture_Config::appearance_presets())
+                'f10leca-admin-appearance',
+                'F10LECAAppearance',
+                array('presets' => F10LECA_Config::appearance_presets())
             );
         }
 
-        if ($page === 'f10-lead-whatsapp') {
+        if ($page === 'f10leca-lead-whatsapp') {
             wp_enqueue_style(
-                'f10-lead-capture-whatsapp',
-                F10_LEAD_CAPTURE_URL . 'assets/css/whatsapp.css',
+                'f10leca-whatsapp',
+                F10LECA_URL . 'assets/css/whatsapp.css',
                 array(),
-                F10_LEAD_CAPTURE_VERSION
+                F10LECA_VERSION
             );
             wp_enqueue_style(
-                'f10-lead-capture-admin-whatsapp',
-                F10_LEAD_CAPTURE_URL . 'assets/css/admin-whatsapp.css',
-                array('f10-lead-capture-whatsapp'),
-                F10_LEAD_CAPTURE_VERSION
+                'f10leca-admin-whatsapp',
+                F10LECA_URL . 'assets/css/admin-whatsapp.css',
+                array('f10leca-whatsapp'),
+                F10LECA_VERSION
             );
             wp_enqueue_script(
-                'f10-lead-capture-admin-whatsapp',
-                F10_LEAD_CAPTURE_URL . 'assets/js/admin-whatsapp.js',
+                'f10leca-admin-whatsapp',
+                F10LECA_URL . 'assets/js/admin-whatsapp.js',
                 array(),
-                F10_LEAD_CAPTURE_VERSION,
+                F10LECA_VERSION,
                 true
             );
         }
 
-        if ($page === 'f10-lead-forms') {
+        if ($page === 'f10leca-lead-forms') {
             wp_enqueue_media();
             wp_enqueue_script(
-                'f10-lead-capture-admin-forms',
-                F10_LEAD_CAPTURE_URL . 'assets/js/admin-forms.js',
+                'f10leca-admin-forms',
+                F10LECA_URL . 'assets/js/admin-forms.js',
                 array(),
-                F10_LEAD_CAPTURE_VERSION,
+                F10LECA_VERSION,
                 true
             );
         }
@@ -196,7 +196,7 @@ final class F10_Lead_Capture_Admin
 
     private function render_notice(): void
     {
-        $notice = sanitize_key($this->query_text('f10_notice', 50));
+        $notice = sanitize_key($this->query_text('f10leca_notice', 50));
 
         if ($notice === 'retried') {
             echo '<div class="notice notice-success is-dismissible"><p>O reenvio foi processado. Consulte os status e respostas abaixo.</p></div>';

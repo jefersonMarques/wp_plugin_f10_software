@@ -4,7 +4,7 @@ Tags: lead capture, contact form, whatsapp, crm, school management
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,11 +53,11 @@ Leads are stored locally before external integrations run. Administrators can re
 
 Main form:
 
-`[f10_lead_form]`
+`[f10leca_lead_form]`
 
 Specific saved form:
 
-`[f10_lead_form id="ebook-school-management"]`
+`[f10leca_lead_form id="ebook-school-management"]`
 
 Existing shortcode attributes remain available as optional runtime overrides:
 
@@ -123,7 +123,7 @@ When no download or link is configured, the same replacement panel displays the 
 
 == Local storage and retries ==
 
-Leads are inserted into the `{prefix}_f10_leads` table before external integrations run.
+Leads are inserted into the `{prefix}_f10leca_leads` table before external integrations run.
 
 The plugin stores integration status, HTTP responses, business errors, attempt counts, retry dates, and post-conversion activity.
 
@@ -200,6 +200,12 @@ No. Brevo notifications are optional.
 Yes. Leads are stored locally and failed integrations can be retried manually or automatically.
 
 == Changelog ==
+
+= 1.3.9 =
+
+* Replaces short global identifiers with the unique f10leca/F10LECA prefix.
+* Updates classes, constants, hooks, AJAX actions, shortcodes, options, transients, menus and asset handles.
+* Keeps the assigned f10-captura-de-leads text domain and plugin slug unchanged.
 
 = 1.3.8 =
 

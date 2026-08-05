@@ -4,14 +4,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-final class F10_Lead_Capture_Repository
+final class F10LECA_Repository
 {
-    private const CACHE_GROUP = 'f10_lead_capture';
+    private const CACHE_GROUP = 'f10leca';
 
     public static function table_name(): string
     {
         global $wpdb;
-        return $wpdb->prefix . 'f10_leads';
+        return $wpdb->prefix . 'f10leca_leads';
     }
 
     public static function create(array $data): int
@@ -41,7 +41,7 @@ final class F10_Lead_Capture_Repository
             'user_agent' => $data['user_agent'] ?: null,
             'consent_at' => $data['consent_at'] ?: null,
             'status' => 'pending',
-            'f10_status' => 'pending',
+            'f10leca_status' => 'pending',
             'brevo_status' => 'pending',
             'attempts' => 0,
             'conversion_type' => $data['conversion_type'] ?: 'none',
@@ -111,7 +111,7 @@ final class F10_Lead_Capture_Repository
         foreach ($data as $key => $value) {
             $formats[] = in_array(
                 $key,
-                array('attempts', 'f10_http_status', 'brevo_http_status', 'conversion_count'),
+                array('attempts', 'f10leca_http_status', 'brevo_http_status', 'conversion_count'),
                 true
             ) ? '%d' : '%s';
         }
@@ -297,18 +297,18 @@ final class F10_Lead_Capture_Repository
         return is_array($leads) ? $leads : array();
     }
 
-    public static function find_sent_f10_results(int $limit = 1000): array
+    public static function find_sent_f10leca_results(int $limit = 1000): array
     {
         global $wpdb;
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Reconciliação pontual de respostas F10 já armazenadas após atualização da regra de sucesso.
         $leads = $wpdb->get_results(
             $wpdb->prepare(
-                'SELECT id, status, f10_status, f10_http_status, f10_response, brevo_status, attempts
+                'SELECT id, status, f10leca_status, f10leca_http_status, f10leca_response, brevo_status, attempts
                  FROM %i
-                 WHERE f10_status = %s
-                   AND f10_response IS NOT NULL
-                   AND f10_response <> %s
+                 WHERE f10leca_status = %s
+                   AND f10leca_response IS NOT NULL
+                   AND f10leca_response <> %s
                  ORDER BY id ASC
                  LIMIT %d',
                 self::table_name(),

@@ -4,14 +4,14 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-$settings = (array) get_option('f10_lead_capture_settings', array());
+$settings = (array) get_option('f10leca_settings', array());
 
 if (($settings['delete_data_on_uninstall'] ?? '0') !== '1') {
     return;
 }
 
 global $wpdb;
-$table_name = $wpdb->prefix . 'f10_leads';
+$table_name = $wpdb->prefix . 'f10leca_leads';
 
 // A alteração de esquema é intencional e executada apenas durante a desinstalação, após consentimento explícito do administrador.
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
@@ -23,10 +23,10 @@ $wpdb->query(
 );
 // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 
-delete_option('f10_lead_capture_settings');
-delete_option('f10_lead_capture_appearance');
-delete_option('f10_lead_capture_conversion');
-delete_option('f10_lead_capture_forms');
-delete_option('f10_lead_capture_whatsapp_widgets');
-delete_option('f10_lead_capture_db_version');
-wp_clear_scheduled_hook('f10_lead_capture_retry_event');
+delete_option('f10leca_settings');
+delete_option('f10leca_appearance');
+delete_option('f10leca_conversion');
+delete_option('f10leca_forms');
+delete_option('f10leca_whatsapp_widgets');
+delete_option('f10leca_db_version');
+wp_clear_scheduled_hook('f10leca_retry_event');

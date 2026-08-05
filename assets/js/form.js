@@ -30,16 +30,16 @@
     function populateMetadata(form) {
         var url = new URL(window.location.href);
 
-        setFieldValue(form, '[data-f10-page-url]', window.location.href);
-        setFieldValue(form, '[data-f10-referrer-url]', document.referrer);
+        setFieldValue(form, '[data-f10leca-page-url]', window.location.href);
+        setFieldValue(form, '[data-f10leca-referrer-url]', document.referrer);
 
-        form.querySelectorAll('[data-f10-utm]').forEach(function (field) {
-            field.value = url.searchParams.get(field.getAttribute('data-f10-utm')) || '';
+        form.querySelectorAll('[data-f10leca-utm]').forEach(function (field) {
+            field.value = url.searchParams.get(field.getAttribute('data-f10leca-utm')) || '';
         });
     }
 
     function setMessage(form, message, type) {
-        var messageElement = form.querySelector('[data-f10-message]');
+        var messageElement = form.querySelector('[data-f10leca-message]');
 
         if (!messageElement) {
             return;
@@ -47,17 +47,17 @@
 
         messageElement.textContent = message || '';
         messageElement.classList.remove(
-            'f10-lead-capture__message--success',
-            'f10-lead-capture__message--error'
+            'f10leca__message--success',
+            'f10leca__message--error'
         );
 
         if (type) {
-            messageElement.classList.add('f10-lead-capture__message--' + type);
+            messageElement.classList.add('f10leca__message--' + type);
         }
     }
 
     function setSubmitting(form, isSubmitting) {
-        var button = form.querySelector('[data-f10-submit]');
+        var button = form.querySelector('[data-f10leca-submit]');
 
         form.dataset.submitting = isSubmitting ? '1' : '0';
 
@@ -73,7 +73,7 @@
         }
 
         var data = new FormData();
-        data.append('action', 'f10_track_conversion');
+        data.append('action', 'f10leca_track_conversion');
         data.append('lead_id', String(action.leadId));
         data.append('token', action.token);
 
@@ -118,22 +118,22 @@
     }
 
     function getFormElements(form) {
-        var wrapper = form.closest('[data-f10-lead-container]');
+        var wrapper = form.closest('[data-f10leca-lead-container]');
 
         if (!wrapper) {
             return null;
         }
 
-        var view = wrapper.querySelector('[data-f10-form-view]');
-        var conversion = wrapper.querySelector('[data-f10-conversion]');
+        var view = wrapper.querySelector('[data-f10leca-form-view]');
+        var conversion = wrapper.querySelector('[data-f10leca-conversion]');
 
         if (!view) {
             view = document.createElement('div');
-            view.className = 'f10-lead-capture__view';
-            view.setAttribute('data-f10-form-view', '');
+            view.className = 'f10leca__view';
+            view.setAttribute('data-f10leca-form-view', '');
             wrapper.insertBefore(view, wrapper.firstChild);
 
-            var header = wrapper.querySelector('.f10-lead-capture__header');
+            var header = wrapper.querySelector('.f10leca__header');
             if (header) {
                 view.appendChild(header);
             }
@@ -205,21 +205,21 @@
         container.replaceChildren();
 
         var icon = document.createElement('span');
-        icon.className = 'f10-lead-capture__conversion-icon';
+        icon.className = 'f10leca__conversion-icon';
         icon.setAttribute('aria-hidden', 'true');
         icon.textContent = hasAction && action.type === 'download' ? '↓' : '✓';
         container.appendChild(icon);
 
         if (titleText) {
             var title = document.createElement('h3');
-            title.className = 'f10-lead-capture__conversion-title';
+            title.className = 'f10leca__conversion-title';
             title.textContent = titleText;
             container.appendChild(title);
         }
 
         if (descriptionText) {
             var description = document.createElement('p');
-            description.className = 'f10-lead-capture__conversion-description';
+            description.className = 'f10leca__conversion-description';
             description.textContent = descriptionText;
             container.appendChild(description);
         }
@@ -227,7 +227,7 @@
         if (hasAction && action.behavior !== 'automatic') {
             var button = document.createElement('button');
             button.type = 'button';
-            button.className = 'f10-lead-capture__conversion-button';
+            button.className = 'f10leca__conversion-button';
             button.textContent = action.label || (action.type === 'download' ? 'Baixar material' : 'Acessar conteúdo');
             button.addEventListener('click', function () { openConversion(action, false); });
             container.appendChild(button);
@@ -326,7 +326,7 @@
     function initializeForm(form) {
         populateMetadata(form);
 
-        form.querySelectorAll('[data-f10-phone]').forEach(function (phoneField) {
+        form.querySelectorAll('[data-f10leca-phone]').forEach(function (phoneField) {
             phoneField.addEventListener('input', function (event) {
                 event.currentTarget.value = formatPhone(event.currentTarget.value);
             });
@@ -339,7 +339,7 @@
     }
 
     function initialize() {
-        document.querySelectorAll('[data-f10-lead-form]').forEach(initializeForm);
+        document.querySelectorAll('[data-f10leca-lead-form]').forEach(initializeForm);
     }
 
     if (document.readyState === 'loading') {

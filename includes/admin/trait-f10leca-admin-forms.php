@@ -4,13 +4,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_Forms_Trait
+trait F10LECA_Admin_Forms_Trait
 {
     public function render_forms_page(): void
     {
         $this->require_capability();
         $action = sanitize_key($this->query_text('view', 30));
-        $form_id = F10_Lead_Capture_Config::sanitize_form_id($this->query_text('form', 100));
+        $form_id = F10LECA_Config::sanitize_form_id($this->query_text('form', 100));
 
         if ($action === 'edit' || $action === 'new') {
             $this->render_form_editor($action === 'new' ? '' : $form_id);
@@ -23,17 +23,17 @@ trait F10_Lead_Capture_Admin_Forms_Trait
     public function handle_save_form(): void
     {
         $this->require_capability();
-        check_admin_referer('f10_save_form');
+        check_admin_referer('f10leca_save_form');
 
-        $raw = filter_input(INPUT_POST, 'f10_form', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
+        $raw = filter_input(INPUT_POST, 'f10leca_form', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
         $input = is_array($raw) ? $raw : array();
-        $original_id = F10_Lead_Capture_Config::sanitize_form_id((string) ($input['original_id'] ?? ''));
-        $requested_id = F10_Lead_Capture_Config::sanitize_form_id((string) ($input['id'] ?? ''));
+        $original_id = F10LECA_Config::sanitize_form_id((string) ($input['original_id'] ?? ''));
+        $requested_id = F10LECA_Config::sanitize_form_id((string) ($input['id'] ?? ''));
         $name = sanitize_text_field((string) ($input['name'] ?? ''));
-        $forms = F10_Lead_Capture_Config::get_forms();
+        $forms = F10LECA_Config::get_forms();
 
         if ($requested_id === '') {
-            $requested_id = F10_Lead_Capture_Config::sanitize_form_id($name);
+            $requested_id = F10LECA_Config::sanitize_form_id($name);
         }
 
         if ($requested_id === '') {
@@ -48,13 +48,13 @@ trait F10_Lead_Capture_Admin_Forms_Trait
 
         $existing = $original_id !== '' && isset($forms[$original_id])
             ? $forms[$original_id]
-            : F10_Lead_Capture_Config::default_form();
+            : F10LECA_Config::default_form();
         $created_at = (string) ($existing['created_at'] ?? current_time('mysql', true));
         $fields = array();
         $input_fields = is_array($input['fields'] ?? null) ? $input['fields'] : array();
         $enabled_count = 0;
 
-        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $definition) {
+        foreach (F10LECA_Config::form_fields() as $field_key => $definition) {
             $configured = is_array($input_fields[$field_key] ?? null) ? $input_fields[$field_key] : array();
             $enabled = !empty($configured['enabled']) ? '1' : '0';
             $required = $enabled === '1' && !empty($configured['required']) ? '1' : '0';
@@ -94,22 +94,22 @@ trait F10_Lead_Capture_Admin_Forms_Trait
             'created_at' => $created_at,
             'updated_at' => current_time('mysql', true),
         );
-        $form = F10_Lead_Capture_Config::normalize_form($form, $requested_id);
+        $form = F10LECA_Config::normalize_form($form, $requested_id);
 
         if ($original_id !== '' && $original_id !== $requested_id) {
             unset($forms[$original_id]);
         }
 
         $forms[$requested_id] = $form;
-        F10_Lead_Capture_Config::save_forms($forms);
+        F10LECA_Config::save_forms($forms);
 
         wp_safe_redirect(
             add_query_arg(
                 array(
-                    'page' => 'f10-lead-forms',
+                    'page' => 'f10leca-lead-forms',
                     'view' => 'edit',
                     'form' => $requested_id,
-                    'f10_notice' => 'form_saved',
+                    'f10leca_notice' => 'form_saved',
                 ),
                 admin_url('admin.php')
             )
@@ -120,12 +120,12 @@ trait F10_Lead_Capture_Admin_Forms_Trait
     public function handle_duplicate_form(): void
     {
         $this->require_capability();
-        $form_id = F10_Lead_Capture_Config::sanitize_form_id($this->query_text('form', 100));
-        check_admin_referer('f10_duplicate_form_' . $form_id);
-        $forms = F10_Lead_Capture_Config::get_forms();
+        $form_id = F10LECA_Config::sanitize_form_id($this->query_text('form', 100));
+        check_admin_referer('f10leca_duplicate_form_' . $form_id);
+        $forms = F10LECA_Config::get_forms();
 
         if (!isset($forms[$form_id])) {
-            wp_safe_redirect(add_query_arg(array('page' => 'f10-lead-forms', 'f10_notice' => 'form_missing'), admin_url('admin.php')));
+            wp_safe_redirect(add_query_arg(array('page' => 'f10leca-lead-forms', 'f10leca_notice' => 'form_missing'), admin_url('admin.php')));
             exit;
         }
 
@@ -136,33 +136,33 @@ trait F10_Lead_Capture_Admin_Forms_Trait
         $copy['created_at'] = current_time('mysql', true);
         $copy['updated_at'] = current_time('mysql', true);
         $forms[$new_id] = $copy;
-        F10_Lead_Capture_Config::save_forms($forms);
+        F10LECA_Config::save_forms($forms);
 
-        wp_safe_redirect(add_query_arg(array('page' => 'f10-lead-forms', 'view' => 'edit', 'form' => $new_id, 'f10_notice' => 'form_duplicated'), admin_url('admin.php')));
+        wp_safe_redirect(add_query_arg(array('page' => 'f10leca-lead-forms', 'view' => 'edit', 'form' => $new_id, 'f10leca_notice' => 'form_duplicated'), admin_url('admin.php')));
         exit;
     }
 
     public function handle_delete_form(): void
     {
         $this->require_capability();
-        $form_id = F10_Lead_Capture_Config::sanitize_form_id($this->query_text('form', 100));
-        check_admin_referer('f10_delete_form_' . $form_id);
-        $forms = F10_Lead_Capture_Config::get_forms();
+        $form_id = F10LECA_Config::sanitize_form_id($this->query_text('form', 100));
+        check_admin_referer('f10leca_delete_form_' . $form_id);
+        $forms = F10LECA_Config::get_forms();
 
-        if ($form_id === F10_Lead_Capture_Config::DEFAULT_FORM_ID) {
-            wp_safe_redirect(add_query_arg(array('page' => 'f10-lead-forms', 'f10_notice' => 'default_protected'), admin_url('admin.php')));
+        if ($form_id === F10LECA_Config::DEFAULT_FORM_ID) {
+            wp_safe_redirect(add_query_arg(array('page' => 'f10leca-lead-forms', 'f10leca_notice' => 'default_protected'), admin_url('admin.php')));
             exit;
         }
 
         unset($forms[$form_id]);
-        F10_Lead_Capture_Config::save_forms($forms);
-        wp_safe_redirect(add_query_arg(array('page' => 'f10-lead-forms', 'f10_notice' => 'form_deleted'), admin_url('admin.php')));
+        F10LECA_Config::save_forms($forms);
+        wp_safe_redirect(add_query_arg(array('page' => 'f10leca-lead-forms', 'f10leca_notice' => 'form_deleted'), admin_url('admin.php')));
         exit;
     }
 
     private function render_forms_list(): void
     {
-        $forms = F10_Lead_Capture_Config::get_forms();
+        $forms = F10LECA_Config::get_forms();
         uasort(
             $forms,
             static function (array $left, array $right): int {
@@ -170,13 +170,13 @@ trait F10_Lead_Capture_Admin_Forms_Trait
             }
         );
         ?>
-        <div class="wrap f10-admin-page">
+        <div class="wrap f10leca-admin-page">
             <h1 class="wp-heading-inline">Formulários</h1>
-            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-forms&view=new')); ?>">Adicionar novo</a>
+            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-forms&view=new')); ?>">Adicionar novo</a>
             <p>Crie formulários diferentes para demonstrações, e-books, landing pages e campanhas. Cada formulário possui conteúdo, campos e ação pós-conversão próprios.</p>
             <?php $this->render_forms_notice(); ?>
 
-            <table class="widefat fixed striped f10-forms-table">
+            <table class="widefat fixed striped f10leca-forms-table">
                 <thead>
                     <tr>
                         <th>Formulário</th>
@@ -190,14 +190,14 @@ trait F10_Lead_Capture_Admin_Forms_Trait
                 <tbody>
                     <?php foreach ($forms as $form) : ?>
                         <?php
-                        $edit_url = add_query_arg(array('page' => 'f10-lead-forms', 'view' => 'edit', 'form' => $form['id']), admin_url('admin.php'));
+                        $edit_url = add_query_arg(array('page' => 'f10leca-lead-forms', 'view' => 'edit', 'form' => $form['id']), admin_url('admin.php'));
                         $duplicate_url = wp_nonce_url(
-                            add_query_arg(array('action' => 'f10_duplicate_form', 'form' => $form['id']), admin_url('admin-post.php')),
-                            'f10_duplicate_form_' . $form['id']
+                            add_query_arg(array('action' => 'f10leca_duplicate_form', 'form' => $form['id']), admin_url('admin-post.php')),
+                            'f10leca_duplicate_form_' . $form['id']
                         );
                         $delete_url = wp_nonce_url(
-                            add_query_arg(array('action' => 'f10_delete_form', 'form' => $form['id']), admin_url('admin-post.php')),
-                            'f10_delete_form_' . $form['id']
+                            add_query_arg(array('action' => 'f10leca_delete_form', 'form' => $form['id']), admin_url('admin-post.php')),
+                            'f10leca_delete_form_' . $form['id']
                         );
                         $enabled_fields = array_filter(
                             (array) $form['fields'],
@@ -212,19 +212,19 @@ trait F10_Lead_Capture_Admin_Forms_Trait
                                 <div class="row-actions">
                                     <span><a href="<?php echo esc_url($edit_url); ?>">Editar</a> | </span>
                                     <span><a href="<?php echo esc_url($duplicate_url); ?>">Duplicar</a></span>
-                                    <?php if ((string) $form['id'] !== F10_Lead_Capture_Config::DEFAULT_FORM_ID) : ?>
+                                    <?php if ((string) $form['id'] !== F10LECA_Config::DEFAULT_FORM_ID) : ?>
                                         <span> | <a class="submitdelete" href="<?php echo esc_url($delete_url); ?>" onclick="return confirm('Excluir este formulário? Os leads já capturados serão mantidos.');">Excluir</a></span>
                                     <?php endif; ?>
                                 </div>
                                 <small>ID: <code><?php echo esc_html((string) $form['id']); ?></code></small>
                             </td>
                             <td>
-                                <code class="f10-shortcode-code">[f10_lead_form id=&quot;<?php echo esc_attr((string) $form['id']); ?>&quot;]</code>
-                                <button type="button" class="button button-small" data-f10-copy-shortcode="[f10_lead_form id=&quot;<?php echo esc_attr((string) $form['id']); ?>&quot;]">Copiar</button>
+                                <code class="f10leca-shortcode-code">[f10leca_lead_form id=&quot;<?php echo esc_attr((string) $form['id']); ?>&quot;]</code>
+                                <button type="button" class="button button-small" data-f10leca-copy-shortcode="[f10leca_lead_form id=&quot;<?php echo esc_attr((string) $form['id']); ?>&quot;]">Copiar</button>
                             </td>
                             <td><?php echo esc_html((string) count($enabled_fields)); ?> ativos</td>
                             <td><?php echo esc_html($this->form_conversion_label((array) $form['conversion'])); ?></td>
-                            <td><?php echo ($form['active'] ?? '0') === '1' ? '<span class="f10-status f10-status--active">Ativo</span>' : '<span class="f10-status">Inativo</span>'; ?></td>
+                            <td><?php echo ($form['active'] ?? '0') === '1' ? '<span class="f10leca-status f10leca-status--active">Ativo</span>' : '<span class="f10leca-status">Inativo</span>'; ?></td>
                             <td><?php echo esc_html($this->format_date((string) $form['updated_at'])); ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -236,16 +236,16 @@ trait F10_Lead_Capture_Admin_Forms_Trait
 
     private function render_form_editor(string $form_id): void
     {
-        $forms = F10_Lead_Capture_Config::get_forms();
+        $forms = F10LECA_Config::get_forms();
         $is_new = $form_id === '';
         $form = $is_new
-            ? F10_Lead_Capture_Config::normalize_form(
+            ? F10LECA_Config::normalize_form(
                 array_merge(
-                    F10_Lead_Capture_Config::default_form(),
+                    F10LECA_Config::default_form(),
                     array(
                         'id' => '',
                         'name' => 'Novo formulário',
-                        'conversion' => F10_Lead_Capture_Config::conversion_defaults(),
+                        'conversion' => F10LECA_Config::conversion_defaults(),
                     )
                 ),
                 'novo-formulario'
@@ -253,7 +253,7 @@ trait F10_Lead_Capture_Admin_Forms_Trait
             : ($forms[$form_id] ?? null);
 
         if (!is_array($form)) {
-            echo '<div class="wrap"><h1>Formulário não encontrado</h1><p><a href="' . esc_url(admin_url('admin.php?page=f10-lead-forms')) . '">Voltar para a lista</a></p></div>';
+            echo '<div class="wrap"><h1>Formulário não encontrado</h1><p><a href="' . esc_url(admin_url('admin.php?page=f10leca-lead-forms')) . '">Voltar para a lista</a></p></div>';
             return;
         }
 
@@ -263,94 +263,94 @@ trait F10_Lead_Capture_Admin_Forms_Trait
 
         $conversion = (array) $form['conversion'];
         ?>
-        <div class="wrap f10-admin-page">
+        <div class="wrap f10leca-admin-page">
             <h1><?php echo $is_new ? 'Adicionar formulário' : 'Editar formulário'; ?></h1>
-            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-forms')); ?>">← Voltar para a lista</a></p>
+            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-forms')); ?>">← Voltar para a lista</a></p>
             <?php $this->render_forms_notice(); ?>
 
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-f10-form-editor>
-                <input type="hidden" name="action" value="f10_save_form">
-                <input type="hidden" name="f10_form[original_id]" value="<?php echo esc_attr($is_new ? '' : (string) $form['id']); ?>">
-                <?php wp_nonce_field('f10_save_form'); ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-f10leca-form-editor>
+                <input type="hidden" name="action" value="f10leca_save_form">
+                <input type="hidden" name="f10leca_form[original_id]" value="<?php echo esc_attr($is_new ? '' : (string) $form['id']); ?>">
+                <?php wp_nonce_field('f10leca_save_form'); ?>
 
-                <div class="f10-admin-layout f10-admin-layout--forms">
-                    <div class="f10-admin-settings-column">
-                        <section class="f10-admin-card">
+                <div class="f10leca-admin-layout f10leca-admin-layout--forms">
+                    <div class="f10leca-admin-settings-column">
+                        <section class="f10leca-admin-card">
                             <h2>Identificação e textos</h2>
-                            <div class="f10-control-grid">
-                                <label class="f10-control">
+                            <div class="f10leca-control-grid">
+                                <label class="f10leca-control">
                                     <span>Nome interno</span>
-                                    <input type="text" name="f10_form[name]" value="<?php echo esc_attr((string) $form['name']); ?>" maxlength="190" required>
+                                    <input type="text" name="f10leca_form[name]" value="<?php echo esc_attr((string) $form['name']); ?>" maxlength="190" required>
                                     <small>Usado apenas no painel administrativo.</small>
                                 </label>
-                                <label class="f10-control">
+                                <label class="f10leca-control">
                                     <span>Identificador</span>
-                                    <input type="text" name="f10_form[id]" value="<?php echo esc_attr((string) $form['id']); ?>" maxlength="100" placeholder="ex.: ebook-gestao-escolar" <?php echo !$is_new && (string) $form['id'] === F10_Lead_Capture_Config::DEFAULT_FORM_ID ? 'readonly' : ''; ?>>
+                                    <input type="text" name="f10leca_form[id]" value="<?php echo esc_attr((string) $form['id']); ?>" maxlength="100" placeholder="ex.: ebook-gestao-escolar" <?php echo !$is_new && (string) $form['id'] === F10LECA_Config::DEFAULT_FORM_ID ? 'readonly' : ''; ?>>
                                     <small>Forma o shortcode e não deve conter espaços.</small>
                                 </label>
-                                <label class="f10-switch-row f10-switch-row--compact f10-control--full">
-                                    <input type="checkbox" name="f10_form[active]" value="1" <?php checked($form['active'], '1'); ?>>
+                                <label class="f10leca-switch-row f10leca-switch-row--compact f10leca-control--full">
+                                    <input type="checkbox" name="f10leca_form[active]" value="1" <?php checked($form['active'], '1'); ?>>
                                     <span><strong>Formulário ativo</strong><small>Formulários inativos não são exibidos no site.</small></span>
                                 </label>
-                                <label class="f10-control f10-control--full">
+                                <label class="f10leca-control f10leca-control--full">
                                     <span>Título do formulário</span>
-                                    <input type="text" name="f10_form[title]" value="<?php echo esc_attr((string) $form['title']); ?>" maxlength="190" data-f10-form-preview="title">
+                                    <input type="text" name="f10leca_form[title]" value="<?php echo esc_attr((string) $form['title']); ?>" maxlength="190" data-f10leca-form-preview="title">
                                 </label>
-                                <label class="f10-control f10-control--full">
+                                <label class="f10leca-control f10leca-control--full">
                                     <span>Descrição</span>
-                                    <textarea name="f10_form[description]" rows="3" maxlength="500" data-f10-form-preview="description"><?php echo esc_textarea((string) $form['description']); ?></textarea>
+                                    <textarea name="f10leca_form[description]" rows="3" maxlength="500" data-f10leca-form-preview="description"><?php echo esc_textarea((string) $form['description']); ?></textarea>
                                 </label>
-                                <label class="f10-control">
+                                <label class="f10leca-control">
                                     <span>Texto do botão</span>
-                                    <input type="text" name="f10_form[button]" value="<?php echo esc_attr((string) $form['button']); ?>" maxlength="120" data-f10-form-preview="button">
+                                    <input type="text" name="f10leca_form[button]" value="<?php echo esc_attr((string) $form['button']); ?>" maxlength="120" data-f10leca-form-preview="button">
                                 </label>
-                                <label class="f10-control">
+                                <label class="f10leca-control">
                                     <span>Mensagem após o envio</span>
-                                    <input type="text" name="f10_form[success_message]" value="<?php echo esc_attr((string) $form['success_message']); ?>" maxlength="250">
+                                    <input type="text" name="f10leca_form[success_message]" value="<?php echo esc_attr((string) $form['success_message']); ?>" maxlength="250">
                                 </label>
                             </div>
                         </section>
 
-                        <section class="f10-admin-card">
+                        <section class="f10leca-admin-card">
                             <h2>Contexto enviado com o lead</h2>
-                            <div class="f10-control-grid">
-                                <label class="f10-control">
+                            <div class="f10leca-control-grid">
+                                <label class="f10leca-control">
                                     <span>Produto ou interesse padrão</span>
-                                    <input type="text" name="f10_form[product]" value="<?php echo esc_attr((string) $form['product']); ?>" maxlength="190">
+                                    <input type="text" name="f10leca_form[product]" value="<?php echo esc_attr((string) $form['product']); ?>" maxlength="190">
                                 </label>
-                                <label class="f10-control">
+                                <label class="f10leca-control">
                                     <span>Origem</span>
-                                    <input type="text" name="f10_form[source]" value="<?php echo esc_attr((string) $form['source']); ?>" maxlength="190">
+                                    <input type="text" name="f10leca_form[source]" value="<?php echo esc_attr((string) $form['source']); ?>" maxlength="190">
                                 </label>
-                                <label class="f10-control f10-control--full">
+                                <label class="f10leca-control f10leca-control--full">
                                     <span>Suborigem</span>
-                                    <input type="text" name="f10_form[sub_source]" value="<?php echo esc_attr((string) $form['sub_source']); ?>" maxlength="190">
+                                    <input type="text" name="f10leca_form[sub_source]" value="<?php echo esc_attr((string) $form['sub_source']); ?>" maxlength="190">
                                 </label>
                             </div>
                         </section>
 
-                        <section class="f10-admin-card">
+                        <section class="f10leca-admin-card">
                             <h2>Campos do formulário</h2>
                             <p class="description">Escolha o que será solicitado em cada formulário. O nome técnico enviado à F10 não é alterado.</p>
-                            <table class="widefat striped f10-fields-table">
+                            <table class="widefat striped f10leca-fields-table">
                                 <thead><tr><th>Campo</th><th style="width:90px">Exibir</th><th style="width:110px">Obrigatório</th><th>Texto exibido</th></tr></thead>
                                 <tbody>
-                                    <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $definition) : ?>
+                                    <?php foreach (F10LECA_Config::form_fields() as $field_key => $definition) : ?>
                                         <?php $field = (array) $form['fields'][$field_key]; ?>
-                                        <tr data-f10-field-row>
+                                        <tr data-f10leca-field-row>
                                             <td><strong><?php echo esc_html((string) $definition['label']); ?></strong><br><code><?php echo esc_html((string) $definition['request_key']); ?></code></td>
-                                            <td><input type="checkbox" name="f10_form[fields][<?php echo esc_attr($field_key); ?>][enabled]" value="1" <?php checked($field['enabled'], '1'); ?> data-f10-field-enabled></td>
-                                            <td><input type="checkbox" name="f10_form[fields][<?php echo esc_attr($field_key); ?>][required]" value="1" <?php checked($field['required'], '1'); ?> data-f10-field-required></td>
-                                            <td><input type="text" class="regular-text" name="f10_form[fields][<?php echo esc_attr($field_key); ?>][label]" value="<?php echo esc_attr((string) $field['label']); ?>" maxlength="120"></td>
+                                            <td><input type="checkbox" name="f10leca_form[fields][<?php echo esc_attr($field_key); ?>][enabled]" value="1" <?php checked($field['enabled'], '1'); ?> data-f10leca-field-enabled></td>
+                                            <td><input type="checkbox" name="f10leca_form[fields][<?php echo esc_attr($field_key); ?>][required]" value="1" <?php checked($field['required'], '1'); ?> data-f10leca-field-required></td>
+                                            <td><input type="text" class="regular-text" name="f10leca_form[fields][<?php echo esc_attr($field_key); ?>][label]" value="<?php echo esc_attr((string) $field['label']); ?>" maxlength="120"></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </section>
 
-                        <section class="f10-admin-card">
+                        <section class="f10leca-admin-card">
                             <h2>Pós-conversão</h2>
-                            <div class="f10-choice-grid f10-choice-grid--three">
+                            <div class="f10leca-choice-grid f10leca-choice-grid--three">
                                 <?php
                                 $choices = array(
                                     'none' => array('dashicons-yes', 'Somente confirmar', 'Exibe apenas a mensagem de sucesso.'),
@@ -359,8 +359,8 @@ trait F10_Lead_Capture_Admin_Forms_Trait
                                 );
                                 foreach ($choices as $value => $choice) :
                                     ?>
-                                    <label class="f10-choice-card">
-                                        <input type="radio" name="f10_form[conversion][type]" value="<?php echo esc_attr($value); ?>" <?php checked($conversion['type'], $value); ?> data-f10-conversion-type>
+                                    <label class="f10leca-choice-card">
+                                        <input type="radio" name="f10leca_form[conversion][type]" value="<?php echo esc_attr($value); ?>" <?php checked($conversion['type'], $value); ?> data-f10leca-conversion-type>
                                         <span class="dashicons <?php echo esc_attr($choice[0]); ?>" aria-hidden="true"></span>
                                         <strong><?php echo esc_html($choice[1]); ?></strong>
                                         <small><?php echo esc_html($choice[2]); ?></small>
@@ -368,34 +368,34 @@ trait F10_Lead_Capture_Admin_Forms_Trait
                                 <?php endforeach; ?>
                             </div>
 
-                            <div data-f10-conversion-settings>
-                                <div class="f10-conversion-source" data-f10-source="download">
-                                    <label class="f10-control f10-control--full">
+                            <div data-f10leca-conversion-settings>
+                                <div class="f10leca-conversion-source" data-f10leca-source="download">
+                                    <label class="f10leca-control f10leca-control--full">
                                         <span>Arquivo para download</span>
-                                        <div class="f10-media-field">
-                                            <input type="url" class="large-text" name="f10_form[conversion][file_url]" value="<?php echo esc_attr((string) $conversion['file_url']); ?>" placeholder="Selecione ou envie um arquivo" data-f10-file-url>
-                                            <input type="hidden" name="f10_form[conversion][file_id]" value="<?php echo esc_attr((string) $conversion['file_id']); ?>" data-f10-file-id>
-                                            <button type="button" class="button button-primary" data-f10-select-file>Enviar ou selecionar arquivo</button>
-                                            <button type="button" class="button" data-f10-clear-file>Limpar</button>
+                                        <div class="f10leca-media-field">
+                                            <input type="url" class="large-text" name="f10leca_form[conversion][file_url]" value="<?php echo esc_attr((string) $conversion['file_url']); ?>" placeholder="Selecione ou envie um arquivo" data-f10leca-file-url>
+                                            <input type="hidden" name="f10leca_form[conversion][file_id]" value="<?php echo esc_attr((string) $conversion['file_id']); ?>" data-f10leca-file-id>
+                                            <button type="button" class="button button-primary" data-f10leca-select-file>Enviar ou selecionar arquivo</button>
+                                            <button type="button" class="button" data-f10leca-clear-file>Limpar</button>
                                         </div>
                                         <small>O arquivo fica salvo na Biblioteca de Mídia do WordPress.</small>
                                     </label>
                                 </div>
 
-                                <div class="f10-conversion-source" data-f10-source="link">
-                                    <label class="f10-control f10-control--full">
+                                <div class="f10leca-conversion-source" data-f10leca-source="link">
+                                    <label class="f10leca-control f10leca-control--full">
                                         <span>URL de destino</span>
-                                        <input type="url" name="f10_form[conversion][link_url]" value="<?php echo esc_attr((string) $conversion['link_url']); ?>" placeholder="https://exemplo.com.br/proxima-etapa">
+                                        <input type="url" name="f10leca_form[conversion][link_url]" value="<?php echo esc_attr((string) $conversion['link_url']); ?>" placeholder="https://exemplo.com.br/proxima-etapa">
                                     </label>
                                 </div>
 
-                                <div class="f10-control-grid f10-conversion-copy">
-                                    <label class="f10-control f10-control--full"><span>Título da pós-conversão</span><input type="text" name="f10_form[conversion][title]" value="<?php echo esc_attr((string) $conversion['title']); ?>" maxlength="190"></label>
-                                    <label class="f10-control f10-control--full"><span>Descrição</span><textarea name="f10_form[conversion][description]" rows="3" maxlength="500"><?php echo esc_textarea((string) $conversion['description']); ?></textarea></label>
-                                    <label class="f10-control"><span>Texto do botão</span><input type="text" name="f10_form[conversion][label]" value="<?php echo esc_attr((string) $conversion['label']); ?>" maxlength="120"></label>
-                                    <label class="f10-control"><span>Comportamento</span><select name="f10_form[conversion][behavior]" data-f10-conversion-behavior><option value="button" <?php selected($conversion['behavior'], 'button'); ?>>Mostrar botão</option><option value="automatic" <?php selected($conversion['behavior'], 'automatic'); ?>>Abrir automaticamente</option></select></label>
-                                    <label class="f10-control" data-f10-delay-control><span>Aguardar antes de abrir</span><span class="f10-number-control"><input type="number" min="0" max="10000" step="100" name="f10_form[conversion][delay_ms]" value="<?php echo esc_attr((string) $conversion['delay_ms']); ?>"><small>ms</small></span></label>
-                                    <label class="f10-switch-row f10-switch-row--compact"><input type="checkbox" name="f10_form[conversion][open_new_tab]" value="1" <?php checked($conversion['open_new_tab'], '1'); ?>><span><strong>Abrir em nova aba</strong><small>Aplicado ao clique manual.</small></span></label>
+                                <div class="f10leca-control-grid f10leca-conversion-copy">
+                                    <label class="f10leca-control f10leca-control--full"><span>Título da pós-conversão</span><input type="text" name="f10leca_form[conversion][title]" value="<?php echo esc_attr((string) $conversion['title']); ?>" maxlength="190"></label>
+                                    <label class="f10leca-control f10leca-control--full"><span>Descrição</span><textarea name="f10leca_form[conversion][description]" rows="3" maxlength="500"><?php echo esc_textarea((string) $conversion['description']); ?></textarea></label>
+                                    <label class="f10leca-control"><span>Texto do botão</span><input type="text" name="f10leca_form[conversion][label]" value="<?php echo esc_attr((string) $conversion['label']); ?>" maxlength="120"></label>
+                                    <label class="f10leca-control"><span>Comportamento</span><select name="f10leca_form[conversion][behavior]" data-f10leca-conversion-behavior><option value="button" <?php selected($conversion['behavior'], 'button'); ?>>Mostrar botão</option><option value="automatic" <?php selected($conversion['behavior'], 'automatic'); ?>>Abrir automaticamente</option></select></label>
+                                    <label class="f10leca-control" data-f10leca-delay-control><span>Aguardar antes de abrir</span><span class="f10leca-number-control"><input type="number" min="0" max="10000" step="100" name="f10leca_form[conversion][delay_ms]" value="<?php echo esc_attr((string) $conversion['delay_ms']); ?>"><small>ms</small></span></label>
+                                    <label class="f10leca-switch-row f10leca-switch-row--compact"><input type="checkbox" name="f10leca_form[conversion][open_new_tab]" value="1" <?php checked($conversion['open_new_tab'], '1'); ?>><span><strong>Abrir em nova aba</strong><small>Aplicado ao clique manual.</small></span></label>
                                 </div>
                             </div>
                         </section>
@@ -403,21 +403,21 @@ trait F10_Lead_Capture_Admin_Forms_Trait
                         <?php submit_button($is_new ? 'Criar formulário' : 'Salvar formulário'); ?>
                     </div>
 
-                    <aside class="f10-admin-preview-column">
-                        <div class="f10-preview-toolbar"><strong>Pré-visualização</strong></div>
-                        <div class="f10-preview-stage f10-preview-stage--compact">
-                            <div class="f10-lead-capture">
-                                <div class="f10-lead-capture__header">
-                                    <h2 class="f10-lead-capture__title" data-f10-preview-title><?php echo esc_html((string) $form['title']); ?></h2>
-                                    <p class="f10-lead-capture__description" data-f10-preview-description><?php echo esc_html((string) $form['description']); ?></p>
+                    <aside class="f10leca-admin-preview-column">
+                        <div class="f10leca-preview-toolbar"><strong>Pré-visualização</strong></div>
+                        <div class="f10leca-preview-stage f10leca-preview-stage--compact">
+                            <div class="f10leca">
+                                <div class="f10leca__header">
+                                    <h2 class="f10leca__title" data-f10leca-preview-title><?php echo esc_html((string) $form['title']); ?></h2>
+                                    <p class="f10leca__description" data-f10leca-preview-description><?php echo esc_html((string) $form['description']); ?></p>
                                 </div>
-                                <div class="f10-lead-capture__grid"><label class="f10-lead-capture__field"><span>Nome</span><input type="text" value="Visitante" readonly></label><label class="f10-lead-capture__field"><span>WhatsApp</span><input type="text" value="(41) 99999-9999" readonly></label></div>
-                                <button type="button" class="f10-lead-capture__button" data-f10-preview-button><?php echo esc_html((string) $form['button']); ?></button>
+                                <div class="f10leca__grid"><label class="f10leca__field"><span>Nome</span><input type="text" value="Visitante" readonly></label><label class="f10leca__field"><span>WhatsApp</span><input type="text" value="(41) 99999-9999" readonly></label></div>
+                                <button type="button" class="f10leca__button" data-f10leca-preview-button><?php echo esc_html((string) $form['button']); ?></button>
                             </div>
                         </div>
-                        <section class="f10-admin-card f10-shortcode-panel">
+                        <section class="f10leca-admin-card f10leca-shortcode-panel">
                             <h2>Shortcode</h2>
-                            <code data-f10-editor-shortcode>[f10_lead_form id=&quot;<?php echo esc_attr((string) ($form['id'] ?: 'identificador')); ?>&quot;]</code>
+                            <code data-f10leca-editor-shortcode>[f10leca_lead_form id=&quot;<?php echo esc_attr((string) ($form['id'] ?: 'identificador')); ?>&quot;]</code>
                             <p class="description">Após salvar, copie este shortcode para qualquer página ou post.</p>
                         </section>
                     </aside>
@@ -447,11 +447,11 @@ trait F10_Lead_Capture_Admin_Forms_Trait
             'open_new_tab' => !empty($input['open_new_tab']) ? '1' : '0',
             'delay_ms' => (string) max(0, min(10000, absint($input['delay_ms'] ?? 800))),
         );
-        $conversion = F10_Lead_Capture_Config::normalize_conversion($conversion);
+        $conversion = F10LECA_Config::normalize_conversion($conversion);
 
-        if ($type !== 'none' && F10_Lead_Capture_Config::conversion_url($conversion) === '') {
+        if ($type !== 'none' && F10LECA_Config::conversion_url($conversion) === '') {
             $conversion['type'] = 'none';
-            add_settings_error('f10_forms', 'missing_conversion_url', 'A pós-conversão foi salva como “Somente confirmar” porque nenhum arquivo ou link válido foi informado.', 'warning');
+            add_settings_error('f10leca_forms', 'missing_conversion_url', 'A pós-conversão foi salva como “Somente confirmar” porque nenhum arquivo ou link válido foi informado.', 'warning');
         }
 
         return $conversion;
@@ -459,7 +459,7 @@ trait F10_Lead_Capture_Admin_Forms_Trait
 
     private function unique_form_id(string $base, array $forms): string
     {
-        $base = F10_Lead_Capture_Config::sanitize_form_id($base);
+        $base = F10LECA_Config::sanitize_form_id($base);
         $base = $base !== '' ? $base : 'formulario';
         $candidate = $base;
         $counter = 2;
@@ -490,7 +490,7 @@ trait F10_Lead_Capture_Admin_Forms_Trait
 
     private function render_forms_notice(): void
     {
-        $notice = sanitize_key($this->query_text('f10_notice', 50));
+        $notice = sanitize_key($this->query_text('f10leca_notice', 50));
         $messages = array(
             'form_saved' => array('success', 'Formulário salvo.'),
             'form_duplicated' => array('success', 'Formulário duplicado. Ajuste os dados e salve.'),

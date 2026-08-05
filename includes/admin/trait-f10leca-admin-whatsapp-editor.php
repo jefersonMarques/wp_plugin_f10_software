@@ -4,14 +4,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_WhatsApp_Editor_Trait
+trait F10LECA_Admin_WhatsApp_Editor_Trait
 {
     private function render_whatsapp_editor(string $widget_id): void
     {
-        $widgets = F10_Lead_Capture_WhatsApp_Config::get_widgets();
+        $widgets = F10LECA_WhatsApp_Config::get_widgets();
         $is_new = $widget_id === '';
         $widget = $is_new
-            ? F10_Lead_Capture_WhatsApp_Config::default_widget()
+            ? F10LECA_WhatsApp_Config::default_widget()
             : ($widgets[$widget_id] ?? null);
 
         if (!is_array($widget)) {
@@ -26,18 +26,18 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Trait
         $content_options = $this->whatsapp_content_options();
         $category_options = $this->whatsapp_category_options();
         ?>
-        <div class="wrap f10-admin-page">
+        <div class="wrap f10leca-admin-page">
             <h1><?php echo esc_html($is_new ? 'Adicionar WhatsApp' : 'Editar WhatsApp'); ?></h1>
-            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-whatsapp')); ?>">← Voltar para a lista</a></p>
+            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-whatsapp')); ?>">← Voltar para a lista</a></p>
             <?php $this->render_whatsapp_notice(); ?>
 
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-f10-whatsapp-admin-form>
-                <input type="hidden" name="action" value="f10_lead_capture_save_whatsapp">
-                <input type="hidden" name="f10_whatsapp[original_id]" value="<?php echo esc_attr($is_new ? '' : $widget['id']); ?>">
-                <?php wp_nonce_field('f10_lead_capture_save_whatsapp'); ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-f10leca-whatsapp-admin-form>
+                <input type="hidden" name="action" value="f10leca_save_whatsapp">
+                <input type="hidden" name="f10leca_whatsapp[original_id]" value="<?php echo esc_attr($is_new ? '' : $widget['id']); ?>">
+                <?php wp_nonce_field('f10leca_save_whatsapp'); ?>
 
-                <div class="f10-whatsapp-admin-layout">
-                    <div class="f10-whatsapp-admin-settings">
+                <div class="f10leca-whatsapp-admin-layout">
+                    <div class="f10leca-whatsapp-admin-settings">
                         <?php $this->render_whatsapp_service_section($widget); ?>
                         <?php $this->render_whatsapp_targeting_section($widget, $content_options, $category_options); ?>
                         <?php $this->render_whatsapp_appearance_section($widget); ?>

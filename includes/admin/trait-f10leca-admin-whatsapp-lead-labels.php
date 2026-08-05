@@ -4,20 +4,20 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_WhatsApp_Lead_Labels_Trait
+trait F10LECA_Admin_WhatsApp_Lead_Labels_Trait
 {
     private function lead_form_name(string $form_id): string
     {
         if (strpos($form_id, 'whatsapp-') === 0) {
             $widget_id = substr($form_id, strlen('whatsapp-'));
-            $widget = F10_Lead_Capture_WhatsApp_Config::get_widget($widget_id);
+            $widget = F10LECA_WhatsApp_Config::get_widget($widget_id);
 
             return is_array($widget)
                 ? 'WhatsApp: ' . (string) $widget['name']
                 : 'WhatsApp removido ou legado';
         }
 
-        $form = F10_Lead_Capture_Config::get_form($form_id);
+        $form = F10LECA_Config::get_form($form_id);
 
         return is_array($form) ? (string) $form['name'] : 'Formulário removido ou legado';
     }
