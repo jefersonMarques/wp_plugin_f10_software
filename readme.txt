@@ -162,7 +162,7 @@ Quando um administrador configura um botão flutuante e o visitante envia o form
 
 * Site do serviço: https://www.whatsapp.com/
 * Termos: https://www.whatsapp.com/legal/terms-of-service
-* Privacidade: https://www.whatsapp.com/legal/privacy-policy
+* Privacidade: https://www.whatsapp.com/legal/privacy-policy/
 
 == Privacy ==
 
@@ -214,100 +214,99 @@ Sim. Os leads permanecem armazenados localmente, e integrações com falha podem
 
 = 1.3.9 =
 
-* Replaces short global identifiers with the unique f10leca/F10LECA prefix.
-* Updates classes, constants, hooks, AJAX actions, shortcodes, options, transients, menus and asset handles.
-* Keeps the assigned f10-captura-de-leads text domain and plugin slug unchanged.
+* Substitui identificadores globais curtos pelo prefixo exclusivo `f10leca` e `F10LECA`.
+* Atualiza classes, constantes, hooks, ações AJAX, shortcodes, opções, transients, menus e identificadores de assets.
+* Mantém inalterados o domínio de tradução e o slug `f10-captura-de-leads`.
 
 = 1.3.8 =
 
-* Fixes a critical frontend error caused by a registered callback whose method did not exist.
-* Saves the WhatsApp form display mode directly in the protected administration handler.
-* Removes redundant helper files for the form display mode.
+* Corrige um erro crítico no frontend causado por um callback registrado cujo método não existia.
+* Salva o modo de exibição do formulário do WhatsApp diretamente no manipulador protegido da administração.
+* Remove arquivos auxiliares redundantes do modo de exibição do formulário.
 
 = 1.3.7 =
 
-* Verifies the AJAX nonce before reading WhatsApp submission or conversion-tracking data.
-* Sanitizes the request payload once before field processing.
-* Sanitizes the WhatsApp form-mode array before reading its fields.
+* Verifica o nonce AJAX antes de ler dados de envio ou rastreamento de conversão do WhatsApp.
+* Sanitiza o payload da requisição uma única vez antes do processamento dos campos.
+* Sanitiza o array do modo de formulário do WhatsApp antes da leitura dos campos.
 
 = 1.3.6 =
 
-* Adds three configurable form display modes for the floating WhatsApp widget.
-* Explains the seven-day browser reuse behavior in the administration screen.
-* Allows always capturing, smart one-time capture, or direct WhatsApp opening without lead capture.
+* Adiciona três modos configuráveis de formulário ao widget flutuante do WhatsApp.
+* Explica na administração o reaproveitamento de dados do navegador por sete dias.
+* Permite captura sempre, captura inteligente uma única vez ou abertura direta do WhatsApp.
 
 = 1.3.5 =
 
-* Aligns the WhatsApp dialog icon and close button inside the modal header.
+* Alinha o ícone e o botão de fechar no cabeçalho do diálogo do WhatsApp.
 
 = 1.3.4 =
 
-* Fixes the floating form width by removing the transformed containing block after the widget appears.
-* Forces the overlay to use the full viewport and keeps the dialog responsive on narrow screens.
+* Corrige a largura do formulário flutuante removendo o contexto de transformação após a exibição do widget.
+* Mantém o overlay no viewport completo e o diálogo responsivo em telas estreitas.
 
 = 1.3.3 =
 
-* Fixes the footer render order so the floating WhatsApp markup exists before its script executes.
-* Defers the WhatsApp script as an additional compatibility safeguard for themes and cache plugins.
+* Corrige a ordem de renderização para que o HTML do WhatsApp exista antes da execução do script.
+* Carrega o script com `defer` como proteção adicional para temas e plugins de cache.
 
 = 1.3.2 =
 
-* Replaces multiple-selection boxes with searchable checkbox lists.
-* Highlights selected pages, content, and categories.
-* Centers the WhatsApp icon inside the floating button and preview.
+* Substitui caixas de seleção múltipla por listas pesquisáveis de checkboxes.
+* Destaca páginas, conteúdos e categorias selecionados.
+* Centraliza o ícone do WhatsApp no botão flutuante e na pré-visualização.
 
 = 1.3.1 =
 
-* Fixes alignment and field sizing in the WhatsApp administration editor.
-* Improves responsive form layout and full-width content selectors.
-* Updates the WhatsApp icon used in the widget and preview.
+* Corrige alinhamento e dimensionamento de campos no editor administrativo do WhatsApp.
+* Melhora o layout responsivo e os seletores de conteúdo em largura total.
+* Atualiza o ícone utilizado no widget e na pré-visualização.
 
 = 1.3.0 =
 
-* Adds configurable floating WhatsApp lead capture widgets.
-* Adds whole-site, selected-content, category, and exclusion targeting.
-* Adds school-oriented defaults, business hours, online and offline states, and live preview.
-* Saves WhatsApp contacts through the existing local lead and integration workflow.
-* Adds WhatsApp conversion tracking and clear WhatsApp labels to the lead dashboard.
+* Adiciona widgets flutuantes configuráveis de captação pelo WhatsApp.
+* Adiciona segmentação por site inteiro, conteúdos, categorias e exclusões.
+* Adiciona textos voltados a escolas, horários de atendimento e pré-visualização ao vivo.
+* Salva contatos do WhatsApp pelo fluxo local existente de leads e integrações.
+* Adiciona rastreamento de conversões do WhatsApp no painel de leads.
 
 = 1.2.3 =
 
-* Aligns the plugin text domain with the WordPress.org slug `f10-captura-de-leads`.
-* Refactors CSV output so Plugin Check recognizes the dedicated non-HTML CSV escaping at the final output point.
-* Documents and scopes the intentional database schema removal performed only during explicit plugin uninstallation.
+* Alinha o domínio de tradução ao slug `f10-captura-de-leads`.
+* Refatora a saída CSV para o escaping não HTML dedicado.
+* Documenta e restringe a remoção do esquema do banco à desinstalação explícita.
 
 = 1.2.2 =
 
-* Rebuilt the post-conversion transition so the complete form view is replaced.
-* Moves the post-conversion component outside the HTML form at runtime.
-* Uses inline important visibility rules to resist theme or page-builder CSS.
-* Confirmation-only forms also replace the original fields with a result panel.
+* Reconstrói a transição pós-conversão para substituir a visualização completa do formulário.
+* Move o componente pós-conversão para fora do formulário HTML em tempo de execução.
+* Aplica regras de visibilidade resistentes a CSS de temas e construtores de páginas.
 
 = 1.2.1 =
 
-* Added the first form-to-post-conversion view transition.
-* Added standalone confirmation when no download or link is configured.
+* Adiciona a primeira transição entre formulário e pós-conversão.
+* Adiciona confirmação independente quando não existe download ou link.
 
 = 1.2.0 =
 
-* Added multiple saved forms, individual fields and texts, Media Library downloads, destination links, and appearance tabs.
+* Adiciona múltiplos formulários, campos e textos individuais, downloads, links e abas de aparência.
 
 = 1.1.0 =
 
-* Added appearance presets, post-conversion tracking, lead conversion statuses, and CSV fields.
+* Adiciona modelos de aparência, rastreamento pós-conversão, status e campos CSV.
 
 = 1.0.7 =
 
-* Added F10 business-response validation and reconciliation of false-positive successes.
+* Adiciona validação de resposta de negócio da F10 e reconciliação de falsos positivos.
 
 = 1.0.6 =
 
-* Fixed AJAX form endpoint resolution and added masked credential previews.
+* Corrige a resolução do endpoint AJAX e adiciona pré-visualizações mascaradas de credenciais.
 
 = 1.0.5 =
 
-* Fixed required-field rendering inside WordPress REST autosaves.
+* Corrige a renderização de campos obrigatórios durante autosaves REST do WordPress.
 
 = 1.0.0 =
 
-* Initial release.
+* Primeira versão.
