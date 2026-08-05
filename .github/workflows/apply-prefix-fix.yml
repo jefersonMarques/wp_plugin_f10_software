@@ -1,0 +1,201 @@
+name: Apply Prefix Fix
+
+on:
+  push:
+    branches:
+      - wordpress-review-prefix-fix
+
+permissions:
+  contents: write
+
+jobs:
+  apply-fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout correction branch
+        uses: actions/checkout@v4
+        with:
+          ref: wordpress-review-prefix-fix
+          fetch-depth: 0
+
+      - name: Apply version 1.3.9 prefix correction
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          excluded_roots = {'.git', '.github', 'build'}
+          text_extensions = {'.php', '.js', '.css', '.txt', '.md', '.json', '.xml', '.yml', '.yaml'}
+          text_domain = 'f10-captura-de-leads'
+          placeholder = '__F10LECA_TEXT_DOMAIN__'
+
+          def is_excluded(path: Path) -> bool:
+              return bool(path.parts and path.parts[0] in excluded_roots)
+
+          def replace_identifiers(value: str, protect_text_domain: bool = True) -> str:
+              if protect_text_domain:
+                  value = value.replace(text_domain, placeholder)
+
+              replacements = (
+                  ('F10_Lead_Capture_', 'F10LECA_'),
+                  ('F10_Lead_Capture', 'F10LECA'),
+                  ('F10_LEAD_CAPTURE_', 'F10LECA_'),
+                  ('F10_LEAD_CAPTURE', 'F10LECA'),
+                  ('F10Lead', 'F10LECA'),
+                  ('f10_lead_capture_', 'f10leca_'),
+                  ('f10_lead_capture', 'f10leca'),
+                  ('f10-lead-capture', 'f10leca'),
+                  ('f10_', 'f10leca_'),
+                  ('f10-', 'f10leca-'),
+              )
+
+              for source, target in replacements:
+                  value = value.replace(source, target)
+
+              if protect_text_domain:
+                  value = value.replace(placeholder, text_domain)
+
+              return value
+
+          for path in root.rglob('*'):
+              if not path.is_file() or is_excluded(path):
+                  continue
+              if path.suffix.lower() not in text_extensions:
+                  continue
+
+              original = path.read_text(encoding='utf-8')
+              updated = replace_identifiers(original)
+              updated = re.sub(
+                  r'(?m)^(\s*\*\s*Version:\s*)1\.3\.8\s*$',
+                  r'\g<1>1.3.9',
+                  updated,
+              )
+              updated = updated.replace(
+                  "define('F10LECA_VERSION', '1.3.8');",
+                  "define('F10LECA_VERSION', '1.3.9');",
+              )
+              updated = re.sub(
+                  r'(?m)^(Stable tag:\s*)1\.3\.8\s*$',
+                  r'\g<1>1.3.9',
+                  updated,
+              )
+
+              if path.name == 'readme.txt' and '= 1.3.9 =' not in updated:
+                  marker = '== Changelog ==\n\n'
+                  changelog = (
+                      '= 1.3.9 =\n\n'
+                      '* Replaces short global identifiers with the unique f10leca/F10LECA prefix.\n'
+                      '* Updates classes, constants, hooks, AJAX actions, shortcodes, options, transients, menus and asset handles.\n'
+                      '* Keeps the assigned f10-captura-de-leads text domain and plugin slug unchanged.\n\n'
+                  )
+                  if marker not in updated:
+                      raise RuntimeError('The readme changelog marker was not found.')
+                  updated = updated.replace(marker, marker + changelog, 1)
+
+              if updated != original:
+                  path.write_text(updated, encoding='utf-8', newline='\n')
+
+          paths = sorted(
+              [path for path in root.rglob('*') if not is_excluded(path)],
+              key=lambda path: (len(path.parts), len(str(path))),
+              reverse=True,
+          )
+
+          for path in paths:
+              if not path.exists():
+                  continue
+
+              new_name = path.name
+              if new_name != text_domain:
+                  new_name = replace_identifiers(new_name, protect_text_domain=False)
+
+              if new_name == path.name:
+                  continue
+
+              destination = path.with_name(new_name)
+              if destination.exists():
+                  raise RuntimeError(f'Cannot rename {path} to {destination}: destination exists.')
+              path.rename(destination)
+
+          plugin_files = [
+              path for path in root.glob('*.php')
+              if 'Plugin Name: F10 Lead Capture' in path.read_text(encoding='utf-8')
+          ]
+          if len(plugin_files) != 1:
+              raise RuntimeError(f'Expected one plugin entry file, found {len(plugin_files)}.')
+
+          plugin_content = plugin_files[0].read_text(encoding='utf-8')
+          for required in (
+              'Version: 1.3.9',
+              'Text Domain: f10-captura-de-leads',
+              "define('F10LECA_VERSION', '1.3.9');",
+          ):
+              if required not in plugin_content:
+                  raise RuntimeError(f'Missing expected plugin value: {required}')
+          PY
+
+      - name: Validate corrected source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          forbidden = {
+              'legacy class prefix': re.compile(r'\bF10_Lead_Capture'),
+              'legacy constant prefix': re.compile(r'\bF10_LEAD_CAPTURE'),
+              'legacy JavaScript prefix': re.compile(r'\bF10Lead'),
+              'short underscore prefix': re.compile(r'\bf10_'),
+              'short dash prefix': re.compile(r'\bf10-(?!captura-de-leads\b)'),
+          }
+          violations = []
+
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or path.parts[0] in {'.git', '.github', 'build'}:
+                  continue
+              if path.suffix.lower() not in {'.php', '.js', '.css', '.txt', '.md', '.json', '.xml'}:
+                  continue
+
+              content = path.read_text(encoding='utf-8')
+              for label, pattern in forbidden.items():
+                  for match in pattern.finditer(content):
+                      line = content.count('\n', 0, match.start()) + 1
+                      violations.append(f'{path}:{line}: {label}: {match.group(0)}')
+
+          if violations:
+              raise RuntimeError('Prefix validation failed:\n' + '\n'.join(violations))
+          PY
+
+          while IFS= read -r -d '' file; do
+            php -l "$file"
+          done < <(find . -path './.git' -prune -o -path './.github' -prune -o -name '*.php' -print0)
+
+      - name: Commit corrected plugin source
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          rm -f .github/workflows/apply-prefix-fix.yml
+          rm -f .github/workflows/build-wordpress-review-package.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo 'No source changes were produced.'
+            exit 0
+          fi
+
+          git commit -m 'Apply unique plugin prefixes for WordPress review'
+          git push origin HEAD:wordpress-review-prefix-fix
