@@ -1,10 +1,10 @@
-=== F10 Lead Capture ===
+=== F10 Escolar - Captura de Leads ===
 Contributors: rafamarques, f10software
 Tags: captura de leads, formulário de contato, whatsapp, crm escolar, gestão escolar
 Requires at least: 6.2
 Requires PHP: 7.4
 Tested up to: 7.0
-Stable tag: 1.3.9
+Stable tag: 1.3.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Crie formulários e botões de WhatsApp para captar leads, armazenar contatos e 
 
 == Description ==
 
-O F10 Lead Capture permite criar formulários de captação de leads e botões flutuantes de WhatsApp para páginas, posts, landing pages e campanhas educacionais no WordPress.
+O F10 Escolar - Captura de Leads permite criar formulários de captação de leads e botões flutuantes de WhatsApp para páginas, posts, landing pages e campanhas educacionais no WordPress.
 
 Cada formulário pode ter título, descrição, botão, mensagem de sucesso, campos, regras de obrigatoriedade, origem, produto e ação pós-conversão próprios.
 
@@ -45,8 +45,8 @@ O plugin foi desenvolvido para escolas, cursos livres, escolas de idiomas, insti
 == Installation ==
 
 1. No painel do WordPress, acesse Plugins > Adicionar plugin.
-2. Pesquise por F10 Lead Capture ou envie o arquivo ZIP do plugin.
-3. Instale e ative o F10 Lead Capture.
+2. Pesquise por F10 Escolar - Captura de Leads ou envie o arquivo ZIP do plugin.
+3. Instale e ative o F10 Escolar - Captura de Leads.
 4. Acesse Leads F10 > Configurações para configurar as integrações opcionais.
 5. Acesse Leads F10 > Formulários para criar e configurar formulários com shortcode.
 6. Acesse Leads F10 > WhatsApp para criar um botão flutuante de captação.
@@ -204,13 +204,19 @@ Sim. Os leads permanecem armazenados localmente, e integrações com falha podem
 
 == Screenshots ==
 
-1. Visão geral do F10 Lead Capture para capturar e organizar leads da escola em um único painel.
+1. Visão geral do F10 Escolar - Captura de Leads para capturar e organizar leads da escola em um único painel.
 2. Acompanhamento de cada lead com origem, contato, conversão, status, filtros e exportação CSV.
 3. Integração com a F10 Software e distribuição de leads em operações com múltiplas unidades.
 4. Captação e acompanhamento de conversões pelo WhatsApp.
 5. Criação de formulários para campanhas, landing pages e páginas institucionais.
 
 == Changelog ==
+
+= 1.3.10 =
+
+* Altera o nome de exibição do plugin para `F10 Escolar - Captura de Leads`.
+* Traduz a descrição do cabeçalho principal para português.
+* Mantém inalterados o slug `f10-captura-de-leads`, o domínio de tradução e as configurações existentes.
 
 = 1.3.9 =
 
