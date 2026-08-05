@@ -1,6 +1,6 @@
-# F10 Lead Capture — captação de leads para WordPress
+# F10 Escolar - Captura de Leads
 
-O **F10 Lead Capture** cria e gerencia formulários e botões flutuantes de WhatsApp no WordPress, salva os contatos no banco de dados do site e pode enviá-los para a **F10 Software** e para o **Brevo**.
+O **F10 Escolar - Captura de Leads** cria e gerencia formulários e botões flutuantes de WhatsApp no WordPress, salva os contatos no banco de dados do site e pode enviá-los para a **F10 Software** e para o **Brevo**.
 
 O plugin foi desenvolvido para escolas, cursos livres, escolas de idiomas, instituições de ensino e empresas que precisam organizar a captação comercial.
 
@@ -27,7 +27,7 @@ Para integrar a captação de leads a uma operação acadêmica, financeira e co
 ## Instalação
 
 1. No painel do WordPress, acesse **Plugins → Adicionar plugin**.
-2. Pesquise por **F10 Lead Capture** ou envie o arquivo ZIP do plugin.
+2. Pesquise por **F10 Escolar - Captura de Leads** ou envie o arquivo ZIP do plugin.
 3. Instale e ative o plugin.
 4. Acesse **Leads F10 → Configurações** para configurar as integrações opcionais.
 5. Acesse **Leads F10 → Formulários** para criar formulários com shortcode.
@@ -80,9 +80,9 @@ O lead é salvo antes da abertura de `https://wa.me/` e pode seguir para as inte
 
 ## Versão atual
 
-`1.3.9`
+`1.3.10`
 
-A versão 1.3.9 aplica o prefixo exclusivo `f10leca` aos identificadores do plugin, preservando o slug e o domínio de tradução `f10-captura-de-leads`.
+A versão 1.3.10 altera o nome de exibição para **F10 Escolar - Captura de Leads**, preservando o slug e o domínio de tradução `f10-captura-de-leads`.
 
 ## Licença
 
