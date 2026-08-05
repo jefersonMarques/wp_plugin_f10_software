@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-final class F10_Lead_Capture_Submission_Service
+final class F10LECA_Submission_Service
 {
     public static function submit(array $lead_data): array
     {
@@ -36,7 +36,7 @@ final class F10_Lead_Capture_Submission_Service
             'conversion_behavior' => '',
         );
         $lead_data = wp_parse_args($lead_data, $defaults);
-        $lead_id = F10_Lead_Capture_Repository::create($lead_data);
+        $lead_id = F10LECA_Repository::create($lead_data);
 
         if ($lead_id <= 0) {
             return array(
@@ -46,12 +46,12 @@ final class F10_Lead_Capture_Submission_Service
             );
         }
 
-        do_action('f10_lead_capture_created', $lead_id, $lead_data);
+        do_action('f10leca_created', $lead_id, $lead_data);
 
         try {
-            F10_Lead_Capture_Integrations::process_lead($lead_id);
+            F10LECA_Integrations::process_lead($lead_id);
         } catch (Throwable $exception) {
-            F10_Lead_Capture_Repository::update(
+            F10LECA_Repository::update(
                 $lead_id,
                 array(
                     'status' => 'failed',

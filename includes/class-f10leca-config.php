@@ -4,12 +4,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-final class F10_Lead_Capture_Config
+final class F10LECA_Config
 {
     public const F10_ENDPOINT = 'https://nuvem.f10.com.br/fx-api/digitacao';
     public const F10_API_TYPE = 2;
     public const DEFAULT_FORM_ID = 'wordpress-form';
-    public const FORMS_OPTION = 'f10_lead_capture_forms';
+    public const FORMS_OPTION = 'f10leca_forms';
 
     public static function form_fields(): array
     {
@@ -83,11 +83,11 @@ final class F10_Lead_Capture_Config
     public static function default_settings(): array
     {
         return array(
-            'f10_enabled' => '1',
-            'f10_token' => '',
-            'f10_unit_id' => '',
-            'f10_source' => '',
-            'f10_media' => '',
+            'f10leca_enabled' => '1',
+            'f10leca_token' => '',
+            'f10leca_unit_id' => '',
+            'f10leca_source' => '',
+            'f10leca_media' => '',
             'brevo_enabled' => '0',
             'brevo_api_key' => '',
             'brevo_recipient_email' => '',
@@ -366,12 +366,12 @@ final class F10_Lead_Capture_Config
 
     public static function get_settings(): array
     {
-        return wp_parse_args((array) get_option('f10_lead_capture_settings', array()), self::default_settings());
+        return wp_parse_args((array) get_option('f10leca_settings', array()), self::default_settings());
     }
 
     public static function get_appearance(): array
     {
-        return wp_parse_args((array) get_option('f10_lead_capture_appearance', array()), self::appearance_defaults());
+        return wp_parse_args((array) get_option('f10leca_appearance', array()), self::appearance_defaults());
     }
 
     public static function get_forms(): array
@@ -391,7 +391,7 @@ final class F10_Lead_Capture_Config
         }
 
         if (!$forms) {
-            $default = self::default_form(self::get_settings(), (array) get_option('f10_lead_capture_conversion', array()));
+            $default = self::default_form(self::get_settings(), (array) get_option('f10leca_conversion', array()));
             $forms[$default['id']] = $default;
         }
 
@@ -471,6 +471,6 @@ final class F10_Lead_Capture_Config
 
     public static function conversion_token(int $lead_id): string
     {
-        return hash_hmac('sha256', 'f10-conversion|' . $lead_id, wp_salt('nonce'));
+        return hash_hmac('sha256', 'f10leca-conversion|' . $lead_id, wp_salt('nonce'));
     }
 }

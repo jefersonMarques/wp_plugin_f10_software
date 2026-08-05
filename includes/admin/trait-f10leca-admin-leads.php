@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_Leads_Trait
+trait F10LECA_Admin_Leads_Trait
 {
     public function render_leads_page(): void
     {
@@ -22,7 +22,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         $search = $this->query_text('s', 190);
         $page = max(1, $this->query_int('paged', 1));
         $per_page = 20;
-        $result = F10_Lead_Capture_Repository::paginate(
+        $result = F10LECA_Repository::paginate(
             array('status' => $status, 'search' => $search),
             $page,
             $per_page
@@ -32,27 +32,27 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         $export_url = wp_nonce_url(
             add_query_arg(
                 array(
-                    'action' => 'f10_export_leads',
+                    'action' => 'f10leca_export_leads',
                     'status' => $status,
                     's' => $search,
                 ),
                 admin_url('admin-post.php')
             ),
-            'f10_export_leads'
+            'f10leca_export_leads'
         );
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline">Leads F10</h1>
             <a class="page-title-action" href="<?php echo esc_url($export_url); ?>">Exportar CSV</a>
-            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-appearance')); ?>">Aparência</a>
-            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-forms')); ?>">Formulários</a>
-            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10-lead-settings')); ?>">Configurações</a>
+            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-appearance')); ?>">Aparência</a>
+            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-forms')); ?>">Formulários</a>
+            <a class="page-title-action" href="<?php echo esc_url(admin_url('admin.php?page=f10leca-lead-settings')); ?>">Configurações</a>
             <hr class="wp-header-end">
 
             <?php $this->render_notice(); ?>
 
             <form method="get" style="margin:16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <input type="hidden" name="page" value="f10-leads">
+                <input type="hidden" name="page" value="f10leca-leads">
                 <select name="status">
                     <option value="">Todos os status</option>
                     <?php foreach ($this->status_labels() as $value => $label) : ?>
@@ -64,7 +64,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                 <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="Nome, e-mail, telefone, WhatsApp ou escola" style="min-width:280px">
                 <button type="submit" class="button">Filtrar</button>
                 <?php if ($status !== '' || $search !== '') : ?>
-                    <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=f10-leads')); ?>">Limpar</a>
+                    <a class="button" href="<?php echo esc_url(admin_url('admin.php?page=f10leca-leads')); ?>">Limpar</a>
                 <?php endif; ?>
             </form>
 
@@ -153,19 +153,19 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     {
         $this->require_capability();
         $lead_id = $this->query_int('lead_id');
-        check_admin_referer('f10_retry_lead_' . $lead_id);
+        check_admin_referer('f10leca_retry_lead_' . $lead_id);
 
         if ($lead_id > 0) {
-            F10_Lead_Capture_Integrations::process_lead($lead_id);
+            F10LECA_Integrations::process_lead($lead_id);
         }
 
         wp_safe_redirect(
             add_query_arg(
                 array(
-                    'page' => 'f10-leads',
+                    'page' => 'f10leca-leads',
                     'action' => 'view',
                     'lead_id' => $lead_id,
-                    'f10_notice' => 'retried',
+                    'f10leca_notice' => 'retried',
                 ),
                 admin_url('admin.php')
             )
@@ -177,15 +177,15 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     {
         $this->require_capability();
         $lead_id = $this->query_int('lead_id');
-        check_admin_referer('f10_delete_lead_' . $lead_id);
+        check_admin_referer('f10leca_delete_lead_' . $lead_id);
 
         if ($lead_id > 0) {
-            F10_Lead_Capture_Repository::delete($lead_id);
+            F10LECA_Repository::delete($lead_id);
         }
 
         wp_safe_redirect(
             add_query_arg(
-                array('page' => 'f10-leads', 'f10_notice' => 'deleted'),
+                array('page' => 'f10leca-leads', 'f10leca_notice' => 'deleted'),
                 admin_url('admin.php')
             )
         );
@@ -195,17 +195,17 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     public function handle_export(): void
     {
         $this->require_capability();
-        check_admin_referer('f10_export_leads');
+        check_admin_referer('f10leca_export_leads');
 
         $status = sanitize_key($this->query_text('status', 30));
         $search = $this->query_text('s', 190);
-        $leads = F10_Lead_Capture_Repository::all_for_export(
+        $leads = F10LECA_Repository::all_for_export(
             array('status' => $status, 'search' => $search)
         );
 
         nocache_headers();
         header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="f10-leads-' . gmdate('Y-m-d-His') . '.csv"');
+        header('Content-Disposition: attachment; filename="f10leca-leads-' . gmdate('Y-m-d-His') . '.csv"');
 
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Marca BOM necessária para compatibilidade do CSV com planilhas.
         echo "\xEF\xBB\xBF";
@@ -246,7 +246,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
                     $lead['utm_term'],
                     $lead['utm_content'],
                     $lead['status'],
-                    $lead['f10_status'],
+                    $lead['f10leca_status'],
                     $lead['brevo_status'],
                     $lead['attempts'],
                     $lead['conversion_type'] ?? 'none',
@@ -267,7 +267,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
 
     private function render_lead_details(int $lead_id): void
     {
-        $lead = F10_Lead_Capture_Repository::get($lead_id);
+        $lead = F10LECA_Repository::get($lead_id);
 
         if (!$lead) {
             wp_die('Lead não encontrado.');
@@ -297,8 +297,8 @@ trait F10_Lead_Capture_Admin_Leads_Trait
             'UTM content' => $lead['utm_content'],
             'Consentimento' => $lead['consent_at'] ? $this->format_date((string) $lead['consent_at']) : 'Não registrado',
             'Status geral' => $this->status_labels()[$lead['status']] ?? $lead['status'],
-            'Status F10' => $lead['f10_status'],
-            'HTTP F10' => $lead['f10_http_status'],
+            'Status F10' => $lead['f10leca_status'],
+            'HTTP F10' => $lead['f10leca_http_status'],
             'Status Brevo' => $lead['brevo_status'],
             'HTTP Brevo' => $lead['brevo_http_status'],
             'Tentativas' => $lead['attempts'],
@@ -316,7 +316,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
         ?>
         <div class="wrap">
             <h1>Lead #<?php echo esc_html((string) $lead_id); ?></h1>
-            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10-leads')); ?>">&larr; Voltar para a lista</a></p>
+            <p><a href="<?php echo esc_url(admin_url('admin.php?page=f10leca-leads')); ?>">&larr; Voltar para a lista</a></p>
             <?php $this->render_notice(); ?>
 
             <table class="widefat striped" style="max-width:1000px">
@@ -340,7 +340,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
             </div>
 
             <h2>Resposta da F10</h2>
-            <pre style="max-width:1000px;white-space:pre-wrap;word-break:break-word;background:#fff;border:1px solid #c3c4c7;padding:16px"><?php echo esc_html((string) ($lead['f10_response'] ?: 'Sem resposta registrada.')); ?></pre>
+            <pre style="max-width:1000px;white-space:pre-wrap;word-break:break-word;background:#fff;border:1px solid #c3c4c7;padding:16px"><?php echo esc_html((string) ($lead['f10leca_response'] ?: 'Sem resposta registrada.')); ?></pre>
 
             <h2>Resposta do Brevo</h2>
             <pre style="max-width:1000px;white-space:pre-wrap;word-break:break-word;background:#fff;border:1px solid #c3c4c7;padding:16px"><?php echo esc_html((string) ($lead['brevo_response'] ?: 'Sem resposta registrada.')); ?></pre>
@@ -350,7 +350,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
 
     private function lead_form_name(string $form_id): string
     {
-        $form = F10_Lead_Capture_Config::get_form($form_id);
+        $form = F10LECA_Config::get_form($form_id);
         return is_array($form) ? (string) $form['name'] : 'Formulário removido ou legado';
     }
 
@@ -407,7 +407,7 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     private function view_url(int $lead_id): string
     {
         return add_query_arg(
-            array('page' => 'f10-leads', 'action' => 'view', 'lead_id' => $lead_id),
+            array('page' => 'f10leca-leads', 'action' => 'view', 'lead_id' => $lead_id),
             admin_url('admin.php')
         );
     }
@@ -416,10 +416,10 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     {
         return wp_nonce_url(
             add_query_arg(
-                array('action' => 'f10_retry_lead', 'lead_id' => $lead_id),
+                array('action' => 'f10leca_retry_lead', 'lead_id' => $lead_id),
                 admin_url('admin-post.php')
             ),
-            'f10_retry_lead_' . $lead_id
+            'f10leca_retry_lead_' . $lead_id
         );
     }
 
@@ -427,10 +427,10 @@ trait F10_Lead_Capture_Admin_Leads_Trait
     {
         return wp_nonce_url(
             add_query_arg(
-                array('action' => 'f10_delete_lead', 'lead_id' => $lead_id),
+                array('action' => 'f10leca_delete_lead', 'lead_id' => $lead_id),
                 admin_url('admin-post.php')
             ),
-            'f10_delete_lead_' . $lead_id
+            'f10leca_delete_lead_' . $lead_id
         );
     }
 

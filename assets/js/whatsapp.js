@@ -1,23 +1,23 @@
 (function () {
     'use strict';
 
-    var config = window.F10LeadWhatsApp || null;
-    var root = document.querySelector('[data-f10-whatsapp-widget]');
+    var config = window.F10LECAWhatsApp || null;
+    var root = document.querySelector('[data-f10leca-whatsapp-widget]');
 
     if (!config || !config.widget || !root) {
         return;
     }
 
     var widget = config.widget;
-    var trigger = root.querySelector('[data-f10-whatsapp-trigger]');
-    var badge = root.querySelector('[data-f10-whatsapp-badge]');
-    var overlay = root.querySelector('[data-f10-whatsapp-overlay]');
-    var dialog = root.querySelector('[data-f10-whatsapp-dialog]');
-    var closeButton = root.querySelector('[data-f10-whatsapp-close]');
-    var form = root.querySelector('[data-f10-whatsapp-form]');
-    var messageElement = root.querySelector('[data-f10-whatsapp-message]');
-    var descriptionElement = root.querySelector('[data-f10-whatsapp-description]');
-    var submitButton = root.querySelector('[data-f10-whatsapp-submit]');
+    var trigger = root.querySelector('[data-f10leca-whatsapp-trigger]');
+    var badge = root.querySelector('[data-f10leca-whatsapp-badge]');
+    var overlay = root.querySelector('[data-f10leca-whatsapp-overlay]');
+    var dialog = root.querySelector('[data-f10leca-whatsapp-dialog]');
+    var closeButton = root.querySelector('[data-f10leca-whatsapp-close]');
+    var form = root.querySelector('[data-f10leca-whatsapp-form]');
+    var messageElement = root.querySelector('[data-f10leca-whatsapp-message]');
+    var descriptionElement = root.querySelector('[data-f10leca-whatsapp-description]');
+    var submitButton = root.querySelector('[data-f10leca-whatsapp-submit]');
     var lastFocusedElement = null;
     var state = resolveScheduleState();
 
@@ -125,9 +125,9 @@
         }
 
         var currentUrl = new URL(window.location.href);
-        var pageUrl = form.querySelector('[data-f10-whatsapp-page-url]');
-        var referrerUrl = form.querySelector('[data-f10-whatsapp-referrer-url]');
-        var pageTitle = form.querySelector('[data-f10-whatsapp-page-title]');
+        var pageUrl = form.querySelector('[data-f10leca-whatsapp-page-url]');
+        var referrerUrl = form.querySelector('[data-f10leca-whatsapp-referrer-url]');
+        var pageTitle = form.querySelector('[data-f10leca-whatsapp-page-title]');
 
         if (pageUrl) {
             pageUrl.value = window.location.href;
@@ -141,8 +141,8 @@
             pageTitle.value = document.title || '';
         }
 
-        form.querySelectorAll('[data-f10-whatsapp-utm]').forEach(function (field) {
-            field.value = currentUrl.searchParams.get(field.getAttribute('data-f10-whatsapp-utm')) || '';
+        form.querySelectorAll('[data-f10leca-whatsapp-utm]').forEach(function (field) {
+            field.value = currentUrl.searchParams.get(field.getAttribute('data-f10leca-whatsapp-utm')) || '';
         });
     }
 
@@ -153,12 +153,12 @@
 
         messageElement.textContent = message || '';
         messageElement.classList.remove(
-            'f10-whatsapp-widget__message--error',
-            'f10-whatsapp-widget__message--success'
+            'f10leca-whatsapp-widget__message--error',
+            'f10leca-whatsapp-widget__message--success'
         );
 
         if (type) {
-            messageElement.classList.add('f10-whatsapp-widget__message--' + type);
+            messageElement.classList.add('f10leca-whatsapp-widget__message--' + type);
         }
     }
 
@@ -242,7 +242,7 @@
         lastFocusedElement = document.activeElement;
         overlay.hidden = false;
         overlay.classList.add('is-visible');
-        document.documentElement.classList.add('f10-whatsapp-modal-open');
+        document.documentElement.classList.add('f10leca-whatsapp-modal-open');
         populateMetadata();
 
         window.setTimeout(function () {
@@ -261,7 +261,7 @@
 
         overlay.classList.remove('is-visible');
         overlay.hidden = true;
-        document.documentElement.classList.remove('f10-whatsapp-modal-open');
+        document.documentElement.classList.remove('f10leca-whatsapp-modal-open');
 
         if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
             lastFocusedElement.focus();
@@ -325,7 +325,7 @@
         }
 
         var data = new FormData();
-        data.append('action', 'f10_lead_capture_track_whatsapp');
+        data.append('action', 'f10leca_track_whatsapp');
         data.append('nonce', String(config.nonce || ''));
         data.append('lead_id', String(payload.leadId));
         data.append('token', String(payload.token));
@@ -480,7 +480,7 @@
         if (form) {
             form.addEventListener('submit', submitForm);
 
-            form.querySelectorAll('[data-f10-whatsapp-phone]').forEach(function (field) {
+            form.querySelectorAll('[data-f10leca-whatsapp-phone]').forEach(function (field) {
                 field.addEventListener('input', function (event) {
                     event.currentTarget.value = formatPhone(event.currentTarget.value);
                 });

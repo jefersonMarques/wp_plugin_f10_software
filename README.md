@@ -43,11 +43,11 @@ A versão 1.3.3 corrige a ordem de renderização do botão flutuante. O HTML do
 ## Shortcode
 
 ```text
-[f10_lead_form]
+[f10leca_lead_form]
 ```
 
 ```text
-[f10_lead_form id="ebook-gestao-escolar"]
+[f10leca_lead_form id="ebook-gestao-escolar"]
 ```
 
 ## Segurança e privacidade

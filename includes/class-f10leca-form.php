@@ -4,24 +4,24 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-final class F10_Lead_Capture_Form
+final class F10LECA_Form
 {
     private static int $instance_count = 0;
 
     public function register_hooks(): void
     {
-        add_shortcode('f10_lead_form', array($this, 'render_shortcode'));
-        add_action('wp_ajax_f10_submit_lead', array($this, 'handle_submission'));
-        add_action('wp_ajax_nopriv_f10_submit_lead', array($this, 'handle_submission'));
-        add_action('wp_ajax_f10_track_conversion', array($this, 'handle_conversion_tracking'));
-        add_action('wp_ajax_nopriv_f10_track_conversion', array($this, 'handle_conversion_tracking'));
+        add_shortcode('f10leca_lead_form', array($this, 'render_shortcode'));
+        add_action('wp_ajax_f10leca_submit_lead', array($this, 'handle_submission'));
+        add_action('wp_ajax_nopriv_f10leca_submit_lead', array($this, 'handle_submission'));
+        add_action('wp_ajax_f10leca_track_conversion', array($this, 'handle_conversion_tracking'));
+        add_action('wp_ajax_nopriv_f10leca_track_conversion', array($this, 'handle_conversion_tracking'));
     }
 
     public function render_shortcode(array $attributes = array()): string
     {
         $attributes = shortcode_atts(
             array(
-                'id' => F10_Lead_Capture_Config::DEFAULT_FORM_ID,
+                'id' => F10LECA_Config::DEFAULT_FORM_ID,
                 'title' => '',
                 'description' => '',
                 'button' => '',
@@ -33,14 +33,14 @@ final class F10_Lead_Capture_Form
                 'redirect_url' => '',
             ),
             $attributes,
-            'f10_lead_form'
+            'f10leca_lead_form'
         );
 
-        $selected_id = F10_Lead_Capture_Config::sanitize_form_id((string) $attributes['id']);
-        $form_config = F10_Lead_Capture_Config::get_form($selected_id);
+        $selected_id = F10LECA_Config::sanitize_form_id((string) $attributes['id']);
+        $form_config = F10LECA_Config::get_form($selected_id);
 
         if (!is_array($form_config)) {
-            $form_config = F10_Lead_Capture_Config::get_default_form();
+            $form_config = F10LECA_Config::get_default_form();
         }
 
         if (($form_config['active'] ?? '0') !== '1') {
@@ -50,9 +50,9 @@ final class F10_Lead_Capture_Form
         }
 
         self::$instance_count++;
-        $form_identifier = 'f10-lead-form-' . self::$instance_count;
+        $form_identifier = 'f10leca-lead-form-' . self::$instance_count;
         $settings = $this->get_settings();
-        $appearance = F10_Lead_Capture_Config::get_appearance();
+        $appearance = F10LECA_Config::get_appearance();
         $require_consent = $settings['require_consent'] === '1';
         $show_institution = strtolower((string) $attributes['show_institution']) !== 'no';
         $wrapper_classes = $this->appearance_classes($appearance);
@@ -68,17 +68,17 @@ final class F10_Lead_Capture_Form
             : (string) $form_config['id'];
 
         wp_enqueue_style(
-            'f10-lead-capture-form',
-            F10_LEAD_CAPTURE_URL . 'assets/css/form.css',
+            'f10leca-form',
+            F10LECA_URL . 'assets/css/form.css',
             array(),
-            F10_LEAD_CAPTURE_VERSION
+            F10LECA_VERSION
         );
 
         wp_enqueue_script(
-            'f10-lead-capture-form',
-            F10_LEAD_CAPTURE_URL . 'assets/js/form.js',
+            'f10leca-form',
+            F10LECA_URL . 'assets/js/form.js',
             array(),
-            F10_LEAD_CAPTURE_VERSION,
+            F10LECA_VERSION,
             true
         );
 
@@ -87,29 +87,29 @@ final class F10_Lead_Capture_Form
         <div
             class="<?php echo esc_attr(implode(' ', $wrapper_classes)); ?>"
             style="<?php echo esc_attr($wrapper_style); ?>"
-            data-f10-lead-container
-            data-f10-form-config="<?php echo esc_attr((string) $form_config['id']); ?>"
+            data-f10leca-lead-container
+            data-f10leca-form-config="<?php echo esc_attr((string) $form_config['id']); ?>"
         >
-            <div class="f10-lead-capture__header">
+            <div class="f10leca__header">
                 <?php if (trim($title) !== '') : ?>
-                    <h2 class="f10-lead-capture__title"><?php echo esc_html($title); ?></h2>
+                    <h2 class="f10leca__title"><?php echo esc_html($title); ?></h2>
                 <?php endif; ?>
 
                 <?php if (trim($description) !== '') : ?>
-                    <p class="f10-lead-capture__description"><?php echo esc_html($description); ?></p>
+                    <p class="f10leca__description"><?php echo esc_html($description); ?></p>
                 <?php endif; ?>
             </div>
 
             <form
                 id="<?php echo esc_attr($form_identifier); ?>"
-                class="f10-lead-capture__form"
+                class="f10leca__form"
                 method="post"
                 action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
-                data-f10-lead-form
+                data-f10leca-lead-form
                 novalidate
             >
-                <input type="hidden" name="action" value="f10_submit_lead">
-                <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('f10_lead_submit')); ?>">
+                <input type="hidden" name="action" value="f10leca_submit_lead">
+                <input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('f10leca_lead_submit')); ?>">
                 <input type="hidden" name="form_loaded_at" value="<?php echo esc_attr((string) time()); ?>">
                 <input type="hidden" name="form_config_id" value="<?php echo esc_attr((string) $form_config['id']); ?>">
                 <input type="hidden" name="form_id" value="<?php echo esc_attr($lead_form_id); ?>">
@@ -117,21 +117,21 @@ final class F10_Lead_Capture_Form
                 <input type="hidden" name="source_label" value="<?php echo esc_attr($source); ?>">
                 <input type="hidden" name="sub_source" value="<?php echo esc_attr($sub_source); ?>">
                 <input type="hidden" name="redirect_url" value="<?php echo esc_url((string) $attributes['redirect_url']); ?>">
-                <input type="hidden" name="page_url" value="" data-f10-page-url>
-                <input type="hidden" name="referrer_url" value="" data-f10-referrer-url>
-                <input type="hidden" name="utm_source" value="" data-f10-utm="utm_source">
-                <input type="hidden" name="utm_medium" value="" data-f10-utm="utm_medium">
-                <input type="hidden" name="utm_campaign" value="" data-f10-utm="utm_campaign">
-                <input type="hidden" name="utm_term" value="" data-f10-utm="utm_term">
-                <input type="hidden" name="utm_content" value="" data-f10-utm="utm_content">
+                <input type="hidden" name="page_url" value="" data-f10leca-page-url>
+                <input type="hidden" name="referrer_url" value="" data-f10leca-referrer-url>
+                <input type="hidden" name="utm_source" value="" data-f10leca-utm="utm_source">
+                <input type="hidden" name="utm_medium" value="" data-f10leca-utm="utm_medium">
+                <input type="hidden" name="utm_campaign" value="" data-f10leca-utm="utm_campaign">
+                <input type="hidden" name="utm_term" value="" data-f10leca-utm="utm_term">
+                <input type="hidden" name="utm_content" value="" data-f10leca-utm="utm_content">
 
-                <div class="f10-lead-capture__honeypot" aria-hidden="true">
+                <div class="f10leca__honeypot" aria-hidden="true">
                     <label for="<?php echo esc_attr($form_identifier); ?>-website">Website</label>
                     <input id="<?php echo esc_attr($form_identifier); ?>-website" type="text" name="website" value="" tabindex="-1" autocomplete="off">
                 </div>
 
-                <div class="f10-lead-capture__grid">
-                    <?php foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $definition) : ?>
+                <div class="f10leca__grid">
+                    <?php foreach (F10LECA_Config::form_fields() as $field_key => $definition) : ?>
                         <?php
                         $configured = is_array($form_config['fields'][$field_key] ?? null)
                             ? $form_config['fields'][$field_key]
@@ -160,19 +160,19 @@ final class F10_Lead_Capture_Form
                 </div>
 
                 <?php if ($require_consent) : ?>
-                    <label class="f10-lead-capture__consent">
+                    <label class="f10leca__consent">
                         <input type="checkbox" name="consent" value="1" required>
                         <span><?php echo esc_html((string) $settings['consent_text']); ?></span>
                     </label>
                 <?php endif; ?>
 
-                <button class="f10-lead-capture__button" type="submit" data-f10-submit>
-                    <span data-f10-button-label><?php echo esc_html($button); ?></span>
-                    <span class="f10-lead-capture__spinner" aria-hidden="true"></span>
+                <button class="f10leca__button" type="submit" data-f10leca-submit>
+                    <span data-f10leca-button-label><?php echo esc_html($button); ?></span>
+                    <span class="f10leca__spinner" aria-hidden="true"></span>
                 </button>
 
-                <div class="f10-lead-capture__message" data-f10-message role="status" aria-live="polite"></div>
-                <div class="f10-lead-capture__conversion" data-f10-conversion aria-live="polite"></div>
+                <div class="f10leca__message" data-f10leca-message role="status" aria-live="polite"></div>
+                <div class="f10leca__conversion" data-f10leca-conversion aria-live="polite"></div>
             </form>
         </div>
         <?php
@@ -182,7 +182,7 @@ final class F10_Lead_Capture_Form
 
     public function handle_submission(): void
     {
-        if (check_ajax_referer('f10_lead_submit', 'nonce', false) === false) {
+        if (check_ajax_referer('f10leca_lead_submit', 'nonce', false) === false) {
             wp_send_json_error(
                 array('message' => 'Não foi possível validar o formulário. Atualize a página e tente novamente.'),
                 403
@@ -211,8 +211,8 @@ final class F10_Lead_Capture_Form
         }
 
         $settings = $this->get_settings();
-        $form_config_id = F10_Lead_Capture_Config::sanitize_form_id($this->posted_text('form_config_id', 100));
-        $form_config = F10_Lead_Capture_Config::get_form($form_config_id);
+        $form_config_id = F10LECA_Config::sanitize_form_id($this->posted_text('form_config_id', 100));
+        $form_config = F10LECA_Config::get_form($form_config_id);
 
         if (!is_array($form_config) || ($form_config['active'] ?? '0') !== '1') {
             wp_send_json_error(array('message' => 'Este formulário não está disponível.'), 404);
@@ -265,7 +265,7 @@ final class F10_Lead_Capture_Form
             'conversion_behavior' => $conversion_action['behavior'],
         );
 
-        $lead_id = F10_Lead_Capture_Repository::create($lead_data);
+        $lead_id = F10LECA_Repository::create($lead_data);
 
         if ($lead_id <= 0) {
             wp_send_json_error(
@@ -274,12 +274,12 @@ final class F10_Lead_Capture_Form
             );
         }
 
-        do_action('f10_lead_capture_created', $lead_id, $lead_data);
+        do_action('f10leca_created', $lead_id, $lead_data);
 
         try {
-            F10_Lead_Capture_Integrations::process_lead($lead_id);
+            F10LECA_Integrations::process_lead($lead_id);
         } catch (Throwable $exception) {
-            F10_Lead_Capture_Repository::update(
+            F10LECA_Repository::update(
                 $lead_id,
                 array(
                     'status' => 'failed',
@@ -306,19 +306,19 @@ final class F10_Lead_Capture_Form
             wp_send_json_error(array('message' => 'Ação inválida.'), 400);
         }
 
-        $expected_token = F10_Lead_Capture_Config::conversion_token($lead_id);
+        $expected_token = F10LECA_Config::conversion_token($lead_id);
 
         if (!hash_equals($expected_token, $token)) {
             wp_send_json_error(array('message' => 'Não foi possível validar a ação.'), 403);
         }
 
-        $lead = F10_Lead_Capture_Repository::get($lead_id);
+        $lead = F10LECA_Repository::get($lead_id);
 
         if (!$lead || !in_array((string) ($lead['conversion_type'] ?? ''), array('download', 'link'), true)) {
             wp_send_json_error(array('message' => 'Ação não encontrada.'), 404);
         }
 
-        if (!F10_Lead_Capture_Repository::track_conversion($lead_id)) {
+        if (!F10LECA_Repository::track_conversion($lead_id)) {
             wp_send_json_error(array('message' => 'Não foi possível registrar a ação.'), 500);
         }
 
@@ -335,10 +335,10 @@ final class F10_Lead_Capture_Form
         $field_id = $form_identifier . '-' . $field_key;
         $required = !empty($field['required']);
         $request_key = (string) $field['request_key'];
-        $field_classes = array('f10-lead-capture__field');
+        $field_classes = array('f10leca__field');
 
         if ($field['type'] === 'textarea') {
-            $field_classes[] = 'f10-lead-capture__field--wide';
+            $field_classes[] = 'f10leca__field--wide';
         }
         ?>
         <label class="<?php echo esc_attr(implode(' ', $field_classes)); ?>" for="<?php echo esc_attr($field_id); ?>">
@@ -362,7 +362,7 @@ final class F10_Lead_Capture_Form
                     value="<?php echo esc_attr($default_value); ?>"
                     maxlength="<?php echo esc_attr((string) $field['max_length']); ?>"
                     <?php if ($field['autocomplete'] !== '') : ?>autocomplete="<?php echo esc_attr((string) $field['autocomplete']); ?>"<?php endif; ?>
-                    <?php if ($field['type'] === 'tel') : ?>inputmode="tel" placeholder="(00) 00000-0000" data-f10-phone<?php endif; ?>
+                    <?php if ($field['type'] === 'tel') : ?>inputmode="tel" placeholder="(00) 00000-0000" data-f10leca-phone<?php endif; ?>
                     <?php if ($required) : ?>required<?php endif; ?>
                 >
             <?php endif; ?>
@@ -382,7 +382,7 @@ final class F10_Lead_Capture_Form
             'notes' => '',
         );
 
-        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
+        foreach (F10LECA_Config::form_fields() as $field_key => $field) {
             $configured = is_array($form_config['fields'][$field_key] ?? null)
                 ? $form_config['fields'][$field_key]
                 : array();
@@ -412,7 +412,7 @@ final class F10_Lead_Capture_Form
 
     private function validate_configured_fields(array $form_config, array $values): string
     {
-        foreach (F10_Lead_Capture_Config::form_fields() as $field_key => $field) {
+        foreach (F10LECA_Config::form_fields() as $field_key => $field) {
             $configured = is_array($form_config['fields'][$field_key] ?? null)
                 ? $form_config['fields'][$field_key]
                 : array();
@@ -458,12 +458,12 @@ final class F10_Lead_Capture_Form
         }
 
         $conversion = is_array($form_config['conversion'] ?? null)
-            ? F10_Lead_Capture_Config::normalize_conversion($form_config['conversion'])
-            : F10_Lead_Capture_Config::conversion_defaults();
+            ? F10LECA_Config::normalize_conversion($form_config['conversion'])
+            : F10LECA_Config::conversion_defaults();
         $type = in_array((string) ($conversion['type'] ?? ''), array('download', 'link'), true)
             ? (string) $conversion['type']
             : 'none';
-        $url = $this->sanitize_public_url(F10_Lead_Capture_Config::conversion_url($conversion));
+        $url = $this->sanitize_public_url(F10LECA_Config::conversion_url($conversion));
 
         if ($type === 'none' || $url === '') {
             return $this->empty_conversion_action();
@@ -503,7 +503,7 @@ final class F10_Lead_Capture_Form
 
         return array(
             'leadId' => $lead_id,
-            'token' => F10_Lead_Capture_Config::conversion_token($lead_id),
+            'token' => F10LECA_Config::conversion_token($lead_id),
             'trackEndpoint' => admin_url('admin-ajax.php'),
             'type' => $action['type'],
             'behavior' => $action['behavior'],
@@ -525,13 +525,13 @@ final class F10_Lead_Capture_Form
             ? (string) $appearance['shadow']
             : 'subtle';
         $classes = array(
-            'f10-lead-capture',
-            'f10-lead-capture--align-' . $alignment,
-            'f10-lead-capture--shadow-' . $shadow,
+            'f10leca',
+            'f10leca--align-' . $alignment,
+            'f10leca--shadow-' . $shadow,
         );
 
         if (($appearance['button_width'] ?? 'auto') === 'full') {
-            $classes[] = 'f10-lead-capture--button-full';
+            $classes[] = 'f10leca--button-full';
         }
 
         return $classes;
@@ -540,52 +540,52 @@ final class F10_Lead_Capture_Form
     private function appearance_style(array $appearance): string
     {
         $numeric_variables = array(
-            '--f10-form-max-width' => array('form_max_width', 320, 1600, 820),
-            '--f10-desktop-columns' => array('desktop_columns', 1, 2, 2),
-            '--f10-mobile-columns' => array('mobile_columns', 1, 2, 1),
-            '--f10-padding-desktop' => array('padding_desktop', 0, 100, 48),
-            '--f10-padding-mobile' => array('padding_mobile', 0, 64, 24),
-            '--f10-field-gap' => array('field_gap', 0, 48, 18),
-            '--f10-form-border-width' => array('form_border_width', 0, 8, 1),
-            '--f10-form-radius' => array('form_radius', 0, 60, 24),
-            '--f10-field-radius' => array('field_radius', 0, 40, 12),
-            '--f10-button-radius' => array('button_radius', 0, 40, 12),
-            '--f10-title-size-desktop' => array('title_size_desktop', 18, 72, 38),
-            '--f10-title-size-mobile' => array('title_size_mobile', 18, 56, 30),
-            '--f10-description-size' => array('description_size', 12, 24, 16),
-            '--f10-conversion-border-width' => array('conversion_border_width', 0, 8, 1),
-            '--f10-conversion-radius' => array('conversion_radius', 0, 60, 16),
-            '--f10-conversion-padding' => array('conversion_padding', 0, 64, 24),
-            '--f10-conversion-button-radius' => array('conversion_button_radius', 0, 40, 12),
-            '--f10-conversion-title-size' => array('conversion_title_size', 16, 48, 22),
+            '--f10leca-form-max-width' => array('form_max_width', 320, 1600, 820),
+            '--f10leca-desktop-columns' => array('desktop_columns', 1, 2, 2),
+            '--f10leca-mobile-columns' => array('mobile_columns', 1, 2, 1),
+            '--f10leca-padding-desktop' => array('padding_desktop', 0, 100, 48),
+            '--f10leca-padding-mobile' => array('padding_mobile', 0, 64, 24),
+            '--f10leca-field-gap' => array('field_gap', 0, 48, 18),
+            '--f10leca-form-border-width' => array('form_border_width', 0, 8, 1),
+            '--f10leca-form-radius' => array('form_radius', 0, 60, 24),
+            '--f10leca-field-radius' => array('field_radius', 0, 40, 12),
+            '--f10leca-button-radius' => array('button_radius', 0, 40, 12),
+            '--f10leca-title-size-desktop' => array('title_size_desktop', 18, 72, 38),
+            '--f10leca-title-size-mobile' => array('title_size_mobile', 18, 56, 30),
+            '--f10leca-description-size' => array('description_size', 12, 24, 16),
+            '--f10leca-conversion-border-width' => array('conversion_border_width', 0, 8, 1),
+            '--f10leca-conversion-radius' => array('conversion_radius', 0, 60, 16),
+            '--f10leca-conversion-padding' => array('conversion_padding', 0, 64, 24),
+            '--f10leca-conversion-button-radius' => array('conversion_button_radius', 0, 40, 12),
+            '--f10leca-conversion-title-size' => array('conversion_title_size', 16, 48, 22),
         );
         $color_variables = array(
-            '--f10-form-background' => array('form_background', '#ffffff'),
-            '--f10-form-border-color' => array('form_border_color', '#d9dee8'),
-            '--f10-form-text-color' => array('form_text_color', '#101828'),
-            '--f10-title-color' => array('title_color', '#000a57'),
-            '--f10-description-color' => array('description_color', '#667085'),
-            '--f10-field-background' => array('field_background', '#ffffff'),
-            '--f10-field-border-color' => array('field_border_color', '#d9dee8'),
-            '--f10-field-text-color' => array('field_text_color', '#101828'),
-            '--f10-button-background' => array('button_background', '#ea6d0b'),
-            '--f10-button-hover-background' => array('button_hover_background', '#d85f00'),
-            '--f10-button-text-color' => array('button_text_color', '#ffffff'),
-            '--f10-conversion-background' => array('conversion_background', '#f8fafc'),
-            '--f10-conversion-border-color' => array('conversion_border_color', '#d9dee8'),
-            '--f10-conversion-title-color' => array('conversion_title_color', '#000a57'),
-            '--f10-conversion-description-color' => array('conversion_description_color', '#667085'),
-            '--f10-conversion-icon-color' => array('conversion_icon_color', '#067647'),
-            '--f10-conversion-button-background' => array('conversion_button_background', '#ea6d0b'),
-            '--f10-conversion-button-hover-background' => array('conversion_button_hover_background', '#d85f00'),
-            '--f10-conversion-button-text-color' => array('conversion_button_text_color', '#ffffff'),
+            '--f10leca-form-background' => array('form_background', '#ffffff'),
+            '--f10leca-form-border-color' => array('form_border_color', '#d9dee8'),
+            '--f10leca-form-text-color' => array('form_text_color', '#101828'),
+            '--f10leca-title-color' => array('title_color', '#000a57'),
+            '--f10leca-description-color' => array('description_color', '#667085'),
+            '--f10leca-field-background' => array('field_background', '#ffffff'),
+            '--f10leca-field-border-color' => array('field_border_color', '#d9dee8'),
+            '--f10leca-field-text-color' => array('field_text_color', '#101828'),
+            '--f10leca-button-background' => array('button_background', '#ea6d0b'),
+            '--f10leca-button-hover-background' => array('button_hover_background', '#d85f00'),
+            '--f10leca-button-text-color' => array('button_text_color', '#ffffff'),
+            '--f10leca-conversion-background' => array('conversion_background', '#f8fafc'),
+            '--f10leca-conversion-border-color' => array('conversion_border_color', '#d9dee8'),
+            '--f10leca-conversion-title-color' => array('conversion_title_color', '#000a57'),
+            '--f10leca-conversion-description-color' => array('conversion_description_color', '#667085'),
+            '--f10leca-conversion-icon-color' => array('conversion_icon_color', '#067647'),
+            '--f10leca-conversion-button-background' => array('conversion_button_background', '#ea6d0b'),
+            '--f10leca-conversion-button-hover-background' => array('conversion_button_hover_background', '#d85f00'),
+            '--f10leca-conversion-button-text-color' => array('conversion_button_text_color', '#ffffff'),
         );
         $parts = array();
 
         foreach ($numeric_variables as $variable => $config) {
             $value = isset($appearance[$config[0]]) ? absint($appearance[$config[0]]) : $config[3];
             $value = max($config[1], min($config[2], $value));
-            $suffix = in_array($variable, array('--f10-desktop-columns', '--f10-mobile-columns'), true) ? '' : 'px';
+            $suffix = in_array($variable, array('--f10leca-desktop-columns', '--f10leca-mobile-columns'), true) ? '' : 'px';
             $parts[] = $variable . ':' . $value . $suffix;
         }
 
@@ -602,8 +602,8 @@ final class F10_Lead_Capture_Form
             'subtle' => '0 12px 32px rgba(16,24,40,.08)',
             'strong' => '0 20px 55px rgba(16,24,40,.20)',
         );
-        $parts[] = '--f10-conversion-shadow:' . $shadow_values[$conversion_shadow];
-        $parts[] = '--f10-conversion-button-width:' . (($appearance['conversion_button_width'] ?? 'auto') === 'full' ? '100%' : 'auto');
+        $parts[] = '--f10leca-conversion-shadow:' . $shadow_values[$conversion_shadow];
+        $parts[] = '--f10leca-conversion-button-width:' . (($appearance['conversion_button_width'] ?? 'auto') === 'full' ? '100%' : 'auto');
 
         return implode(';', $parts);
     }
@@ -632,7 +632,7 @@ final class F10_Lead_Capture_Form
 
     private function consume_rate_limit(): bool
     {
-        $key = 'f10_lead_rate_' . substr($this->get_ip_hash(), 0, 32);
+        $key = 'f10leca_lead_rate_' . substr($this->get_ip_hash(), 0, 32);
         $attempts = (int) get_transient($key);
 
         if ($attempts >= 5) {
@@ -713,6 +713,6 @@ final class F10_Lead_Capture_Form
 
     private function get_settings(): array
     {
-        return F10_Lead_Capture_Config::get_settings();
+        return F10LECA_Config::get_settings();
     }
 }

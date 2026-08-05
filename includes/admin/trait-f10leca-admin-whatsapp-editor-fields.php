@@ -4,29 +4,29 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
+trait F10LECA_Admin_WhatsApp_Editor_Fields_Trait
 {
     private function render_whatsapp_service_section(array $widget): void
     {
         ?>
-        <section class="f10-admin-card">
+        <section class="f10leca-admin-card">
             <h2>Atendimento</h2>
-            <div class="f10-control-grid">
-                <label class="f10-control">
+            <div class="f10leca-control-grid">
+                <label class="f10leca-control">
                     <span>Nome interno</span>
-                    <input type="text" name="f10_whatsapp[name]" value="<?php echo esc_attr($widget['name']); ?>" maxlength="190" required data-f10-whatsapp-preview-name>
+                    <input type="text" name="f10leca_whatsapp[name]" value="<?php echo esc_attr($widget['name']); ?>" maxlength="190" required data-f10leca-whatsapp-preview-name>
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Identificador</span>
-                    <input type="text" name="f10_whatsapp[id]" value="<?php echo esc_attr($widget['id']); ?>" maxlength="100" placeholder="atendimento-comercial">
+                    <input type="text" name="f10leca_whatsapp[id]" value="<?php echo esc_attr($widget['id']); ?>" maxlength="100" placeholder="atendimento-comercial">
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Número do WhatsApp</span>
-                    <input type="tel" name="f10_whatsapp[phone]" value="<?php echo esc_attr($this->whatsapp_display_phone($widget['phone'])); ?>" maxlength="20" inputmode="tel" placeholder="(00) 00000-0000" required>
+                    <input type="tel" name="f10leca_whatsapp[phone]" value="<?php echo esc_attr($this->whatsapp_display_phone($widget['phone'])); ?>" maxlength="20" inputmode="tel" placeholder="(00) 00000-0000" required>
                     <small>O código do Brasil +55 será aplicado automaticamente.</small>
                 </label>
-                <label class="f10-checkbox-control">
-                    <input type="checkbox" name="f10_whatsapp[active]" value="1" <?php checked($widget['active'], '1'); ?>>
+                <label class="f10leca-checkbox-control">
+                    <input type="checkbox" name="f10leca_whatsapp[active]" value="1" <?php checked($widget['active'], '1'); ?>>
                     <span>Atendimento ativo</span>
                 </label>
             </div>
@@ -42,20 +42,20 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
             'categories' => 'Posts de categorias selecionadas',
         );
         ?>
-        <section class="f10-admin-card">
+        <section class="f10leca-admin-card">
             <h2>Onde mostrar</h2>
-            <div class="f10-whatsapp-targeting-options">
+            <div class="f10leca-whatsapp-targeting-options">
                 <?php foreach ($targeting_modes as $value => $label) : ?>
                     <label>
-                        <input type="radio" name="f10_whatsapp[targeting_mode]" value="<?php echo esc_attr($value); ?>" <?php checked($widget['targeting_mode'], $value); ?> data-f10-whatsapp-targeting>
+                        <input type="radio" name="f10leca_whatsapp[targeting_mode]" value="<?php echo esc_attr($value); ?>" <?php checked($widget['targeting_mode'], $value); ?> data-f10leca-whatsapp-targeting>
                         <span><?php echo esc_html($label); ?></span>
                     </label>
                 <?php endforeach; ?>
             </div>
 
-            <?php $this->render_whatsapp_content_selector('content', 'Páginas e conteúdos', 'f10_whatsapp[content_ids][]', $content_options, $widget['content_ids'], 'specific'); ?>
+            <?php $this->render_whatsapp_content_selector('content', 'Páginas e conteúdos', 'f10leca_whatsapp[content_ids][]', $content_options, $widget['content_ids'], 'specific'); ?>
             <?php $this->render_whatsapp_category_selector($category_options, $widget['category_ids']); ?>
-            <?php $this->render_whatsapp_content_selector('excluded', 'Não mostrar nestas páginas', 'f10_whatsapp[excluded_content_ids][]', $content_options, $widget['excluded_content_ids'], ''); ?>
+            <?php $this->render_whatsapp_content_selector('excluded', 'Não mostrar nestas páginas', 'f10leca_whatsapp[excluded_content_ids][]', $content_options, $widget['excluded_content_ids'], ''); ?>
         </section>
         <?php
     }
@@ -70,26 +70,26 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
     ): void {
         ?>
         <div
-            class="f10-whatsapp-selector"
-            <?php if ($target_panel !== '') : ?>data-f10-whatsapp-target-panel="<?php echo esc_attr($target_panel); ?>"<?php endif; ?>
+            class="f10leca-whatsapp-selector"
+            <?php if ($target_panel !== '') : ?>data-f10leca-whatsapp-target-panel="<?php echo esc_attr($target_panel); ?>"<?php endif; ?>
         >
             <label>
                 <span><?php echo esc_html($label); ?></span>
-                <input type="search" placeholder="Digite parte do título" data-f10-option-filter="<?php echo esc_attr($key); ?>">
+                <input type="search" placeholder="Digite parte do título" data-f10leca-option-filter="<?php echo esc_attr($key); ?>">
             </label>
             <div
-                class="f10-whatsapp-checklist"
+                class="f10leca-whatsapp-checklist"
                 role="group"
                 aria-label="<?php echo esc_attr($label); ?>"
-                data-f10-option-list="<?php echo esc_attr($key); ?>"
+                data-f10leca-option-list="<?php echo esc_attr($key); ?>"
             >
                 <?php if (!$options) : ?>
-                    <p class="f10-whatsapp-checklist__empty">Nenhum conteúdo disponível.</p>
+                    <p class="f10leca-whatsapp-checklist__empty">Nenhum conteúdo disponível.</p>
                 <?php else : ?>
                     <?php foreach ($options as $option) : ?>
                         <label
-                            class="f10-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
-                            data-f10-option-item
+                            class="f10leca-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
+                            data-f10leca-option-item
                             data-label="<?php echo esc_attr(strtolower($option['label'])); ?>"
                         >
                             <input
@@ -111,29 +111,29 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
     private function render_whatsapp_category_selector(array $options, array $selected_ids): void
     {
         ?>
-        <div class="f10-whatsapp-selector" data-f10-whatsapp-target-panel="categories">
+        <div class="f10leca-whatsapp-selector" data-f10leca-whatsapp-target-panel="categories">
             <label>
                 <span>Categorias</span>
-                <input type="search" placeholder="Digite parte do nome" data-f10-option-filter="categories">
+                <input type="search" placeholder="Digite parte do nome" data-f10leca-option-filter="categories">
             </label>
             <div
-                class="f10-whatsapp-checklist"
+                class="f10leca-whatsapp-checklist"
                 role="group"
                 aria-label="Categorias"
-                data-f10-option-list="categories"
+                data-f10leca-option-list="categories"
             >
                 <?php if (!$options) : ?>
-                    <p class="f10-whatsapp-checklist__empty">Nenhuma categoria disponível.</p>
+                    <p class="f10leca-whatsapp-checklist__empty">Nenhuma categoria disponível.</p>
                 <?php else : ?>
                     <?php foreach ($options as $option) : ?>
                         <label
-                            class="f10-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
-                            data-f10-option-item
+                            class="f10leca-whatsapp-checklist__item<?php echo in_array($option['id'], $selected_ids, true) ? ' is-selected' : ''; ?>"
+                            data-f10leca-option-item
                             data-label="<?php echo esc_attr(strtolower($option['label'])); ?>"
                         >
                             <input
                                 type="checkbox"
-                                name="f10_whatsapp[category_ids][]"
+                                name="f10leca_whatsapp[category_ids][]"
                                 value="<?php echo esc_attr((string) $option['id']); ?>"
                                 <?php checked(in_array($option['id'], $selected_ids, true)); ?>
                             >
@@ -150,32 +150,32 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
     private function render_whatsapp_appearance_section(array $widget): void
     {
         ?>
-        <section class="f10-admin-card">
+        <section class="f10leca-admin-card">
             <h2>Aparência</h2>
-            <div class="f10-control-grid">
-                <label class="f10-control">
+            <div class="f10leca-control-grid">
+                <label class="f10leca-control">
                     <span>Posição</span>
-                    <select name="f10_whatsapp[position]" data-f10-whatsapp-preview-position>
+                    <select name="f10leca_whatsapp[position]" data-f10leca-whatsapp-preview-position>
                         <option value="right" <?php selected($widget['position'], 'right'); ?>>Direita</option>
                         <option value="left" <?php selected($widget['position'], 'left'); ?>>Esquerda</option>
                     </select>
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Design</span>
-                    <select name="f10_whatsapp[design]" data-f10-whatsapp-preview-design>
+                    <select name="f10leca_whatsapp[design]" data-f10leca-whatsapp-preview-design>
                         <option value="static" <?php selected($widget['design'], 'static'); ?>>Padrão</option>
                         <option value="pulse" <?php selected($widget['design'], 'pulse'); ?>>Pulsante suave</option>
                         <option value="radar" <?php selected($widget['design'], 'radar'); ?>>Radar</option>
                         <option value="attention" <?php selected($widget['design'], 'attention'); ?>>Atenção</option>
                     </select>
                 </label>
-                <label class="f10-control f10-whatsapp-color-control">
+                <label class="f10leca-control f10leca-whatsapp-color-control">
                     <span>Cor</span>
-                    <input type="color" name="f10_whatsapp[color]" value="<?php echo esc_attr($widget['color']); ?>" data-f10-whatsapp-preview-color>
+                    <input type="color" name="f10leca_whatsapp[color]" value="<?php echo esc_attr($widget['color']); ?>" data-f10leca-whatsapp-preview-color>
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Aparecer após</span>
-                    <select name="f10_whatsapp[delay_seconds]">
+                    <select name="f10leca_whatsapp[delay_seconds]">
                         <?php for ($second = 0; $second <= 5; $second++) : ?>
                             <option value="<?php echo esc_attr((string) $second); ?>" <?php selected((int) $widget['delay_seconds'], $second); ?>>
                                 <?php echo esc_html($second === 0 ? 'Imediatamente' : $second . ' segundo(s)'); ?>
@@ -183,20 +183,20 @@ trait F10_Lead_Capture_Admin_WhatsApp_Editor_Fields_Trait
                         <?php endfor; ?>
                     </select>
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Badge online</span>
-                    <input type="text" name="f10_whatsapp[badge_online]" value="<?php echo esc_attr($widget['badge_online']); ?>" maxlength="80" data-f10-whatsapp-preview-badge>
+                    <input type="text" name="f10leca_whatsapp[badge_online]" value="<?php echo esc_attr($widget['badge_online']); ?>" maxlength="80" data-f10leca-whatsapp-preview-badge>
                 </label>
-                <label class="f10-control">
+                <label class="f10leca-control">
                     <span>Badge offline</span>
-                    <input type="text" name="f10_whatsapp[badge_offline]" value="<?php echo esc_attr($widget['badge_offline']); ?>" maxlength="80">
+                    <input type="text" name="f10leca_whatsapp[badge_offline]" value="<?php echo esc_attr($widget['badge_offline']); ?>" maxlength="80">
                 </label>
-                <label class="f10-checkbox-control">
-                    <input type="checkbox" name="f10_whatsapp[show_desktop]" value="1" <?php checked($widget['show_desktop'], '1'); ?>>
+                <label class="f10leca-checkbox-control">
+                    <input type="checkbox" name="f10leca_whatsapp[show_desktop]" value="1" <?php checked($widget['show_desktop'], '1'); ?>>
                     <span>Mostrar no computador</span>
                 </label>
-                <label class="f10-checkbox-control">
-                    <input type="checkbox" name="f10_whatsapp[show_mobile]" value="1" <?php checked($widget['show_mobile'], '1'); ?>>
+                <label class="f10leca-checkbox-control">
+                    <input type="checkbox" name="f10leca_whatsapp[show_mobile]" value="1" <?php checked($widget['show_mobile'], '1'); ?>>
                     <span>Mostrar no celular</span>
                 </label>
             </div>
